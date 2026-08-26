@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koçluk Paketleri | Pusula</title>
+    <meta name="description" content="Pusula koçluk paketleri ile TYT, AYT ve PDR hazırlığınızı tamamlayın. Size en uygun paketi seçin.">
+    <meta property="og:title" content="Koçluk Paketleri | Pusula">
+    <meta property="og:description" content="TYT, AYT ve PDR hazırlık için koçluk paketleri.">
+    <meta name="theme-color" content="#1e3a5f">
+    <link rel="icon" type="image/svg+xml" href="../public/images/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .page-header {
+            padding: 150px 0 60px;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .page-title {
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .page-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-xl);
+            align-items: start;
+        }
+
+        .pricing-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--gray-200);
+            padding: var(--spacing-xl);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+        }
+
+        .pricing-card.popular {
+            border-color: var(--accent);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: var(--white);
+            padding: var(--spacing-xs) var(--spacing-lg);
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pricing-name {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .pricing-price {
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .pricing-price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--gray-500);
+        }
+
+        .pricing-period {
+            color: var(--gray-500);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .pricing-features li {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) 0;
+            color: var(--gray-700);
+            font-size: 0.95rem;
+        }
+
+        .pricing-features li svg {
+            width: 20px;
+            height: 20px;
+            fill: #10b981;
+            flex-shrink: 0;
+        }
+
+        .pricing-card .btn {
+            width: 100%;
+        }
+
+        .features-section {
+            padding: var(--spacing-3xl) 0;
+            background: var(--gray-100);
+        }
+
+        .features-title {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: var(--spacing-md);
+            color: var(--gray-800);
+        }
+
+        .features-subtitle {
+            text-align: center;
+            color: var(--gray-600);
+            margin-bottom: var(--spacing-2xl);
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing-xl);
+        }
+
+        .feature-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            text-align: center;
+            border: 1px solid var(--gray-200);
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-3px);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        .feature-icon svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--white);
+        }
+
+        .feature-name {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            line-height: 1.5;
+        }
+
+        .faq-section {
+            padding: var(--spacing-3xl) 0;
+        }
+
+        .faq-title {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: var(--spacing-md);
+            color: var(--gray-800);
+        }
+
+        .faq-subtitle {
+            text-align: center;
+            color: var(--gray-600);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .faq-list {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .faq-item:hover {
+            border-color: var(--gray-300);
+        }
+
+        .faq-question {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: var(--spacing-lg);
+            background: var(--white);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            text-align: left;
+            transition: var(--transition);
+        }
+
+        .faq-question:hover {
+            background: var(--gray-100);
+        }
+
+        .faq-question svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--gray-400);
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .faq-item.active .faq-question svg {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-answer-content {
+            padding: 0 var(--spacing-lg) var(--spacing-lg);
+            color: var(--gray-600);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+        }
+
+        @media (max-width: 1024px) {
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pricing-card:last-child {
+                grid-column: span 2;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-card:last-child {
+                grid-column: span 1;
+                max-width: none;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="../index.html" class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <span class="logo-text">Pusula</span>
+                </a>
+
+                <div class="nav-links">
+                    <a href="../index.html#hakkimizda" class="nav-link">Hakkımızda</a>
+                    <a href="../index.html#maarif" class="nav-link">Maarif Modeli</a>
+                    <a href="../index.html#hizmetler" class="nav-link">Hizmetlerimiz</a>
+                    <a href="koclar.html" class="nav-link">Koçlarımız</a>
+                    <a href="../index.html#sss" class="nav-link">SSS</a>
+                    <a href="iletisim.html" class="nav-link">İletişim</a>
+                </div>
+
+                <div class="nav-buttons">
+                    <a href="giris.html" class="btn btn-secondary">Giriş Yap</a>
+                    <a href="kayit.html" class="btn btn-primary">Kayıt Ol</a>
+                </div>
+
+                <div class="mobile-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <div class="mobile-menu-header">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <span class="logo-text">Pusula</span>
+            </a>
+            <button class="mobile-menu-close">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="mobile-menu-links">
+            <a href="../index.html#hakkimizda" class="mobile-menu-link">Hakkımızda</a>
+            <a href="../index.html#maarif" class="mobile-menu-link">Maarif Modeli</a>
+            <a href="../index.html#hizmetler" class="mobile-menu-link">Hizmetlerimiz</a>
+            <a href="koclar.html" class="mobile-menu-link">Koçlarımız</a>
+            <a href="../index.html#sss" class="mobile-menu-link">SSS</a>
+            <a href="iletisim.html" class="mobile-menu-link">İletişim</a>
+        </div>
+
+        <div class="mobile-menu-buttons">
+            <a href="giris.html" class="btn btn-secondary">Giriş Yap</a>
+            <a href="kayit.html" class="btn btn-primary">Kayıt Ol</a>
+        </div>
+    </div>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">Koçluk Paketleri</h1>
+            <p class="page-description">
+                YKS hazırlığınızı tamamlayacak koçluk paketlerimizi inceleyin, size en uygun olanı seçin.
+            </p>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="section">
+        <div class="container">
+            <div class="pricing-grid">
+
+                <!-- Başlangıç -->
+                <div class="pricing-card">
+                    <h3 class="pricing-name">Başlangıç</h3>
+                    <div class="pricing-price">499₺ <span>/ay</span></div>
+                    <p class="pricing-period">İlk adımı atmak isteyenler için</p>
+                    <ul class="pricing-features">
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            TYT Koçluk
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            Haftalık Plan
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            SMS Desteği
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            2 Koç Görüşmesi
+                        </li>
+                    </ul>
+                    <a href="kayit.html" class="btn btn-secondary" onclick="localStorage.setItem('pusula_selected_package', 'baslangic');">Hemen Başla</a>
+                </div>
+
+                <!-- Standart -->
+                <div class="pricing-card popular">
+                    <span class="pricing-badge">Popüler</span>
+                    <h3 class="pricing-name">Standart</h3>
+                    <div class="pricing-price">999₺ <span>/ay</span></div>
+                    <p class="pricing-period">Kapsamlı hazırlık için ideal</p>
+                    <ul class="pricing-features">
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            TYT + AYT Koçluk
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            Günlük Plan
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            WhatsApp Desteği
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            4 Koç Görüşmesi
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            Deneme Analizi
+                        </li>
+                    </ul>
+                    <a href="kayit.html" class="btn btn-primary" onclick="localStorage.setItem('pusula_selected_package', 'standart');">Hemen Başla</a>
+                </div>
+
+                <!-- Premium -->
+                <div class="pricing-card">
+                    <h3 class="pricing-name">Premium</h3>
+                    <div class="pricing-price">1499₺ <span>/ay</span></div>
+                    <p class="pricing-period">Tam destek, tam başarı</p>
+                    <ul class="pricing-features">
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            TYT + AYT + PDR
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            Sınırsız Plan
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            7/24 Destek
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            Sınırsız Koç Görüşmesi
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            Deneme Analizi
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            Bireysel Motivasyon
+                        </li>
+                    </ul>
+                    <a href="kayit.html" class="btn btn-secondary" onclick="localStorage.setItem('pusula_selected_package', 'premium');">Hemen Başla</a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <h2 class="features-title">Neden Pusula?</h2>
+            <p class="features-subtitle">Başarınızı garanti altına almak için ihtiyacınız olan her şey bir arada.</p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                    </div>
+                    <h3 class="feature-name">Kişiselleştirilmiş Plan</h3>
+                    <p class="feature-desc">Seviyenize ve hedeflerinize uygun, size özel çalışma programı.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    </div>
+                    <h3 class="feature-name">Uzman Koçlar</h3>
+                    <p class="feature-desc">Alanında uzman, deneyimli ve başarılı koçlarla çalışma fırsatı.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+                    </div>
+                    <h3 class="feature-name">7/24 Destek</h3>
+                    <p class="feature-desc">Aklınıza takılan her soruyu istediğiniz zaman sorabilirsiniz.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                    </div>
+                    <h3 class="feature-name">Performans Analizi</h3>
+                    <p class="feature-desc">Deneme sınavları ve sınav analizleri ile gelişiminizi takip edin.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="container">
+            <h2 class="faq-title">Sıkça Sorulan Sorular</h2>
+            <p class="faq-subtitle">Paketlerimiz hakkında merak ettiklerinizi burada bulabilirsiniz.</p>
+
+            <div class="faq-list">
+                <div class="faq-item active">
+                    <button class="faq-question">
+                        Paketler arasındaki en büyük fark nedir?
+                        <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Başlangıç paketi sadece TYT koçluğu sunarken, Standart paketi TYT+AYT kapsar. Premium paket ise TYT+AYT ile birlikte PDR (psikolojik danışmanlık) desteği, sınırsız plan ve 7/24 destek sağlar.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Paketimi sonradan yükseltebilir miyim?
+                        <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Evet, dilediğiniz zaman paketinizi yükseltebilirsiniz. Fark bedeli, mevcut paketinizden yükseltme yaptığınız tarihe göre oranlanarak hesaplanır.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Deneme analizleri nasıl yapılıyor?
+                        <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Çözdüğünüz deneme sınavlarınızı koçunuza iletip detaylı analiz alabilirsiniz. Koçunuz güçlü ve zayıf yönlerinizi belirleyerek size özel bir yol haritası çıkarır.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Ücretsiz deneme imkanı var mı?
+                        <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Evet, 7 günlük ücretsiz deneme süresi sunuyoruz. Bu süre boyunca koçlarımızla tanışabilir, sistemimizi deneyebilir ve memnun kalırsanız paketinizi başlatabilirsiniz.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Ödeme seçenekleri nelerdir?
+                        <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Kredi kartı, banka kartı ve havale/EFT ile ödeme yapabilirsiniz. Yıllık ödeme seçeneğinde %15 indirim uygulanmaktadır.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Koç görüşmeleri nasıl yapılıyor?
+                        <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Koç görüşmeleri online olarak Zoom veya Google Meet üzerinden gerçekleştirilir. Görüşme saatlerini koçunuzla birlikte belirlersiniz.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 Pusula Eğitim Platformu. Tüm hakları saklıdır.</p>
+                <div class="footer-legal">
+                    <a href="gizlilik-politikasi.html">Gizlilik Politikası</a>
+                    <a href="kullanim-sartlari.html">Kullanım Şartları</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/905001234567" class="whatsapp-float" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+    </a>
+
+    <button class="scroll-top" aria-label="Yukarı çık">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+        </svg>
+    </button>
+
+    <script src="../js/main.js"></script>
+    <script>
+        document.querySelectorAll('.faq-question').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var item = this.parentElement;
+                var isActive = item.classList.contains('active');
+                document.querySelectorAll('.faq-item').forEach(function(el) {
+                    el.classList.remove('active');
+                });
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

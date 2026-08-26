@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kullanıcı Paneli | Pusula</title>
+    <meta name="description" content="Pusula kullanıcı paneli. Profilinizi yönetin, koçlarınızı ve paketlerinizi görüntüleyin.">
+    <meta name="robots" content="noindex">
+    <link rel="icon" type="image/svg+xml" href="../public/images/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .panel-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+        }
+
+        .panel-header {
+            background: rgba(0,0,0,0.15);
+            padding: var(--spacing-md) 0;
+        }
+
+        .panel-header .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-header .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .panel-header .logo-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .panel-header .logo-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .panel-header .logo-text {
+            color: var(--white);
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .panel-header-nav {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+        }
+
+        .panel-header-nav a {
+            color: rgba(255,255,255,0.8);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .panel-header-nav a:hover {
+            color: var(--white);
+        }
+
+        .panel-user-badge {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .panel-user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .panel-user-name {
+            color: var(--white);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .panel-body {
+            display: flex;
+            max-width: 1100px;
+            margin: var(--spacing-xl) auto;
+            padding: 0 var(--spacing-lg);
+            gap: var(--spacing-xl);
+        }
+
+        .panel-sidebar {
+            width: 260px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .sidebar-user {
+            padding: var(--spacing-xl);
+            text-align: center;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .sidebar-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        .sidebar-user h3 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 4px;
+        }
+
+        .sidebar-user p {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+        }
+
+        .sidebar-menu {
+            padding: var(--spacing-sm) 0;
+        }
+
+        .sidebar-menu-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-xl);
+            color: var(--gray-600);
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: var(--font-primary);
+        }
+
+        .sidebar-menu-item:hover {
+            background: var(--gray-100);
+            color: var(--primary);
+        }
+
+        .sidebar-menu-item.active {
+            background: rgba(30, 58, 95, 0.08);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .sidebar-menu-item svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-logout {
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .sidebar-logout .sidebar-menu-item {
+            color: var(--accent);
+        }
+
+        .sidebar-logout .sidebar-menu-item:hover {
+            background: rgba(230, 57, 70, 0.06);
+        }
+
+        .panel-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .content-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-xxl);
+        }
+
+        .content-title {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .content-subtitle {
+            color: var(--gray-500);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .info-item {
+            padding: var(--spacing-lg);
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 1.05rem;
+            color: var(--gray-800);
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xxl) var(--spacing-xl);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: var(--gray-400);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .empty-state h3 {
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            color: var(--gray-700);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .empty-state p {
+            color: var(--gray-500);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .empty-state .btn {
+            display: inline-block;
+        }
+
+        .coach-card {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xl);
+            padding: var(--spacing-xl);
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+        }
+
+        .coach-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .coach-info h3 {
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 4px;
+        }
+
+        .coach-info p {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .package-card {
+            padding: var(--spacing-xl);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-lg);
+            color: var(--white);
+        }
+
+        .package-card h3 {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .package-card p {
+            opacity: 0.85;
+            font-size: 0.95rem;
+        }
+
+        .package-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: var(--spacing-md);
+        }
+
+        .messages-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .message-item {
+            padding: var(--spacing-lg);
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--primary);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .message-sender {
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.9rem;
+        }
+
+        .message-date {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        .message-body {
+            color: var(--gray-600);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .settings-form {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .settings-section {
+            padding-bottom: var(--spacing-xl);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .settings-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .settings-section h3 {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: var(--spacing-sm);
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
+        }
+
+        .form-group input:disabled {
+            background: var(--gray-100);
+            color: var(--gray-500);
+            cursor: not-allowed;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: var(--spacing-md) var(--spacing-xl);
+            background: var(--success);
+            color: var(--white);
+            border-radius: var(--radius-lg);
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 9999;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .section-hidden {
+            display: none;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--white);
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .mobile-menu-toggle svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .panel-body {
+                flex-direction: column;
+            }
+
+            .panel-sidebar {
+                width: 100%;
+            }
+
+            .sidebar-card {
+                display: flex;
+                border-radius: var(--radius-xl);
+                overflow: visible;
+            }
+
+            .sidebar-user {
+                display: none;
+            }
+
+            .sidebar-menu {
+                display: flex;
+                padding: var(--spacing-sm);
+                gap: 4px;
+                overflow-x: auto;
+                flex: 1;
+            }
+
+            .sidebar-menu-item {
+                padding: var(--spacing-sm) var(--spacing-md);
+                font-size: 0.85rem;
+                white-space: nowrap;
+                border-radius: var(--radius-md);
+            }
+
+            .sidebar-logout {
+                border-top: none;
+                border-left: 1px solid var(--gray-200);
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .coach-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .panel-header-nav {
+                display: none;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .content-card {
+                padding: var(--spacing-xl);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="panel-page">
+        <header class="panel-header">
+            <div class="container">
+                <a href="../index.html" class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <span class="logo-text">Pusula</span>
+                </a>
+
+                <nav class="panel-header-nav">
+                    <a href="../index.html">Ana Sayfa</a>
+                    <a href="koclar.html">Koçlarımız</a>
+                    <a href="paketler.html">Paketler</a>
+                    <a href="iletisim.html">İletişim</a>
+                </nav>
+
+                <div class="panel-user-badge">
+                    <div class="panel-user-avatar" id="headerAvatar"></div>
+                    <span class="panel-user-name" id="headerName"></span>
+                </div>
+
+                <button class="mobile-menu-toggle" onclick="document.querySelector('.sidebar-card').classList.toggle('mobile-open')" aria-label="Menüyü aç">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="panel-body">
+            <aside class="panel-sidebar">
+                <div class="sidebar-card">
+                    <div class="sidebar-user">
+                        <div class="sidebar-avatar" id="sidebarAvatar"></div>
+                        <h3 id="sidebarName"></h3>
+                        <p id="sidebarEmail"></p>
+                    </div>
+
+                    <div class="sidebar-menu">
+                        <button class="sidebar-menu-item active" data-section="profilim" onclick="showSection('profilim')">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            Profilim
+                        </button>
+                        <button class="sidebar-menu-item" data-section="koclari" onclick="showSection('koclari')">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/></svg>
+                            Koçlarım
+                        </button>
+                        <button class="sidebar-menu-item" data-section="paketler" onclick="showSection('paketler')">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14zM4 0h16v2H4zm0 22h16v2H4zm8-10c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/></svg>
+                            Paketlerim
+                        </button>
+                        <button class="sidebar-menu-item" data-section="mesajlar" onclick="showSection('mesajlar')">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                            Mesajlarım
+                        </button>
+                        <button class="sidebar-menu-item" data-section="ayarlar" onclick="showSection('ayarlar')">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                            Ayarlar
+                        </button>
+                    </div>
+
+                    <div class="sidebar-logout">
+                        <button class="sidebar-menu-item" onclick="logoutUser()">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+                            Çıkış Yap
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="panel-content">
+                <!-- Profilim -->
+                <section class="content-card section-content" id="section-profilim">
+                    <h2 class="content-title">Profilim</h2>
+                    <p class="content-subtitle">Kişisel bilgileriniz</p>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Ad Soyad</div>
+                            <div class="info-value" id="infoName"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">E-posta</div>
+                            <div class="info-value" id="infoEmail"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Telefon</div>
+                            <div class="info-value" id="infoPhone"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Sınıf</div>
+                            <div class="info-value" id="infoGrade"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Koçlarım -->
+                <section class="content-card section-content section-hidden" id="section-koclari">
+                    <h2 class="content-title">Koçlarım</h2>
+                    <p class="content-subtitle">Size atanmış koç bilgileri</p>
+                    <div id="coachContent"></div>
+                </section>
+
+                <!-- Paketlerim -->
+                <section class="content-card section-content section-hidden" id="section-paketler">
+                    <h2 class="content-title">Paketlerim</h2>
+                    <p class="content-subtitle">Aktif ve geçmiş paketleriniz</p>
+                    <div id="packageContent"></div>
+                </section>
+
+                <!-- Mesajlarım -->
+                <section class="content-card section-content section-hidden" id="section-mesajlar">
+                    <h2 class="content-title">Mesajlarım</h2>
+                    <p class="content-subtitle">Admin tarafından gönderilen mesajlar</p>
+                    <div id="messagesContent"></div>
+                </section>
+
+                <!-- Ayarlar -->
+                <section class="content-card section-content section-hidden" id="section-ayarlar">
+                    <h2 class="content-title">Ayarlar</h2>
+                    <p class="content-subtitle">Profil bilgilerinizi düzenleyin</p>
+                    <div class="settings-form">
+                        <div class="settings-section">
+                            <h3>Profil Bilgileri</h3>
+                            <form id="profileForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Ad Soyad</label>
+                                        <input type="text" id="settingsName" placeholder="Adınız Soyadınız">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Telefon</label>
+                                        <input type="tel" id="settingsPhone" placeholder="05XX XXX XX XX">
+                                    </div>
+                                </div>
+                                <div style="margin-top: var(--spacing-lg);">
+                                    <button type="submit" class="btn btn-primary">Değişiklikleri Kaydet</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="settings-section">
+                            <h3>Şifre Değiştir</h3>
+                            <form id="passwordForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Mevcut Şifre</label>
+                                        <input type="password" id="currentPassword" placeholder="Mevcut şifreniz">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Yeni Şifre</label>
+                                        <input type="password" id="newPassword" placeholder="En az 6 karakter">
+                                    </div>
+                                </div>
+                                <div style="margin-top: var(--spacing-lg);">
+                                    <button type="submit" class="btn btn-primary">Şifreyi Güncelle</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Giriş kontrolü
+        (function() {
+            if (localStorage.getItem('pusula_user_logged') !== 'true') {
+                window.location.replace('giris.html');
+                return;
+            }
+            initPanel();
+        })();
+
+        function initPanel() {
+            var userName = localStorage.getItem('pusula_user_name') || 'Kullanıcı';
+            var userEmail = localStorage.getItem('pusula_user_email') || '';
+            var userPhone = localStorage.getItem('pusula_user_phone') || 'Belirtilmemiş';
+            var userGrade = localStorage.getItem('pusula_user_grade') || 'Belirtilmemiş';
+            var initials = userName.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase().substring(0, 2);
+
+            document.getElementById('headerAvatar').textContent = initials;
+            document.getElementById('headerName').textContent = userName;
+            document.getElementById('sidebarAvatar').textContent = initials;
+            document.getElementById('sidebarName').textContent = userName;
+            document.getElementById('sidebarEmail').textContent = userEmail;
+
+            document.getElementById('infoName').textContent = userName;
+            document.getElementById('infoEmail').textContent = userEmail;
+            document.getElementById('infoPhone').textContent = userPhone;
+            document.getElementById('infoGrade').textContent = userGrade + '. Sınıf';
+
+            document.getElementById('settingsName').value = userName;
+            document.getElementById('settingsPhone').value = userPhone !== 'Belirtilmemiş' ? userPhone : '';
+
+            loadCoach();
+            loadPackage();
+            loadMessages();
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('.section-content').forEach(function(el) {
+                el.classList.add('section-hidden');
+            });
+            document.getElementById('section-' + section).classList.remove('section-hidden');
+
+            document.querySelectorAll('.sidebar-menu-item[data-section]').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            document.querySelector('[data-section="' + section + '"]').classList.add('active');
+        }
+
+        function loadCoach() {
+            var coachName = localStorage.getItem('pusula_user_coach');
+            var container = document.getElementById('coachContent');
+
+            if (coachName) {
+                var coachInitials = coachName.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase().substring(0, 2);
+                var coachSpec = localStorage.getItem('pusula_user_coach_spec') || 'YKS Koçu';
+                container.innerHTML =
+                    '<div class="coach-card">' +
+                        '<div class="coach-avatar">' + coachInitials + '</div>' +
+                        '<div class="coach-info">' +
+                            '<h3>' + coachName + '</h3>' +
+                            '<p>' + coachSpec + '</p>' +
+                            '<p style="color: var(--success); font-weight: 500; margin-top: 4px;">Aktif Koçunuz</p>' +
+                        '</div>' +
+                    '</div>';
+            } else {
+                container.innerHTML =
+                    '<div class="empty-state">' +
+                        '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/></svg>' +
+                        '<h3>Henüz bir koçunuz yok</h3>' +
+                        '<p>Koçlarımızı inceleyin ve size en uygun koçu seçin.</p>' +
+                        '<a href="koclar.html" class="btn btn-primary">Koçlarımızı Keşfet</a>' +
+                    '</div>';
+            }
+        }
+
+        function loadPackage() {
+            var packageName = localStorage.getItem('pusula_user_package');
+            var container = document.getElementById('packageContent');
+
+            if (packageName) {
+                var packageDate = localStorage.getItem('pusula_user_package_date') || '';
+                container.innerHTML =
+                    '<div class="package-card">' +
+                        '<h3>' + packageName + '</h3>' +
+                        '<p>Paketiniz aktif olarak kullanımda.</p>' +
+                        (packageDate ? '<p style="opacity:0.7; font-size:0.85rem; margin-top:4px;">Alınma tarihi: ' + packageDate + '</p>' : '') +
+                        '<span class="package-badge">Aktif</span>' +
+                    '</div>';
+            } else {
+                container.innerHTML =
+                    '<div class="empty-state">' +
+                        '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14z"/></svg>' +
+                        '<h3>Henüz paketiniz yok</h3>' +
+                        '<p>Paketlerimizi inceleyin ve ihtiyacınıza uygun paketi seçin.</p>' +
+                        '<a href="paketler.html" class="btn btn-primary">Paketleri İncele</a>' +
+                    '</div>';
+            }
+        }
+
+        function loadMessages() {
+            var messages = JSON.parse(localStorage.getItem('pusula_user_messages') || '[]');
+            var container = document.getElementById('messagesContent');
+
+            if (messages.length === 0) {
+                container.innerHTML =
+                    '<div class="empty-state">' +
+                        '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>' +
+                        '<h3>Henüz mesajınız yok</h3>' +
+                        '<p>Admin tarafından gönderilen mesajlarınız burada görünecek.</p>' +
+                    '</div>';
+                return;
+            }
+
+            var html = '<div class="messages-list">';
+            messages.reverse().forEach(function(msg) {
+                var date = msg.date ? new Date(msg.date).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+                html +=
+                    '<div class="message-item">' +
+                        '<div class="message-header">' +
+                            '<span class="message-sender">' + (msg.sender || 'Admin') + '</span>' +
+                            '<span class="message-date">' + date + '</span>' +
+                        '</div>' +
+                        '<div class="message-body">' + msg.text + '</div>' +
+                    '</div>';
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Profil güncelleme
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var name = document.getElementById('settingsName').value.trim();
+            var phone = document.getElementById('settingsPhone').value.trim();
+
+            if (!name) {
+                showToast('Lütfen adınızı girin.', 'error');
+                return;
+            }
+
+            localStorage.setItem('pusula_user_name', name);
+            if (phone) localStorage.setItem('pusula_user_phone', phone);
+
+            // Users listesinde de güncelle
+            var users = JSON.parse(localStorage.getItem('pusula_users') || '[]');
+            var email = localStorage.getItem('pusula_user_email');
+            users = users.map(function(u) {
+                if (u.email === email) {
+                    u.name = name;
+                    u.phone = phone || u.phone;
+                }
+                return u;
+            });
+            localStorage.setItem('pusula_users', JSON.stringify(users));
+
+            initPanel();
+            showToast('Profiliniz güncellendi.');
+        });
+
+        // Şifre değiştirme
+        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var current = document.getElementById('currentPassword').value;
+            var newPass = document.getElementById('newPassword').value;
+
+            if (!current || !newPass) {
+                showToast('Lütfen tüm alanları doldurun.', 'error');
+                return;
+            }
+
+            if (newPass.length < 6) {
+                showToast('Yeni şifre en az 6 karakter olmalıdır.', 'error');
+                return;
+            }
+
+            var email = localStorage.getItem('pusula_user_email');
+            var users = JSON.parse(localStorage.getItem('pusula_users') || '[]');
+            var userIndex = users.findIndex(function(u) { return u.email === email; });
+
+            if (userIndex === -1) {
+                showToast('Kullanıcı bulunamadı.', 'error');
+                return;
+            }
+
+            if (users[userIndex].password !== current) {
+                showToast('Mevcut şifreniz hatalı.', 'error');
+                return;
+            }
+
+            users[userIndex].password = newPass;
+            localStorage.setItem('pusula_users', JSON.stringify(users));
+
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            showToast('Şifreniz güncellendi.');
+        });
+
+        function showToast(message) {
+            var toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(function() {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('pusula_user_logged');
+            localStorage.removeItem('pusula_user_name');
+            localStorage.removeItem('pusula_user_email');
+            localStorage.removeItem('pusula_user_phone');
+            localStorage.removeItem('pusula_user_grade');
+            localStorage.removeItem('pusula_user_coach');
+            localStorage.removeItem('pusula_user_coach_spec');
+            localStorage.removeItem('pusula_user_package');
+            localStorage.removeItem('pusula_user_package_date');
+            localStorage.removeItem('pusula_user_messages');
+            window.location.replace('../index.html');
+        }
+    </script>
+</body>
+</html>

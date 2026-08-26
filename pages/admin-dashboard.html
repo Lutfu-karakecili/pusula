@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Pusula</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="../public/images/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --sidebar-width: 260px;
+            --primary: #1a1a2e;
+            --primary-light: #16213e;
+            --accent: #e63946;
+            --bg: #f5f6fa;
+            --white: #ffffff;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-500: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --success: #28a745;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; }
+        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-width); background: linear-gradient(180deg, var(--primary) 0%, var(--primary-light) 100%); color: #fff; padding: 20px 0; z-index: 1000; overflow-y: auto; }
+        .sidebar-header { padding: 0 20px 30px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        .sidebar-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #fff; }
+        .sidebar-logo-icon { width: 40px; height: 40px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .sidebar-logo-icon svg { width: 24px; height: 24px; fill: #fff; }
+        .sidebar-logo-text { font-family: 'Poppins', sans-serif; font-size: 1.3rem; font-weight: 700; }
+        .sidebar-badge { font-size: 0.7rem; background: var(--accent); padding: 3px 8px; border-radius: 10px; margin-left: auto; }
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 15px 20px 10px; }
+        .sidebar-menu-item { margin: 2px 10px; }
+        .sidebar-menu-link { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; transition: all 0.3s; font-size: 0.9rem; cursor: pointer; }
+        .sidebar-menu-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .sidebar-menu-link.active { background: var(--accent); color: #fff; }
+        .sidebar-menu-link svg { width: 20px; height: 20px; fill: currentColor; }
+        .sidebar-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .admin-info { display: flex; align-items: center; gap: 12px; }
+        .admin-avatar { width: 40px; height: 40px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .admin-details { flex: 1; }
+        .admin-name { font-size: 0.9rem; font-weight: 500; }
+        .admin-role { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+        .logout-btn { background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; padding: 5px; transition: all 0.3s; }
+        .logout-btn:hover { color: var(--accent); }
+        .logout-btn svg { width: 20px; height: 20px; fill: currentColor; }
+        .main-content { margin-left: var(--sidebar-width); padding: 30px; min-height: 100vh; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-title { font-family: 'Poppins', sans-serif; font-size: 1.75rem; font-weight: 700; color: var(--gray-800); }
+        .page-subtitle { color: var(--gray-500); font-size: 0.9rem; }
+        .header-actions { display: flex; gap: 10px; }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.3s; text-decoration: none; border: none; }
+        .btn svg { width: 18px; height: 18px; fill: currentColor; }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover { background: #c1121f; }
+        .btn-secondary { background: var(--white); color: var(--gray-700); border: 1px solid var(--gray-300); }
+        .btn-secondary:hover { background: var(--gray-100); }
+        .btn-danger { background: #dc3545; color: #fff; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--white); border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .stat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .stat-icon svg { width: 24px; height: 24px; fill: #fff; }
+        .stat-icon.blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-icon.green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .stat-icon.orange { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .stat-icon.red { background: linear-gradient(135deg, #e63946 0%, #c1121f 100%); }
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--gray-800); margin-bottom: 5px; }
+        .stat-label { color: var(--gray-500); font-size: 0.85rem; }
+        .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .card { background: var(--white); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-bottom: 1px solid var(--gray-200); }
+        .card-title { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 600; color: var(--gray-800); }
+        .card-body { padding: 25px; }
+        .table-responsive { overflow-x: auto; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th { text-align: left; padding: 12px 15px; background: var(--gray-100); font-weight: 600; font-size: 0.85rem; color: var(--gray-700); text-transform: uppercase; letter-spacing: 0.5px; }
+        .table td { padding: 15px; border-bottom: 1px solid var(--gray-200); font-size: 0.9rem; }
+        .table tr:last-child td { border-bottom: none; }
+        .table tr:hover { background: var(--gray-100); }
+        .user-cell { display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 0.85rem; }
+        .user-name { font-weight: 500; color: var(--gray-800); }
+        .user-email { font-size: 0.8rem; color: var(--gray-500); }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        .activity-list { list-style: none; }
+        .activity-item { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--gray-200); }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .activity-icon svg { width: 20px; height: 20px; fill: #fff; }
+        .activity-icon.blue { background: var(--info); }
+        .activity-icon.green { background: var(--success); }
+        .activity-icon.orange { background: var(--warning); }
+        .activity-content { flex: 1; }
+        .activity-text { font-size: 0.9rem; color: var(--gray-700); margin-bottom: 4px; }
+        .activity-time { font-size: 0.8rem; color: var(--gray-500); }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal { background: var(--white); border-radius: 16px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; transform: translateY(-20px); transition: all 0.3s; }
+        .modal-overlay.active .modal { transform: translateY(0); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-bottom: 1px solid var(--gray-200); }
+        .modal-title { font-family: 'Poppins', sans-serif; font-size: 1.2rem; font-weight: 600; }
+        .modal-close { width: 36px; height: 36px; border-radius: 50%; background: var(--gray-100); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .modal-close:hover { background: var(--gray-200); }
+        .modal-close svg { width: 20px; height: 20px; fill: var(--gray-700); }
+        .modal-body { padding: 25px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 20px 25px; border-top: 1px solid var(--gray-200); }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-weight: 500; color: var(--gray-700); margin-bottom: 8px; font-size: 0.9rem; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 12px 15px; border: 1px solid var(--gray-300); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.95rem; transition: all 0.3s; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1); }
+        .form-textarea { min-height: 100px; resize: vertical; }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--gray-500); }
+        .empty-state svg { width: 60px; height: 60px; fill: var(--gray-300); margin-bottom: 15px; }
+        .action-btns { display: flex; gap: 6px; }
+        .section-hidden { display: none; }
+        @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .content-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main-content { margin-left: 0; } .stats-grid { grid-template-columns: 1fr; } .page-header { flex-direction: column; gap: 15px; align-items: flex-start; } }
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { padding: 14px 20px; border-radius: 8px; color: #fff; font-size: 0.9rem; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s ease; min-width: 280px; display: flex; align-items: center; gap: 10px; }
+        .toast.success { background: #28a745; }
+        .toast.error { background: #e63946; }
+        .toast.warning { background: #ffc107; color: #333; }
+        .toast.info { background: #17a2b8; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="../index.html" class="sidebar-logo">
+                <div class="sidebar-logo-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <span class="sidebar-logo-text">Pusula</span>
+                <span class="sidebar-badge">Admin</span>
+            </a>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-menu-title">Ana Menü</li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link active" data-section="dashboard"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>Dashboard</a></li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="students"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Öğrenciler</a></li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="coaches"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Koçlar</a></li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="messages"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Mesajlar</a></li>
+            <li class="sidebar-menu-title">Yönetim</li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="settings"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Ayarlar</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="admin-info">
+                <div class="admin-avatar">A</div>
+                <div class="admin-details">
+                    <div class="admin-name">Admin</div>
+                    <div class="admin-role">Yönetici</div>
+                </div>
+                <button class="logout-btn" onclick="logout()" title="Çıkış Yap">
+                    <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                <p class="page-subtitle">Hoş geldiniz, yönetim panelinden tüm işlemleri gerçekleştirebilirsiniz.</p>
+            </div>
+            <div class="header-actions" id="headerActions">
+                <button class="btn btn-secondary" onclick="refreshData()">
+                    <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                    Yenile
+                </button>
+                <button class="btn btn-primary" id="addNewBtn" onclick="openModal(currentSection)">
+                    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    Yeni Ekle
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="section-dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header"><div class="stat-icon blue"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div></div>
+                    <div class="stat-value" id="statStudents">0</div>
+                    <div class="stat-label">Toplam Öğrenci</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header"><div class="stat-icon green"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div></div>
+                    <div class="stat-value" id="statCoaches">0</div>
+                    <div class="stat-label">Aktif Koç</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header"><div class="stat-icon orange"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div></div>
+                    <div class="stat-value" id="statMessages">0</div>
+                    <div class="stat-label">Mesaj</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header"><div class="stat-icon red"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div></div>
+                    <div class="stat-value" id="statActive">0</div>
+                    <div class="stat-label">Aktif Öğrenci</div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Son Öğrenciler</h3></div>
+                    <div class="card-body"><div class="table-responsive"><table class="table"><thead><tr><th>Öğrenci</th><th>Sınıf</th><th>Koç</th><th>Durum</th></tr></thead><tbody id="dashStudentTable"></tbody></table></div></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Son Aktiviteler</h3></div>
+                    <div class="card-body">
+                        <ul class="activity-list" id="activityList"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students Section -->
+        <div id="section-students" class="section-hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Öğrenciler</h3>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input type="text" class="form-input" id="studentSearch" placeholder="Öğrenci ara..." oninput="filterStudents()" style="width:200px; padding:8px 12px; font-size:0.85rem;">
+                        <button class="btn btn-primary btn-sm" onclick="openModal('student')">
+                            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                            Yeni Öğrenci
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead><tr><th>Öğrenci</th><th>E-posta</th><th>Telefon</th><th>Sınıf</th><th>Koç</th><th>Durum</th><th>İşlem</th></tr></thead>
+                            <tbody id="studentTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="emptyStudents" style="display:none;">
+                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <p>Henüz öğrenci eklenmemiş.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coaches Section -->
+        <div id="section-coaches" class="section-hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Koçlar</h3>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input type="text" class="form-input" id="coachSearch" placeholder="Koç ara..." oninput="filterCoaches()" style="width:200px; padding:8px 12px; font-size:0.85rem;">
+                        <button class="btn btn-primary btn-sm" onclick="openModal('coach')">
+                            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                            Yeni Koç
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead><tr><th>Koç</th><th>E-posta</th><th>Uzmanlık</th><th>Telefon</th><th>Durum</th><th>İşlem</th></tr></thead>
+                            <tbody id="coachTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="emptyCoaches" style="display:none;">
+                        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3z"/></svg>
+                        <p>Henüz koç eklenmemiş.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Section -->
+        <div id="section-messages" class="section-hidden">
+            <div class="card">
+                <div class="card-header"><h3 class="card-title">Mesajlar</h3></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead><tr><th>Gönderen</th><th>Konu</th><th>Mesaj</th><th>Tarih</th><th>İşlem</th></tr></thead>
+                            <tbody id="messageTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="emptyMessages" style="display:none;">
+                        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                        <p>Henüz mesaj yok.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="section-settings" class="section-hidden">
+            <div class="card">
+                <div class="card-header"><h3 class="card-title">Sistem Ayarları</h3></div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label">Platform Adı</label>
+                        <input type="text" class="form-input" value="Pusula" id="settingName">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">İletişim E-postası</label>
+                        <input type="email" class="form-input" value="info@pusula.com" id="settingEmail">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">WhatsApp Numarası</label>
+                        <input type="tel" class="form-input" value="+90 500 123 45 67" id="settingPhone">
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSettings()">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Coach Modal -->
+    <div class="modal-overlay" id="coachModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="coachModalTitle">Yeni Koç Ekle</h3>
+                <button class="modal-close" onclick="closeModal('coach')"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+            </div>
+            <div class="modal-body">
+                <form id="coachForm">
+                    <input type="hidden" id="coachEditId">
+                    <div class="form-group"><label class="form-label">Ad Soyad</label><input type="text" class="form-input" id="coachName" placeholder="Koç adı soyadı" required></div>
+                    <div class="form-group"><label class="form-label">E-posta</label><input type="email" class="form-input" id="coachEmail" placeholder="ornek@email.com" required></div>
+                    <div class="form-group"><label class="form-label">Uzmanlık Alanı</label>
+                        <select class="form-select" id="coachSpecialty" required>
+                            <option value="">Seçiniz</option>
+                            <option value="TYT Matematik">TYT Matematik</option>
+                            <option value="TYT Türkçe">TYT Türkçe</option>
+                            <option value="TYT Fen Bilimleri">TYT Fen Bilimleri</option>
+                            <option value="TYT Sosyal Bilimler">TYT Sosyal Bilimler</option>
+                            <option value="AYT Matematik">AYT Matematik</option>
+                            <option value="AYT Fen Bilimleri">AYT Fen Bilimleri</option>
+                            <option value="AYT Edebiyat">AYT Edebiyat</option>
+                            <option value="PDR Uzmanı">PDR Uzmanı</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Telefon</label><input type="tel" class="form-input" id="coachPhone" placeholder="05XX XXX XX XX"></div>
+                    <div class="form-group"><label class="form-label">Biyografi</label><textarea class="form-textarea" id="coachBio" placeholder="Koç hakkında kısa bilgi..."></textarea></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('coach')">İptal</button>
+                <button class="btn btn-primary" onclick="saveCoach()">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Modal -->
+    <div class="modal-overlay" id="studentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="studentModalTitle">Yeni Öğrenci Ekle</h3>
+                <button class="modal-close" onclick="closeModal('student')"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+            </div>
+            <div class="modal-body">
+                <form id="studentForm">
+                    <input type="hidden" id="studentEditId">
+                    <div class="form-group"><label class="form-label">Ad Soyad</label><input type="text" class="form-input" id="studentName" placeholder="Öğrenci adı soyadı" required></div>
+                    <div class="form-group"><label class="form-label">E-posta</label><input type="email" class="form-input" id="studentEmail" placeholder="ornek@email.com" required></div>
+                    <div class="form-group"><label class="form-label">Telefon</label><input type="tel" class="form-input" id="studentPhone" placeholder="05XX XXX XX XX"></div>
+                    <div class="form-group"><label class="form-label">Sınıf</label>
+                        <select class="form-select" id="studentGrade" required>
+                            <option value="">Seçiniz</option>
+                            <option value="11. Sınıf">11. Sınıf</option>
+                            <option value="12. Sınıf">12. Sınıf</option>
+                            <option value="Mezun">Mezun</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Durum</label>
+                        <select class="form-select" id="studentStatus">
+                            <option value="Aktif">Aktif</option>
+                            <option value="Beklemede">Beklemede</option>
+                            <option value="Pasif">Pasif</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Koç Ata</label>
+                        <select class="form-select" id="studentCoach">
+                            <option value="">Koç Seçiniz</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('student')">İptal</button>
+                <button class="btn btn-primary" onclick="saveStudent()">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var currentSection = 'dashboard';
+
+        function showToast(message, type) {
+            type = type || 'info';
+            var container = document.getElementById('toastContainer');
+            var toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            var icons = { success: '✓', error: '✗', warning: '⚠', info: 'ℹ' };
+            toast.innerHTML = '<span style="font-size:1.2rem;">' + icons[type] + '</span> ' + message;
+            container.appendChild(toast);
+            setTimeout(function() { toast.style.opacity = '0'; toast.style.transform = 'translateX(100%)'; toast.style.transition = 'all 0.3s'; setTimeout(function() { toast.remove(); }, 300); }, 3000);
+        }
+
+        var DEFAULT_COACHES = [
+            { id: 1, name: 'Emre Demir', email: 'emre@pusula.com', specialty: 'TYT Matematik', phone: '0532 111 22 33', bio: 'İTÜ Matematik Bölümü mezunu. 5 yıl deneyimli TYT Matematik koçu.', status: 'Aktif', students: 500, rating: 4.9, experience: '5 Yıl' },
+            { id: 2, name: 'Selin Çelik', email: 'selin@pusula.com', specialty: 'AYT Fen Bilimleri', phone: '0533 222 33 44', bio: 'ODTÜ Fizik Bölümü mezunu. 3 yıl deneyimli AYT Fen koçu.', status: 'Aktif', students: 350, rating: 4.8, experience: '3 Yıl' },
+            { id: 3, name: 'Ahmet Korkmaz', email: 'ahmet@pusula.com', specialty: 'TYT Türkçe', phone: '0534 333 44 55', bio: 'Türk Dili ve Edebiyatı Bölümü birincisi. 4 yıl deneyimli.', status: 'Aktif', students: 420, rating: 4.9, experience: '4 Yıl' },
+            { id: 4, name: 'Zeynep Arslan', email: 'zeynep@pusula.com', specialty: 'AYT Matematik', phone: '0535 444 55 66', bio: 'Hacettepe Matematik Bölümü yüksek lisans. 2 yıl deneyimli.', status: 'Aktif', students: 280, rating: 4.7, experience: '2 Yıl' },
+            { id: 5, name: 'Merve Yıldız', email: 'merve@pusula.com', specialty: 'PDR Uzmanı', phone: '0536 555 66 77', bio: 'Psikolojik Danışmanlık ve Rehberlik uzmanı. 6 yıl deneyim.', status: 'Aktif', students: 600, rating: 5.0, experience: '6 Yıl' },
+            { id: 6, name: 'Burak Özkan', email: 'burak@pusula.com', specialty: 'TYT Sosyal Bilimler', phone: '0537 666 77 88', bio: 'Tarih Bölümü mezunu, Sosyal Bilimlerde uzman koç.', status: 'Aktif', students: 310, rating: 4.8, experience: '3 Yıl' }
+        ];
+
+        var DEFAULT_STUDENTS = [
+            { id: 1, name: 'Ahmet Yılmaz', email: 'ahmet@email.com', phone: '0531 111 11 11', grade: '12. Sınıf', status: 'Aktif', coachId: 1 },
+            { id: 2, name: 'Zeynep Kaya', email: 'zeynep@email.com', phone: '0532 222 22 22', grade: 'Mezun', status: 'Aktif', coachId: 2 },
+            { id: 3, name: 'Mehmet Aydın', email: 'mehmet@email.com', phone: '0533 333 33 33', grade: '11. Sınıf', status: 'Beklemede', coachId: null },
+            { id: 4, name: 'Elif Yıldız', email: 'elif@email.com', phone: '0534 444 44 44', grade: '12. Sınıf', status: 'Aktif', coachId: 3 },
+            { id: 5, name: 'Can Demir', email: 'can@email.com', phone: '0535 555 55 55', grade: 'Mezun', status: 'Aktif', coachId: 4 }
+        ];
+
+        var DEFAULT_MESSAGES = [
+            { id: 1, sender: 'Ahmet Yılmaz', subject: 'Koçluk Paketi', message: 'TYT koçluk paketi hakkında bilgi almak istiyorum.', date: '2 saat önce' },
+            { id: 2, sender: 'Zeynep Kaya', subject: 'Deneme Sonuçları', message: 'Son deneme sınavımın analizini paylaşabilir misiniz?', date: '5 saat önce' },
+            { id: 3, sender: 'Mehmet Aydın', subject: 'Kayıt İşlemi', message: 'Kayıt işlemi için gerekli belgeler nelerdir?', date: '1 gün önce' }
+        ];
+
+        function initData() {
+            if (!localStorage.getItem('pusula_coaches')) {
+                localStorage.setItem('pusula_coaches', JSON.stringify(DEFAULT_COACHES));
+            }
+            if (!localStorage.getItem('pusula_students')) {
+                localStorage.setItem('pusula_students', JSON.stringify(DEFAULT_STUDENTS));
+            }
+            if (!localStorage.getItem('pusula_messages')) {
+                localStorage.setItem('pusula_messages', JSON.stringify(DEFAULT_MESSAGES));
+            }
+            if (!localStorage.getItem('pusula_activities')) {
+                localStorage.setItem('pusula_activities', JSON.stringify([
+                    { text: '<strong>Ahmet Yılmaz</strong> koçluk paketine katıldı', time: '2 saat önce', type: 'blue' },
+                    { text: '<strong>Zeynep Kaya</strong> deneme sınavını tamamladı', time: '5 saat önce', type: 'green' },
+                    { text: 'Yeni mesaj: <strong>Mehmet Aydın</strong>', time: '1 gün önce', type: 'orange' },
+                    { text: '<strong>Emre D.</strong> yeni öğrenci atadı', time: '2 gün önce', type: 'blue' }
+                ]));
+            }
+        }
+
+        function getCoaches() { return JSON.parse(localStorage.getItem('pusula_coaches') || '[]'); }
+        function getStudents() { return JSON.parse(localStorage.getItem('pusula_students') || '[]'); }
+        function getMessages() { return JSON.parse(localStorage.getItem('pusula_messages') || '[]'); }
+        function getActivities() { return JSON.parse(localStorage.getItem('pusula_activities') || '[]'); }
+        function saveCoaches(c) { localStorage.setItem('pusula_coaches', JSON.stringify(c)); }
+        function saveStudents(s) { localStorage.setItem('pusula_students', JSON.stringify(s)); }
+        function saveMessages(m) { localStorage.setItem('pusula_messages', JSON.stringify(m)); }
+        function saveActivities(a) { localStorage.setItem('pusula_activities', JSON.stringify(a)); }
+
+        function getCoachName(id) {
+            var c = getCoaches().find(function(c) { return c.id === id; });
+            return c ? c.name.split(' ')[0] + ' ' + c.name.split(' ')[1][0] + '.' : '—';
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase().substring(0, 2);
+        }
+
+        function getBadgeClass(status) {
+            if (status === 'Aktif') return 'badge-success';
+            if (status === 'Beklemede') return 'badge-warning';
+            if (status === 'Yeni') return 'badge-info';
+            return 'badge-danger';
+        }
+
+        function renderDashboard() {
+            var students = getStudents();
+            var coaches = getCoaches();
+            document.getElementById('statStudents').textContent = students.length;
+            document.getElementById('statCoaches').textContent = coaches.filter(function(c) { return c.status === 'Aktif'; }).length;
+            document.getElementById('statMessages').textContent = getMessages().length;
+            document.getElementById('statActive').textContent = students.filter(function(s) { return s.status === 'Aktif'; }).length;
+
+            var tbody = document.getElementById('dashStudentTable');
+            tbody.innerHTML = '';
+            students.slice(0, 5).forEach(function(s) {
+                tbody.innerHTML += '<tr><td><div class="user-cell"><div class="user-avatar">' + getInitials(s.name) + '</div><div><div class="user-name">' + s.name + '</div><div class="user-email">' + s.email + '</div></div></div></td><td>' + s.grade + '</td><td>' + (s.coachId ? getCoachName(s.coachId) : '—') + '</td><td><span class="badge ' + getBadgeClass(s.status) + '">' + s.status + '</span></td></tr>';
+            });
+            if (students.length === 0) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#6c757d;">Öğrenci bulunamadı.</td></tr>';
+
+            var actList = document.getElementById('activityList');
+            actList.innerHTML = '';
+            getActivities().forEach(function(a) {
+                actList.innerHTML += '<li class="activity-item"><div class="activity-icon ' + a.type + '"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><div class="activity-content"><div class="activity-text">' + a.text + '</div><div class="activity-time">' + a.time + '</div></div></li>';
+            });
+        }
+
+        function sanitizeHTML(str) {
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function renderStudents() {
+            var students = getStudents();
+            var tbody = document.getElementById('studentTable');
+            var empty = document.getElementById('emptyStudents');
+            tbody.innerHTML = '';
+            if (students.length === 0) { empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            students.forEach(function(s) {
+                tbody.innerHTML += '<tr><td><div class="user-cell"><div class="user-avatar">' + getInitials(s.name) + '</div><div><div class="user-name">' + s.name + '</div><div class="user-email">' + s.email + '</div></div></div></td><td>' + s.email + '</td><td>' + (s.phone || '—') + '</td><td>' + s.grade + '</td><td>' + (s.coachId ? getCoachName(s.coachId) : '—') + '</td><td><span class="badge ' + getBadgeClass(s.status) + '">' + s.status + '</span></td><td><div class="action-btns"><button class="btn btn-secondary btn-sm" onclick="editStudent(' + s.id + ')">Düzenle</button><button class="btn btn-danger btn-sm" onclick="deleteStudent(' + s.id + ')">Sil</button></div></td></tr>';
+            });
+        }
+
+        function renderCoaches() {
+            var coaches = getCoaches();
+            var tbody = document.getElementById('coachTable');
+            var empty = document.getElementById('emptyCoaches');
+            tbody.innerHTML = '';
+            if (coaches.length === 0) { empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            coaches.forEach(function(c) {
+                tbody.innerHTML += '<tr><td><div class="user-cell"><div class="user-avatar">' + getInitials(c.name) + '</div><div><div class="user-name">' + c.name + '</div><div class="user-email">' + c.email + '</div></div></div></td><td>' + c.email + '</td><td>' + c.specialty + '</td><td>' + (c.phone || '—') + '</td><td><span class="badge ' + getBadgeClass(c.status) + '">' + c.status + '</span></td><td><div class="action-btns"><button class="btn btn-secondary btn-sm" onclick="editCoach(' + c.id + ')">Düzenle</button><button class="btn btn-danger btn-sm" onclick="deleteCoach(' + c.id + ')">Sil</button></div></td></tr>';
+            });
+        }
+
+        function renderMessages() {
+            var messages = getMessages();
+            var tbody = document.getElementById('messageTable');
+            var empty = document.getElementById('emptyMessages');
+            tbody.innerHTML = '';
+            if (messages.length === 0) { empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            messages.forEach(function(m) {
+                tbody.innerHTML += '<tr><td><strong>' + m.sender + '</strong></td><td>' + m.subject + '</td><td>' + m.message.substring(0, 50) + '...</td><td>' + m.date + '</td><td><div class="action-btns"><button class="btn btn-secondary btn-sm" onclick="replyMessage(\'' + m.sender + '\', \'' + m.subject + '\')">Yanıtla</button><button class="btn btn-danger btn-sm" onclick="deleteMessage(' + m.id + ')">Sil</button></div></td></tr>';
+            });
+        }
+
+        function replyMessage(sender, subject) {
+            var reply = prompt(sender + ' adresine yanıt yazın:\nKonu: ' + subject);
+            if (reply && reply.trim()) {
+                addActivity('<strong>' + sender + '</strong> adresine yanıt gönderildi', 'green');
+                showToast('Yanıt gönderildi.', 'success');
+            }
+        }
+
+        function renderAll() {
+            renderDashboard();
+            renderStudents();
+            renderCoaches();
+            renderMessages();
+        }
+
+        function addActivity(text, type) {
+            var activities = getActivities();
+            activities.unshift({ text: text, time: 'Az önce', type: type || 'blue' });
+            if (activities.length > 20) activities = activities.slice(0, 20);
+            saveActivities(activities);
+        }
+
+        function openModal(type) {
+            currentSection = type;
+            document.getElementById(type + 'Modal').classList.add('active');
+            if (type === 'coach') {
+                document.getElementById('coachModalTitle').textContent = 'Yeni Koç Ekle';
+                document.getElementById('coachEditId').value = '';
+                document.getElementById('coachForm').reset();
+            } else if (type === 'student') {
+                document.getElementById('studentModalTitle').textContent = 'Yeni Öğrenci Ekle';
+                document.getElementById('studentEditId').value = '';
+                document.getElementById('studentForm').reset();
+                populateCoachDropdown(null);
+            }
+        }
+
+        function closeModal(type) {
+            document.getElementById(type + 'Modal').classList.remove('active');
+        }
+
+        function filterStudents() {
+            var query = document.getElementById('studentSearch').value.toLowerCase();
+            var rows = document.querySelectorAll('#studentTable tr');
+            rows.forEach(function(row) {
+                var text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        function filterCoaches() {
+            var query = document.getElementById('coachSearch').value.toLowerCase();
+            var rows = document.querySelectorAll('#coachTable tr');
+            rows.forEach(function(row) {
+                var text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        function saveCoach() {
+            var editId = document.getElementById('coachEditId').value;
+            var name = document.getElementById('coachName').value.trim();
+            var email = document.getElementById('coachEmail').value.trim();
+            var specialty = document.getElementById('coachSpecialty').value;
+            var phone = document.getElementById('coachPhone').value.trim();
+            var bio = document.getElementById('coachBio').value.trim();
+
+            if (!name || !email || !specialty) { showToast('Lütfen zorunlu alanları doldurun.', 'error'); return; }
+
+            var coaches = getCoaches();
+
+            if (editId) {
+                var idx = coaches.findIndex(function(c) { return c.id == editId; });
+                if (idx !== -1) {
+                    coaches[idx].name = name;
+                    coaches[idx].email = email;
+                    coaches[idx].specialty = specialty;
+                    coaches[idx].phone = phone;
+                    coaches[idx].bio = bio;
+                }
+                addActivity('<strong>' + name + '</strong> koç bilgileri güncellendi', 'green');
+            } else {
+                var newId = coaches.length > 0 ? Math.max.apply(null, coaches.map(function(c) { return c.id; })) + 1 : 1;
+                coaches.push({ id: newId, name: name, email: email, specialty: specialty, phone: phone, bio: bio, status: 'Aktif', students: 0, rating: 0, experience: '0 Yıl' });
+                addActivity('<strong>' + name + '</strong> yeni koç olarak eklendi', 'blue');
+            }
+
+            saveCoaches(coaches);
+            closeModal('coach');
+            renderAll();
+            showToast(editId ? 'Koç başarıyla güncellendi!' : 'Koç başarıyla kaydedildi!', 'success');
+        }
+
+        function editCoach(id) {
+            var coach = getCoaches().find(function(c) { return c.id === id; });
+            if (!coach) return;
+            document.getElementById('coachModalTitle').textContent = 'Koç Düzenle';
+            document.getElementById('coachEditId').value = coach.id;
+            document.getElementById('coachName').value = coach.name;
+            document.getElementById('coachEmail').value = coach.email;
+            document.getElementById('coachSpecialty').value = coach.specialty;
+            document.getElementById('coachPhone').value = coach.phone || '';
+            document.getElementById('coachBio').value = coach.bio || '';
+            document.getElementById('coachModal').classList.add('active');
+        }
+
+        function deleteCoach(id) {
+            if (!confirm('Bu koçu silmek istediğinize emin misiniz?')) return;
+            var coaches = getCoaches();
+            var coach = coaches.find(function(c) { return c.id === id; });
+            coaches = coaches.filter(function(c) { return c.id !== id; });
+            saveCoaches(coaches);
+            if (coach) addActivity('<strong>' + coach.name + '</strong> koç silindi', 'orange');
+            renderAll();
+            showToast('Koç başarıyla silindi.', 'success');
+        }
+
+        function saveStudent() {
+            var editId = document.getElementById('studentEditId').value;
+            var name = document.getElementById('studentName').value.trim();
+            var email = document.getElementById('studentEmail').value.trim();
+            var phone = document.getElementById('studentPhone').value.trim();
+            var grade = document.getElementById('studentGrade').value;
+            var status = document.getElementById('studentStatus').value;
+            var coachId = document.getElementById('studentCoach').value ? parseInt(document.getElementById('studentCoach').value) : null;
+
+            if (!name || !email || !grade) { showToast('Lütfen zorunlu alanları doldurun.', 'error'); return; }
+
+            var students = getStudents();
+
+            if (editId) {
+                var idx = students.findIndex(function(s) { return s.id == editId; });
+                if (idx !== -1) {
+                    students[idx].name = name;
+                    students[idx].email = email;
+                    students[idx].phone = phone;
+                    students[idx].grade = grade;
+                    students[idx].status = status;
+                    students[idx].coachId = coachId;
+                }
+                addActivity('<strong>' + name + '</strong> öğrenci bilgileri güncellendi', 'green');
+            } else {
+                var newId = students.length > 0 ? Math.max.apply(null, students.map(function(s) { return s.id; })) + 1 : 1;
+                students.push({ id: newId, name: name, email: email, phone: phone, grade: grade, status: status, coachId: coachId });
+                addActivity('<strong>' + name + '</strong> yeni öğrenci olarak eklendi', 'blue');
+            }
+
+            saveStudents(students);
+            closeModal('student');
+            renderAll();
+            showToast(editId ? 'Öğrenci başarıyla güncellendi!' : 'Öğrenci başarıyla kaydedildi!', 'success');
+        }
+
+        function populateCoachDropdown(selectedId) {
+            var select = document.getElementById('studentCoach');
+            var coaches = getCoaches();
+            select.innerHTML = '<option value="">Koç Seçiniz</option>';
+            coaches.forEach(function(c) {
+                var opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.name + ' - ' + c.specialty;
+                if (selectedId && c.id == selectedId) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        function editStudent(id) {
+            var student = getStudents().find(function(s) { return s.id === id; });
+            if (!student) return;
+            document.getElementById('studentModalTitle').textContent = 'Öğrenci Düzenle';
+            document.getElementById('studentEditId').value = student.id;
+            document.getElementById('studentName').value = student.name;
+            document.getElementById('studentEmail').value = student.email;
+            document.getElementById('studentPhone').value = student.phone || '';
+            document.getElementById('studentGrade').value = student.grade;
+            document.getElementById('studentStatus').value = student.status;
+            populateCoachDropdown(student.coachId);
+            document.getElementById('studentModal').classList.add('active');
+        }
+
+        function deleteStudent(id) {
+            if (!confirm('Bu öğrenciyi silmek istediğinize emin misiniz?')) return;
+            var students = getStudents();
+            var student = students.find(function(s) { return s.id === id; });
+            students = students.filter(function(s) { return s.id !== id; });
+            saveStudents(students);
+            if (student) addActivity('<strong>' + student.name + '</strong> öğrenci silindi', 'orange');
+            renderAll();
+            showToast('Öğrenci başarıyla silindi.', 'success');
+        }
+
+        function deleteMessage(id) {
+            if (!confirm('Bu mesajı silmek istediğinize emin misiniz?')) return;
+            var messages = getMessages().filter(function(m) { return m.id !== id; });
+            saveMessages(messages);
+            addActivity('Mesaj silindi', 'orange');
+            renderAll();
+            showToast('Mesaj başarıyla silindi.', 'success');
+        }
+
+        function saveSettings() {
+            var settings = {
+                name: document.getElementById('settingName').value,
+                email: document.getElementById('settingEmail').value,
+                phone: document.getElementById('settingPhone').value
+            };
+            localStorage.setItem('pusula_settings', JSON.stringify(settings));
+            showToast('Ayarlar başarıyla kaydedildi!', 'success');
+            addActivity('Sistem ayarları güncellendi', 'green');
+        }
+
+        function loadSettings() {
+            var saved = localStorage.getItem('pusula_settings');
+            if (saved) {
+                var settings = JSON.parse(saved);
+                if (settings.name) document.getElementById('settingName').value = settings.name;
+                if (settings.email) document.getElementById('settingEmail').value = settings.email;
+                if (settings.phone) document.getElementById('settingPhone').value = settings.phone;
+            }
+        }
+
+        function refreshData() { renderAll(); showToast('Veriler yenilendi!', 'info'); }
+
+        function logout() {
+            localStorage.removeItem('pusula_admin_logged');
+            localStorage.removeItem('pusula_admin_email');
+            window.location.replace('admin.html');
+        }
+
+        document.querySelectorAll('.sidebar-menu-link').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.sidebar-menu-link').forEach(function(l) { l.classList.remove('active'); });
+                this.classList.add('active');
+                var section = this.getAttribute('data-section');
+                currentSection = section;
+                document.getElementById('pageTitle').textContent = { dashboard: 'Ana Panel', students: 'Öğrenciler', coaches: 'Koçlar', messages: 'Mesajlar', settings: 'Ayarlar' }[section] || section;
+
+                document.querySelectorAll('[id^="section-"]').forEach(function(s) { s.classList.add('section-hidden'); });
+                document.getElementById('section-' + section).classList.remove('section-hidden');
+
+                var addBtn = document.getElementById('addNewBtn');
+                if (section === 'students') { addBtn.style.display = 'inline-flex'; addBtn.textContent = ''; addBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Yeni Öğrenci'; addBtn.onclick = function() { openModal('student'); }; }
+                else if (section === 'coaches') { addBtn.style.display = 'inline-flex'; addBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Yeni Koç'; addBtn.onclick = function() { openModal('coach'); }; }
+                else { addBtn.style.display = 'none'; }
+            });
+        });
+
+        document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+            overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.classList.remove('active'); });
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(function(o) { o.classList.remove('active'); });
+        });
+
+        var isLoggedIn = localStorage.getItem('pusula_admin_logged');
+        if (isLoggedIn !== 'true') window.location.replace('admin.html');
+
+        initData();
+        renderAll();
+        loadSettings();
+    </script>
+</body>
+</html>
