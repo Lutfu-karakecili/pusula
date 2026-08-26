@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /pages/admin.html
+Disallow: /pages/admin-dashboard.html
+Disallow: /pages/giris.html
+Disallow: /pages/kayit.html
+Disallow: /pages/sifre-sifirlama.html
+Disallow: /src/
+Disallow: /dist/
+Disallow: /supabase/
+
+Sitemap: https://pusulayks.com/sitemap.xml

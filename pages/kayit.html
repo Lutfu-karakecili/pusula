@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
     <div class="auth-page">
@@ -109,6 +110,8 @@
                             <a href="kullanim-sartlari.html">Kullanım Şartları</a>'nı ve <a href="gizlilik-politikasi.html">Gizlilik Politikası</a>'nı okudum, kabul ediyorum.
                         </label>
                     </div>
+
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAA" data-theme="light" style="margin: 16px 0;"></div>
                     
                     <button type="submit" class="btn btn-primary" id="registerBtn">
                         <span>Kayıt Ol</span>
@@ -260,6 +263,12 @@
                 hasError = true;
             }
 
+            var turnstileToken = document.querySelector('#registerForm [name="cf-turnstile-response"]');
+            if (!turnstileToken || !turnstileToken.value) {
+                showError('regEmail', 'Lütfen robot olmadığını doğrulayın.');
+                hasError = true;
+            }
+
             if (hasError) {
                 return;
             }
@@ -274,7 +283,8 @@
                     email: email,
                     phone: phone,
                     password: password,
-                    grade: grade
+                    grade: grade,
+                    turnstileToken: turnstileToken.value
                 });
 
                 var card = document.querySelector('.auth-card');

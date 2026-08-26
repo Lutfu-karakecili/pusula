@@ -12,6 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         .page-header {
             padding: 150px 0 60px;
@@ -311,6 +312,8 @@
                             <div class="form-error" id="messageError">En az 10 karakter giriniz.</div>
                         </div>
                         
+                        <div class="cf-turnstile" data-sitekey="0x4AAAAAAA" data-theme="light" style="margin: 16px 0;"></div>
+                        
                         <button type="submit" class="btn btn-primary" style="width: 100%;">
                             Mesaj Gönder
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -432,6 +435,12 @@
             if (message.value.trim().length < 10) { showError(message, 'messageError'); valid = false; }
 
             if (!valid) return;
+
+            var turnstileToken = document.querySelector('#contactForm [name="cf-turnstile-response"]');
+            if (!turnstileToken || !turnstileToken.value) {
+                alert('Lütfen robot olmadığını doğrulayın.');
+                return;
+            }
 
             var submitBtn = this.querySelector('button[type="submit"]');
             var originalText = submitBtn.innerHTML;

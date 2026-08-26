@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
     <div class="auth-page">
@@ -64,6 +65,8 @@
                         </div>
                         <a href="sifre-sifirlama.html" class="form-forgot">Şifremi Unuttum</a>
                     </div>
+                    
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAA" data-theme="light" style="margin: 16px 0;"></div>
                     
                     <button type="submit" class="btn btn-primary" id="loginBtn">
                         <span>Giriş Yap</span>
@@ -125,6 +128,14 @@
             }
             
             if (!valid) return;
+
+            var turnstileToken = document.querySelector('#loginForm [name="cf-turnstile-response"]');
+            if (!turnstileToken || !turnstileToken.value) {
+                emailError.textContent = 'Lütfen robot olmadığını doğrulayın.';
+                email.classList.add('error');
+                emailError.style.display = 'block';
+                return;
+            }
 
             // Loading state
             loginBtn.classList.add('btn-loading');

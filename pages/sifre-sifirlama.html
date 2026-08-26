@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
     <div class="auth-page">
@@ -52,6 +53,8 @@
                             <label class="form-label">E-posta Adresiniz</label>
                             <input type="email" class="form-input" id="resetEmail" placeholder="ornek@email.com" required oninput="this.classList.remove('error'); document.getElementById('resetError').style.display='none';">
                         </div>
+                        
+                        <div class="cf-turnstile" data-sitekey="0x4AAAAAAA" data-theme="light" style="margin: 16px 0;"></div>
                         
                         <button type="submit" class="btn btn-primary" id="resetBtn" style="width: 100%;">
                             <span>Sıfırlama Bağlantısı Gönder</span>
@@ -95,7 +98,14 @@
                 document.getElementById('resetEmail').classList.add('error');
                 return;
             }
-            
+
+            var turnstileToken = document.querySelector('#passwordResetForm [name="cf-turnstile-response"]');
+            if (!turnstileToken || !turnstileToken.value) {
+                resetError.textContent = 'Lütfen robot olmadığını doğrulayın.';
+                resetError.style.display = 'block';
+                return;
+            }
+
             // Loading state
             resetBtn.classList.add('btn-loading');
             resetBtn.disabled = true;
