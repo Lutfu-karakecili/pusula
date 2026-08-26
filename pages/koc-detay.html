@@ -591,15 +591,8 @@
     </button>
 
     <script src="../js/main.js"></script>
-    <script>
-        var DEFAULT_COACHES = [
-            { id: 1, name: 'Emre Demir', email: 'emre@pusula.com', specialty: 'TYT Matematik', phone: '0532 111 22 33', bio: 'İTÜ Matematik Bölümü mezunu. 5 yıl deneyimli TYT Matematik koçu.', status: 'Aktif', students: 500, rating: 4.9, experience: '5 Yıl' },
-            { id: 2, name: 'Selin Çelik', email: 'selin@pusula.com', specialty: 'AYT Fen Bilimleri', phone: '0533 222 33 44', bio: 'ODTÜ Fizik Bölümü mezunu. 3 yıl deneyimli AYT Fen koçu.', status: 'Aktif', students: 350, rating: 4.8, experience: '3 Yıl' },
-            { id: 3, name: 'Ahmet Korkmaz', email: 'ahmet@pusula.com', specialty: 'TYT Türkçe', phone: '0534 333 44 55', bio: 'Türk Dili ve Edebiyatı Bölümü birincisi. 4 yıl deneyimli.', status: 'Aktif', students: 420, rating: 4.9, experience: '4 Yıl' },
-            { id: 4, name: 'Zeynep Arslan', email: 'zeynep@pusula.com', specialty: 'AYT Matematik', phone: '0535 444 55 66', bio: 'Hacettepe Matematik Bölümü yüksek lisans. 2 yıl deneyimli.', status: 'Aktif', students: 280, rating: 4.7, experience: '2 Yıl' },
-            { id: 5, name: 'Merve Yıldız', email: 'merve@pusula.com', specialty: 'PDR Uzmanı', phone: '0536 555 66 77', bio: 'Psikolojik Danışmanlık ve Rehberlik uzmanı. 6 yıl deneyim.', status: 'Aktif', students: 600, rating: 5.0, experience: '6 Yıl' },
-            { id: 6, name: 'Burak Özkan', email: 'burak@pusula.com', specialty: 'TYT Sosyal Bilimler', phone: '0537 666 78 88', bio: 'Tarih Bölümü mezunu, Sosyal Bilimlerde uzman koç.', status: 'Aktif', students: 310, rating: 4.8, experience: '3 Yıl' }
-        ];
+    <script type="module">
+        import { getCoachById } from '../src/lib/db.js';
 
         var PACKAGES_BY_SPECIALTY = {
             'TYT Matematik': ['TYT Matematik Birebir Ders', 'TYT Matematik Soru Çözüm Kampı', 'TYT Deneme Sınavı Paketi'],
@@ -615,32 +608,12 @@
             return parseInt(params.get('id'), 10);
         }
 
-        function getCoachesFromStorage() {
-            try {
-                var data = localStorage.getItem('pusula_coaches');
-                if (data) {
-                    return JSON.parse(data);
-                }
-            } catch (e) {
-                console.error('localStorage okuma hatası:', e);
-            }
-            return null;
-        }
-
-        function findCoach(id) {
-            var coaches = getCoachesFromStorage() || DEFAULT_COACHES;
-            return coaches.find(function(c) { return c.id === id; });
-        }
-
         function generateStars(rating) {
             var container = document.getElementById('coach-stars');
             var fullStars = Math.floor(rating);
-            var hasHalf = rating % 1 >= 0.5;
             var html = '';
             for (var i = 0; i < 5; i++) {
                 if (i < fullStars) {
-                    html += '<svg class="filled" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
-                } else if (i === fullStars && hasHalf) {
                     html += '<svg class="filled" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
                 } else {
                     html += '<svg class="empty" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
@@ -666,15 +639,15 @@
 
             document.getElementById('coach-name').textContent = coach.name;
             document.getElementById('coach-specialty').textContent = coach.specialty + ' Uzmanı';
-            document.getElementById('coach-bio').textContent = coach.bio;
-            document.getElementById('badge-rating').textContent = coach.rating;
-            document.getElementById('stat-students').textContent = coach.students + '+';
-            document.getElementById('stat-rating').textContent = coach.rating;
-            document.getElementById('stat-experience').textContent = coach.experience;
+            document.getElementById('coach-bio').textContent = coach.bio || '';
+            document.getElementById('badge-rating').textContent = coach.rating || 0;
+            document.getElementById('stat-students').textContent = (coach.students_count || 0) + '+';
+            document.getElementById('stat-rating').textContent = coach.rating || 0;
+            document.getElementById('stat-experience').textContent = coach.experience || '0 Yıl';
             document.getElementById('contact-email').textContent = coach.email;
-            document.getElementById('contact-phone').textContent = coach.phone;
+            document.getElementById('contact-phone').textContent = coach.phone || '';
 
-            generateStars(coach.rating);
+            generateStars(coach.rating || 0);
             generatePackages(coach.specialty);
 
             document.getElementById('loading').style.display = 'none';
@@ -686,19 +659,25 @@
             document.getElementById('error-view').classList.remove('hidden');
         }
 
-        (function init() {
+        async function init() {
             var id = getCoachIdFromUrl();
             if (isNaN(id)) {
                 showError();
                 return;
             }
-            var coach = findCoach(id);
-            if (!coach) {
+            try {
+                var coach = await getCoachById(id);
+                if (!coach) {
+                    showError();
+                    return;
+                }
+                renderCoach(coach);
+            } catch (e) {
                 showError();
-                return;
             }
-            renderCoach(coach);
-        })();
+        }
+
+        init();
     </script>
 </body>
 </html>

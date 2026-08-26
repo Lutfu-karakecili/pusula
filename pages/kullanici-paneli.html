@@ -716,22 +716,43 @@
 
     <div class="toast" id="toast"></div>
 
-    <script>
-        // Giriş kontrolü
-        (function() {
-            if (localStorage.getItem('pusula_user_logged') !== 'true') {
-                window.location.replace('giris.html');
-                return;
-            }
+    <script type="module">
+        import { requireAuth, logoutUser } from '../src/lib/auth.js';
+        import { updateProfile, getStudentCoachByStudentId, getStudentPackageByStudentId, getMessagesForStudent } from '../src/lib/db.js';
+
+        var currentUser = null;
+        var currentProfile = null;
+
+        async function init() {
+            var session = await requireAuth();
+            if (!session) return;
+
+            currentUser = session.user;
+            currentProfile = await getProfile(currentUser.id);
+            if (!currentProfile) return;
+
             initPanel();
-        })();
+            loadCoach();
+            loadPackage();
+            loadMessages();
+        }
+
+        async function getProfile(userId) {
+            const { getProfile: gp } = await import('../src/lib/db.js');
+            return gp(userId);
+        }
+
+        function getInitials(name) {
+            if (!name) return '?';
+            return name.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase().substring(0, 2);
+        }
 
         function initPanel() {
-            var userName = localStorage.getItem('pusula_user_name') || 'Kullanıcı';
-            var userEmail = localStorage.getItem('pusula_user_email') || '';
-            var userPhone = localStorage.getItem('pusula_user_phone') || 'Belirtilmemiş';
-            var userGrade = localStorage.getItem('pusula_user_grade') || 'Belirtilmemiş';
-            var initials = userName.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase().substring(0, 2);
+            var userName = currentProfile.full_name || 'Kullanıcı';
+            var userEmail = currentUser.email || '';
+            var userPhone = currentProfile.phone || '';
+            var userGrade = currentProfile.grade || '';
+            var initials = getInitials(userName);
 
             document.getElementById('headerAvatar').textContent = initials;
             document.getElementById('headerName').textContent = userName;
@@ -741,18 +762,14 @@
 
             document.getElementById('infoName').textContent = userName;
             document.getElementById('infoEmail').textContent = userEmail;
-            document.getElementById('infoPhone').textContent = userPhone;
-            document.getElementById('infoGrade').textContent = userGrade + '. Sınıf';
+            document.getElementById('infoPhone').textContent = userPhone || 'Belirtilmemiş';
+            document.getElementById('infoGrade').textContent = userGrade ? userGrade + '. Sınıf' : 'Belirtilmemiş';
 
             document.getElementById('settingsName').value = userName;
-            document.getElementById('settingsPhone').value = userPhone !== 'Belirtilmemiş' ? userPhone : '';
-
-            loadCoach();
-            loadPackage();
-            loadMessages();
+            document.getElementById('settingsPhone').value = userPhone || '';
         }
 
-        function showSection(section) {
+        window.showSection = function(section) {
             document.querySelectorAll('.section-content').forEach(function(el) {
                 el.classList.add('section-hidden');
             });
@@ -762,91 +779,99 @@
                 el.classList.remove('active');
             });
             document.querySelector('[data-section="' + section + '"]').classList.add('active');
-        }
+        };
 
-        function loadCoach() {
-            var coachName = localStorage.getItem('pusula_user_coach');
+        async function loadCoach() {
             var container = document.getElementById('coachContent');
-
-            if (coachName) {
-                var coachInitials = coachName.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase().substring(0, 2);
-                var coachSpec = localStorage.getItem('pusula_user_coach_spec') || 'YKS Koçu';
-                container.innerHTML =
-                    '<div class="coach-card">' +
-                        '<div class="coach-avatar">' + coachInitials + '</div>' +
-                        '<div class="coach-info">' +
-                            '<h3>' + coachName + '</h3>' +
-                            '<p>' + coachSpec + '</p>' +
-                            '<p style="color: var(--success); font-weight: 500; margin-top: 4px;">Aktif Koçunuz</p>' +
-                        '</div>' +
-                    '</div>';
-            } else {
-                container.innerHTML =
-                    '<div class="empty-state">' +
-                        '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/></svg>' +
-                        '<h3>Henüz bir koçunuz yok</h3>' +
-                        '<p>Koçlarımızı inceleyin ve size en uygun koçu seçin.</p>' +
-                        '<a href="koclar.html" class="btn btn-primary">Koçlarımızı Keşfet</a>' +
-                    '</div>';
+            try {
+                var assignment = await getStudentCoachByStudentId(currentUser.id);
+                if (assignment && assignment.coaches) {
+                    var coach = assignment.coaches;
+                    var initials = getInitials(coach.name);
+                    container.innerHTML =
+                        '<div class="coach-card">' +
+                            '<div class="coach-avatar">' + initials + '</div>' +
+                            '<div class="coach-info">' +
+                                '<h3>' + coach.name + '</h3>' +
+                                '<p>' + coach.specialty + '</p>' +
+                                '<p style="color: var(--success); font-weight: 500; margin-top: 4px;">Aktif Koçunuz</p>' +
+                            '</div>' +
+                        '</div>';
+                } else {
+                    container.innerHTML =
+                        '<div class="empty-state">' +
+                            '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/></svg>' +
+                            '<h3>Henüz bir koçunuz yok</h3>' +
+                            '<p>Koçlarımızı inceleyin ve size en uygun koçu seçin.</p>' +
+                            '<a href="koclar.html" class="btn btn-primary">Koçlarımızı Keşfet</a>' +
+                        '</div>';
+                }
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state"><p>Yüklenirken hata oluştu.</p></div>';
             }
         }
 
-        function loadPackage() {
-            var packageName = localStorage.getItem('pusula_user_package');
+        async function loadPackage() {
             var container = document.getElementById('packageContent');
-
-            if (packageName) {
-                var packageDate = localStorage.getItem('pusula_user_package_date') || '';
-                container.innerHTML =
-                    '<div class="package-card">' +
-                        '<h3>' + packageName + '</h3>' +
-                        '<p>Paketiniz aktif olarak kullanımda.</p>' +
-                        (packageDate ? '<p style="opacity:0.7; font-size:0.85rem; margin-top:4px;">Alınma tarihi: ' + packageDate + '</p>' : '') +
-                        '<span class="package-badge">Aktif</span>' +
-                    '</div>';
-            } else {
-                container.innerHTML =
-                    '<div class="empty-state">' +
-                        '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14z"/></svg>' +
-                        '<h3>Henüz paketiniz yok</h3>' +
-                        '<p>Paketlerimizi inceleyin ve ihtiyacınıza uygun paketi seçin.</p>' +
-                        '<a href="paketler.html" class="btn btn-primary">Paketleri İncele</a>' +
-                    '</div>';
+            try {
+                var assignment = await getStudentPackageByStudentId(currentUser.id);
+                if (assignment && assignment.packages) {
+                    var pkg = assignment.packages;
+                    container.innerHTML =
+                        '<div class="package-card">' +
+                            '<h3>' + pkg.name + '</h3>' +
+                            '<p>Paketiniz aktif olarak kullanımda.</p>' +
+                            (assignment.start_date ? '<p style="opacity:0.7; font-size:0.85rem; margin-top:4px;">Alınma tarihi: ' + new Date(assignment.start_date).toLocaleDateString('tr-TR') + '</p>' : '') +
+                            '<span class="package-badge">Aktif</span>' +
+                        '</div>';
+                } else {
+                    container.innerHTML =
+                        '<div class="empty-state">' +
+                            '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14z"/></svg>' +
+                            '<h3>Henüz paketiniz yok</h3>' +
+                            '<p>Paketlerimizi inceleyin ve ihtiyacınıza uygun paketi seçin.</p>' +
+                            '<a href="paketler.html" class="btn btn-primary">Paketleri İncele</a>' +
+                        '</div>';
+                }
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state"><p>Yüklenirken hata oluştu.</p></div>';
             }
         }
 
-        function loadMessages() {
-            var messages = JSON.parse(localStorage.getItem('pusula_user_messages') || '[]');
+        async function loadMessages() {
             var container = document.getElementById('messagesContent');
+            try {
+                var messages = await getMessagesForStudent(currentUser.id);
+                if (messages.length === 0) {
+                    container.innerHTML =
+                        '<div class="empty-state">' +
+                            '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>' +
+                            '<h3>Henüz mesajınız yok</h3>' +
+                            '<p>Admin tarafından gönderilen mesajlarınız burada görünecek.</p>' +
+                        '</div>';
+                    return;
+                }
 
-            if (messages.length === 0) {
-                container.innerHTML =
-                    '<div class="empty-state">' +
-                        '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>' +
-                        '<h3>Henüz mesajınız yok</h3>' +
-                        '<p>Admin tarafından gönderilen mesajlarınız burada görünecek.</p>' +
-                    '</div>';
-                return;
+                var html = '<div class="messages-list">';
+                messages.forEach(function(msg) {
+                    var date = msg.created_at ? new Date(msg.created_at).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+                    html +=
+                        '<div class="message-item">' +
+                            '<div class="message-header">' +
+                                '<span class="message-sender">' + (msg.sender_name || 'Admin') + '</span>' +
+                                '<span class="message-date">' + date + '</span>' +
+                            '</div>' +
+                            '<div class="message-body">' + msg.body + '</div>' +
+                        '</div>';
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state"><p>Yüklenirken hata oluştu.</p></div>';
             }
-
-            var html = '<div class="messages-list">';
-            messages.reverse().forEach(function(msg) {
-                var date = msg.date ? new Date(msg.date).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
-                html +=
-                    '<div class="message-item">' +
-                        '<div class="message-header">' +
-                            '<span class="message-sender">' + (msg.sender || 'Admin') + '</span>' +
-                            '<span class="message-date">' + date + '</span>' +
-                        '</div>' +
-                        '<div class="message-body">' + msg.text + '</div>' +
-                    '</div>';
-            });
-            html += '</div>';
-            container.innerHTML = html;
         }
 
-        // Profil güncelleme
-        document.getElementById('profileForm').addEventListener('submit', function(e) {
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             var name = document.getElementById('settingsName').value.trim();
             var phone = document.getElementById('settingsPhone').value.trim();
@@ -856,33 +881,23 @@
                 return;
             }
 
-            localStorage.setItem('pusula_user_name', name);
-            if (phone) localStorage.setItem('pusula_user_phone', phone);
-
-            // Users listesinde de güncelle
-            var users = JSON.parse(localStorage.getItem('pusula_users') || '[]');
-            var email = localStorage.getItem('pusula_user_email');
-            users = users.map(function(u) {
-                if (u.email === email) {
-                    u.name = name;
-                    u.phone = phone || u.phone;
-                }
-                return u;
-            });
-            localStorage.setItem('pusula_users', JSON.stringify(users));
-
-            initPanel();
-            showToast('Profiliniz güncellendi.');
+            try {
+                await updateProfile(currentUser.id, { full_name: name, phone: phone || '' });
+                currentProfile.full_name = name;
+                currentProfile.phone = phone || '';
+                initPanel();
+                showToast('Profiliniz güncellendi.');
+            } catch (err) {
+                showToast('Güncelleme sırasında hata oluştu: ' + err.message, 'error');
+            }
         });
 
-        // Şifre değiştirme
-        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+        document.getElementById('passwordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            var current = document.getElementById('currentPassword').value;
             var newPass = document.getElementById('newPassword').value;
 
-            if (!current || !newPass) {
-                showToast('Lütfen tüm alanları doldurun.', 'error');
+            if (!newPass) {
+                showToast('Lütfen yeni şifrenizi girin.', 'error');
                 return;
             }
 
@@ -891,50 +906,38 @@
                 return;
             }
 
-            var email = localStorage.getItem('pusula_user_email');
-            var users = JSON.parse(localStorage.getItem('pusula_users') || '[]');
-            var userIndex = users.findIndex(function(u) { return u.email === email; });
-
-            if (userIndex === -1) {
-                showToast('Kullanıcı bulunamadı.', 'error');
-                return;
+            try {
+                const { supabase } = await import('../src/lib/supabase.js');
+                var { error } = await supabase.auth.updateUser({ password: newPass });
+                if (error) throw error;
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                showToast('Şifreniz güncellendi.');
+            } catch (err) {
+                showToast('Şifre güncellenirken hata oluştu: ' + err.message, 'error');
             }
-
-            if (users[userIndex].password !== current) {
-                showToast('Mevcut şifreniz hatalı.', 'error');
-                return;
-            }
-
-            users[userIndex].password = newPass;
-            localStorage.setItem('pusula_users', JSON.stringify(users));
-
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            showToast('Şifreniz güncellendi.');
         });
 
-        function showToast(message) {
+        window.logoutUser = async function() {
+            try {
+                await logoutUser();
+                window.location.replace('../index.html');
+            } catch (e) {
+                window.location.replace('../index.html');
+            }
+        };
+
+        function showToast(message, type) {
             var toast = document.getElementById('toast');
             toast.textContent = message;
+            toast.style.background = type === 'error' ? 'var(--accent)' : 'var(--success)';
             toast.classList.add('show');
             setTimeout(function() {
                 toast.classList.remove('show');
             }, 3000);
         }
 
-        function logoutUser() {
-            localStorage.removeItem('pusula_user_logged');
-            localStorage.removeItem('pusula_user_name');
-            localStorage.removeItem('pusula_user_email');
-            localStorage.removeItem('pusula_user_phone');
-            localStorage.removeItem('pusula_user_grade');
-            localStorage.removeItem('pusula_user_coach');
-            localStorage.removeItem('pusula_user_coach_spec');
-            localStorage.removeItem('pusula_user_package');
-            localStorage.removeItem('pusula_user_package_date');
-            localStorage.removeItem('pusula_user_messages');
-            window.location.replace('../index.html');
-        }
+        init();
     </script>
 </body>
 </html>

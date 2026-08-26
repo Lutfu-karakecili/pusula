@@ -388,10 +388,12 @@
     </button>
 
     <script src="../js/main.js"></script>
-    <script>
+    <script type="module">
+        import { sendContactMessage } from '../src/lib/db.js';
+
         function clearError(input) {
             input.classList.remove('error');
-            const errorEl = document.getElementById(input.id + 'Error');
+            var errorEl = document.getElementById(input.id + 'Error');
             if (errorEl) errorEl.style.display = 'none';
         }
 
@@ -400,16 +402,16 @@
             document.getElementById(errorElId).style.display = 'block';
         }
 
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const name = document.getElementById('name');
-            const email = document.getElementById('email');
-            const phone = document.getElementById('phone');
-            const subject = document.getElementById('subject');
-            const message = document.getElementById('message');
+            var name = document.getElementById('name');
+            var email = document.getElementById('email');
+            var phone = document.getElementById('phone');
+            var subject = document.getElementById('subject');
+            var message = document.getElementById('message');
 
-            let valid = true;
+            var valid = true;
 
             clearError(name);
             clearError(email);
@@ -419,10 +421,10 @@
 
             if (name.value.trim().length < 2) { showError(name, 'nameError'); valid = false; }
 
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email.value.trim())) { showError(email, 'emailError'); valid = false; }
 
-            const digitsOnly = phone.value.replace(/\D/g, '');
+            var digitsOnly = phone.value.replace(/\D/g, '');
             if (digitsOnly.length < 10) { showError(phone, 'phoneError'); valid = false; }
 
             if (!subject.value) { showError(subject, 'subjectError'); valid = false; }
@@ -431,8 +433,28 @@
 
             if (!valid) return;
 
-            alert('Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağız.');
-            this.reset();
+            var submitBtn = this.querySelector('button[type="submit"]');
+            var originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Gönderiliyor...';
+
+            try {
+                await sendContactMessage({
+                    name: name.value.trim(),
+                    email: email.value.trim(),
+                    phone: phone.value.trim(),
+                    subject: subject.options[subject.selectedIndex].text,
+                    message: message.value.trim()
+                });
+
+                alert('Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağız.');
+                this.reset();
+            } catch (err) {
+                alert('Mesaj gönderilirken bir hata oluştu: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
         });
     </script>
 </body>

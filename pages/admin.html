@@ -144,18 +144,20 @@
     <script type="module">
         import { loginUser, getCurrentSession, getCurrentProfile } from '../src/lib/auth.js';
 
-        // Eğer zaten giriş yapılmışsa ve adminse dashboard'a yönlendir
-        const existingSession = await getCurrentSession();
-        if (existingSession) {
-            try {
-                const profile = await getCurrentProfile();
-                if (profile && profile.role === 'admin') {
-                    window.location.replace('admin-dashboard.html');
+        (async function() {
+            const existingSession = await getCurrentSession();
+            if (existingSession) {
+                try {
+                    const profile = await getCurrentProfile();
+                    if (profile && profile.role === 'admin') {
+                        window.location.replace('admin-dashboard.html');
+                        return;
+                    }
+                } catch (e) {
+                    // Profil alınamadı, devam et
                 }
-            } catch (e) {
-                // Profil alınamadı, devam et
             }
-        }
+        })();
 
         document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
             e.preventDefault();

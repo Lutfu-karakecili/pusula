@@ -407,8 +407,42 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { requireAdmin, logoutUser } from '../src/lib/auth.js';
+        import {
+            getCoaches as dbGetCoaches, insertCoach, updateCoach, deleteCoach as dbDeleteCoach,
+            getStudents, getStudentCoaches, updateStudent, assignStudentToCoach, removeStudentCoach,
+            getMessages as dbGetMessages, deleteMessage as dbDeleteMessage, sendMessage
+        } from '../src/lib/db.js';
+
         var currentSection = 'dashboard';
+        var cachedCoaches = [];
+        var cachedStudents = [];
+        var cachedStudentCoaches = [];
+        var cachedMessages = [];
+
+        async function init() {
+            var profile = await requireAdmin();
+            if (!profile) return;
+
+            var adminName = profile.full_name || 'Admin';
+            document.querySelector('.admin-name').textContent = adminName;
+            document.querySelector('.admin-avatar').textContent = adminName.split(' ').map(function(n){ return n[0]; }).join('').toUpperCase().substring(0,2);
+
+            await refreshAll();
+        }
+
+        async function refreshAll() {
+            try {
+                cachedCoaches = await dbGetCoaches();
+                cachedStudents = await getStudents();
+                cachedStudentCoaches = await getStudentCoaches();
+                cachedMessages = await dbGetMessages();
+            } catch(e) {
+                showToast('Veri yüklenirken hata oluştu: ' + e.message, 'error');
+            }
+            renderAll();
+        }
 
         function showToast(message, type) {
             type = type || 'info';
@@ -421,64 +455,24 @@
             setTimeout(function() { toast.style.opacity = '0'; toast.style.transform = 'translateX(100%)'; toast.style.transition = 'all 0.3s'; setTimeout(function() { toast.remove(); }, 300); }, 3000);
         }
 
-        var DEFAULT_COACHES = [
-            { id: 1, name: 'Emre Demir', email: 'emre@pusula.com', specialty: 'TYT Matematik', phone: '0532 111 22 33', bio: 'İTÜ Matematik Bölümü mezunu. 5 yıl deneyimli TYT Matematik koçu.', status: 'Aktif', students: 500, rating: 4.9, experience: '5 Yıl' },
-            { id: 2, name: 'Selin Çelik', email: 'selin@pusula.com', specialty: 'AYT Fen Bilimleri', phone: '0533 222 33 44', bio: 'ODTÜ Fizik Bölümü mezunu. 3 yıl deneyimli AYT Fen koçu.', status: 'Aktif', students: 350, rating: 4.8, experience: '3 Yıl' },
-            { id: 3, name: 'Ahmet Korkmaz', email: 'ahmet@pusula.com', specialty: 'TYT Türkçe', phone: '0534 333 44 55', bio: 'Türk Dili ve Edebiyatı Bölümü birincisi. 4 yıl deneyimli.', status: 'Aktif', students: 420, rating: 4.9, experience: '4 Yıl' },
-            { id: 4, name: 'Zeynep Arslan', email: 'zeynep@pusula.com', specialty: 'AYT Matematik', phone: '0535 444 55 66', bio: 'Hacettepe Matematik Bölümü yüksek lisans. 2 yıl deneyimli.', status: 'Aktif', students: 280, rating: 4.7, experience: '2 Yıl' },
-            { id: 5, name: 'Merve Yıldız', email: 'merve@pusula.com', specialty: 'PDR Uzmanı', phone: '0536 555 66 77', bio: 'Psikolojik Danışmanlık ve Rehberlik uzmanı. 6 yıl deneyim.', status: 'Aktif', students: 600, rating: 5.0, experience: '6 Yıl' },
-            { id: 6, name: 'Burak Özkan', email: 'burak@pusula.com', specialty: 'TYT Sosyal Bilimler', phone: '0537 666 77 88', bio: 'Tarih Bölümü mezunu, Sosyal Bilimlerde uzman koç.', status: 'Aktif', students: 310, rating: 4.8, experience: '3 Yıl' }
-        ];
-
-        var DEFAULT_STUDENTS = [
-            { id: 1, name: 'Ahmet Yılmaz', email: 'ahmet@email.com', phone: '0531 111 11 11', grade: '12. Sınıf', status: 'Aktif', coachId: 1 },
-            { id: 2, name: 'Zeynep Kaya', email: 'zeynep@email.com', phone: '0532 222 22 22', grade: 'Mezun', status: 'Aktif', coachId: 2 },
-            { id: 3, name: 'Mehmet Aydın', email: 'mehmet@email.com', phone: '0533 333 33 33', grade: '11. Sınıf', status: 'Beklemede', coachId: null },
-            { id: 4, name: 'Elif Yıldız', email: 'elif@email.com', phone: '0534 444 44 44', grade: '12. Sınıf', status: 'Aktif', coachId: 3 },
-            { id: 5, name: 'Can Demir', email: 'can@email.com', phone: '0535 555 55 55', grade: 'Mezun', status: 'Aktif', coachId: 4 }
-        ];
-
-        var DEFAULT_MESSAGES = [
-            { id: 1, sender: 'Ahmet Yılmaz', subject: 'Koçluk Paketi', message: 'TYT koçluk paketi hakkında bilgi almak istiyorum.', date: '2 saat önce' },
-            { id: 2, sender: 'Zeynep Kaya', subject: 'Deneme Sonuçları', message: 'Son deneme sınavımın analizini paylaşabilir misiniz?', date: '5 saat önce' },
-            { id: 3, sender: 'Mehmet Aydın', subject: 'Kayıt İşlemi', message: 'Kayıt işlemi için gerekli belgeler nelerdir?', date: '1 gün önce' }
-        ];
-
-        function initData() {
-            if (!localStorage.getItem('pusula_coaches')) {
-                localStorage.setItem('pusula_coaches', JSON.stringify(DEFAULT_COACHES));
+        function getCoachNameForStudent(studentId) {
+            var sc = cachedStudentCoaches.find(function(s) { return s.student_id === studentId; });
+            if (sc && sc.coaches) {
+                var parts = sc.coaches.name.split(' ');
+                return parts[0] + ' ' + (parts[1] ? parts[1][0] + '.' : '');
             }
-            if (!localStorage.getItem('pusula_students')) {
-                localStorage.setItem('pusula_students', JSON.stringify(DEFAULT_STUDENTS));
-            }
-            if (!localStorage.getItem('pusula_messages')) {
-                localStorage.setItem('pusula_messages', JSON.stringify(DEFAULT_MESSAGES));
-            }
-            if (!localStorage.getItem('pusula_activities')) {
-                localStorage.setItem('pusula_activities', JSON.stringify([
-                    { text: '<strong>Ahmet Yılmaz</strong> koçluk paketine katıldı', time: '2 saat önce', type: 'blue' },
-                    { text: '<strong>Zeynep Kaya</strong> deneme sınavını tamamladı', time: '5 saat önce', type: 'green' },
-                    { text: 'Yeni mesaj: <strong>Mehmet Aydın</strong>', time: '1 gün önce', type: 'orange' },
-                    { text: '<strong>Emre D.</strong> yeni öğrenci atadı', time: '2 gün önce', type: 'blue' }
-                ]));
-            }
+            return '—';
         }
 
-        function getCoaches() { return JSON.parse(localStorage.getItem('pusula_coaches') || '[]'); }
-        function getStudents() { return JSON.parse(localStorage.getItem('pusula_students') || '[]'); }
-        function getMessages() { return JSON.parse(localStorage.getItem('pusula_messages') || '[]'); }
-        function getActivities() { return JSON.parse(localStorage.getItem('pusula_activities') || '[]'); }
-        function saveCoaches(c) { localStorage.setItem('pusula_coaches', JSON.stringify(c)); }
-        function saveStudents(s) { localStorage.setItem('pusula_students', JSON.stringify(s)); }
-        function saveMessages(m) { localStorage.setItem('pusula_messages', JSON.stringify(m)); }
-        function saveActivities(a) { localStorage.setItem('pusula_activities', JSON.stringify(a)); }
-
-        function getCoachName(id) {
-            var c = getCoaches().find(function(c) { return c.id === id; });
-            return c ? c.name.split(' ')[0] + ' ' + c.name.split(' ')[1][0] + '.' : '—';
+        function getCoachNameById(id) {
+            var c = cachedCoaches.find(function(c) { return c.id === id; });
+            if (!c) return '—';
+            var parts = c.name.split(' ');
+            return parts[0] + ' ' + (parts[1] ? parts[1][0] + '.' : '');
         }
 
         function getInitials(name) {
+            if (!name) return '?';
             return name.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase().substring(0, 2);
         }
 
@@ -490,25 +484,30 @@
         }
 
         function renderDashboard() {
-            var students = getStudents();
-            var coaches = getCoaches();
-            document.getElementById('statStudents').textContent = students.length;
-            document.getElementById('statCoaches').textContent = coaches.filter(function(c) { return c.status === 'Aktif'; }).length;
-            document.getElementById('statMessages').textContent = getMessages().length;
-            document.getElementById('statActive').textContent = students.filter(function(s) { return s.status === 'Aktif'; }).length;
+            document.getElementById('statStudents').textContent = cachedStudents.length;
+            document.getElementById('statCoaches').textContent = cachedCoaches.filter(function(c) { return c.status === 'Aktif'; }).length;
+            document.getElementById('statMessages').textContent = cachedMessages.length;
+            document.getElementById('statActive').textContent = cachedStudents.length;
 
             var tbody = document.getElementById('dashStudentTable');
             tbody.innerHTML = '';
-            students.slice(0, 5).forEach(function(s) {
-                tbody.innerHTML += '<tr><td><div class="user-cell"><div class="user-avatar">' + getInitials(s.name) + '</div><div><div class="user-name">' + s.name + '</div><div class="user-email">' + s.email + '</div></div></div></td><td>' + s.grade + '</td><td>' + (s.coachId ? getCoachName(s.coachId) : '—') + '</td><td><span class="badge ' + getBadgeClass(s.status) + '">' + s.status + '</span></td></tr>';
+            var recent = cachedStudents.slice(0, 5);
+            recent.forEach(function(s) {
+                tbody.innerHTML += '<tr><td><div class="user-cell"><div class="user-avatar">' + getInitials(s.full_name) + '</div><div><div class="user-name">' + s.full_name + '</div><div class="user-email">' + s.email + '</div></div></div></td><td>' + (s.grade || '—') + '</td><td>' + getCoachNameForStudent(s.id) + '</td><td><span class="badge badge-success">Aktif</span></td></tr>';
             });
-            if (students.length === 0) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#6c757d;">Öğrenci bulunamadı.</td></tr>';
+            if (cachedStudents.length === 0) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#6c757d;">Öğrenci bulunamadı.</td></tr>';
 
             var actList = document.getElementById('activityList');
             actList.innerHTML = '';
-            getActivities().forEach(function(a) {
-                actList.innerHTML += '<li class="activity-item"><div class="activity-icon ' + a.type + '"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><div class="activity-content"><div class="activity-text">' + a.text + '</div><div class="activity-time">' + a.time + '</div></div></li>';
-            });
+            var recentMsgs = cachedMessages.slice(0, 4);
+            if (recentMsgs.length === 0) {
+                actList.innerHTML = '<li class="activity-item"><div class="activity-content"><div class="activity-text">Henüz aktivite yok.</div></div></li>';
+            } else {
+                recentMsgs.forEach(function(m) {
+                    var time = m.created_at ? new Date(m.created_at).toLocaleDateString('tr-TR') : '';
+                    actList.innerHTML += '<li class="activity-item"><div class="activity-icon blue"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div><div class="activity-content"><div class="activity-text">Yeni mesaj: <strong>' + (m.sender_name || 'Bilinmeyen') + '</strong></div><div class="activity-time">' + time + '</div></div></li>';
+                });
+            }
         }
 
         function sanitizeHTML(str) {
@@ -518,47 +517,38 @@
         }
 
         function renderStudents() {
-            var students = getStudents();
             var tbody = document.getElementById('studentTable');
             var empty = document.getElementById('emptyStudents');
             tbody.innerHTML = '';
-            if (students.length === 0) { empty.style.display = 'block'; return; }
+            if (cachedStudents.length === 0) { empty.style.display = 'block'; return; }
             empty.style.display = 'none';
-            students.forEach(function(s) {
-                tbody.innerHTML += '<tr><td><div class="user-cell"><div class="user-avatar">' + getInitials(s.name) + '</div><div><div class="user-name">' + s.name + '</div><div class="user-email">' + s.email + '</div></div></div></td><td>' + s.email + '</td><td>' + (s.phone || '—') + '</td><td>' + s.grade + '</td><td>' + (s.coachId ? getCoachName(s.coachId) : '—') + '</td><td><span class="badge ' + getBadgeClass(s.status) + '">' + s.status + '</span></td><td><div class="action-btns"><button class="btn btn-secondary btn-sm" onclick="editStudent(' + s.id + ')">Düzenle</button><button class="btn btn-danger btn-sm" onclick="deleteStudent(' + s.id + ')">Sil</button></div></td></tr>';
+            cachedStudents.forEach(function(s) {
+                tbody.innerHTML += '<tr><td><div class="user-cell"><div class="user-avatar">' + getInitials(s.full_name) + '</div><div><div class="user-name">' + s.full_name + '</div><div class="user-email">' + s.email + '</div></div></div></td><td>' + s.email + '</td><td>' + (s.phone || '—') + '</td><td>' + (s.grade || '—') + '</td><td>' + getCoachNameForStudent(s.id) + '</td><td><span class="badge badge-success">Aktif</span></td><td><div class="action-btns"><button class="btn btn-secondary btn-sm" onclick="window._editStudent(\'' + s.id + '\')">Düzenle</button></div></td></tr>';
             });
         }
 
         function renderCoaches() {
-            var coaches = getCoaches();
             var tbody = document.getElementById('coachTable');
             var empty = document.getElementById('emptyCoaches');
             tbody.innerHTML = '';
-            if (coaches.length === 0) { empty.style.display = 'block'; return; }
+            if (cachedCoaches.length === 0) { empty.style.display = 'block'; return; }
             empty.style.display = 'none';
-            coaches.forEach(function(c) {
-                tbody.innerHTML += '<tr><td><div class="user-cell"><div class="user-avatar">' + getInitials(c.name) + '</div><div><div class="user-name">' + c.name + '</div><div class="user-email">' + c.email + '</div></div></div></td><td>' + c.email + '</td><td>' + c.specialty + '</td><td>' + (c.phone || '—') + '</td><td><span class="badge ' + getBadgeClass(c.status) + '">' + c.status + '</span></td><td><div class="action-btns"><button class="btn btn-secondary btn-sm" onclick="editCoach(' + c.id + ')">Düzenle</button><button class="btn btn-danger btn-sm" onclick="deleteCoach(' + c.id + ')">Sil</button></div></td></tr>';
+            cachedCoaches.forEach(function(c) {
+                tbody.innerHTML += '<tr><td><div class="user-cell"><div class="user-avatar">' + getInitials(c.name) + '</div><div><div class="user-name">' + c.name + '</div><div class="user-email">' + c.email + '</div></div></div></td><td>' + c.email + '</td><td>' + c.specialty + '</td><td>' + (c.phone || '—') + '</td><td><span class="badge ' + getBadgeClass(c.status) + '">' + c.status + '</span></td><td><div class="action-btns"><button class="btn btn-secondary btn-sm" onclick="window._editCoach(' + c.id + ')">Düzenle</button><button class="btn btn-danger btn-sm" onclick="window._deleteCoach(' + c.id + ')">Sil</button></div></td></tr>';
             });
         }
 
         function renderMessages() {
-            var messages = getMessages();
             var tbody = document.getElementById('messageTable');
             var empty = document.getElementById('emptyMessages');
             tbody.innerHTML = '';
-            if (messages.length === 0) { empty.style.display = 'block'; return; }
+            if (cachedMessages.length === 0) { empty.style.display = 'block'; return; }
             empty.style.display = 'none';
-            messages.forEach(function(m) {
-                tbody.innerHTML += '<tr><td><strong>' + m.sender + '</strong></td><td>' + m.subject + '</td><td>' + m.message.substring(0, 50) + '...</td><td>' + m.date + '</td><td><div class="action-btns"><button class="btn btn-secondary btn-sm" onclick="replyMessage(\'' + m.sender + '\', \'' + m.subject + '\')">Yanıtla</button><button class="btn btn-danger btn-sm" onclick="deleteMessage(' + m.id + ')">Sil</button></div></td></tr>';
+            cachedMessages.forEach(function(m) {
+                var date = m.created_at ? new Date(m.created_at).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' }) : '';
+                var preview = (m.body || '').substring(0, 50);
+                tbody.innerHTML += '<tr><td><strong>' + (m.sender_name || 'Bilinmeyen') + '</strong></td><td>' + sanitizeHTML(m.subject || '') + '</td><td>' + sanitizeHTML(preview) + '...</td><td>' + date + '</td><td><div class="action-btns"><button class="btn btn-danger btn-sm" onclick="window._deleteMessage(' + m.id + ')">Sil</button></div></td></tr>';
             });
-        }
-
-        function replyMessage(sender, subject) {
-            var reply = prompt(sender + ' adresine yanıt yazın:\nKonu: ' + subject);
-            if (reply && reply.trim()) {
-                addActivity('<strong>' + sender + '</strong> adresine yanıt gönderildi', 'green');
-                showToast('Yanıt gönderildi.', 'success');
-            }
         }
 
         function renderAll() {
@@ -568,14 +558,7 @@
             renderMessages();
         }
 
-        function addActivity(text, type) {
-            var activities = getActivities();
-            activities.unshift({ text: text, time: 'Az önce', type: type || 'blue' });
-            if (activities.length > 20) activities = activities.slice(0, 20);
-            saveActivities(activities);
-        }
-
-        function openModal(type) {
+        window.openModal = function(type) {
             currentSection = type;
             document.getElementById(type + 'Modal').classList.add('active');
             if (type === 'coach') {
@@ -586,33 +569,33 @@
                 document.getElementById('studentModalTitle').textContent = 'Yeni Öğrenci Ekle';
                 document.getElementById('studentEditId').value = '';
                 document.getElementById('studentForm').reset();
-                populateCoachDropdown(null);
+                window.populateCoachDropdown(null);
             }
-        }
+        };
 
-        function closeModal(type) {
+        window.closeModal = function(type) {
             document.getElementById(type + 'Modal').classList.remove('active');
-        }
+        };
 
-        function filterStudents() {
+        window.filterStudents = function() {
             var query = document.getElementById('studentSearch').value.toLowerCase();
             var rows = document.querySelectorAll('#studentTable tr');
             rows.forEach(function(row) {
                 var text = row.textContent.toLowerCase();
                 row.style.display = text.includes(query) ? '' : 'none';
             });
-        }
+        };
 
-        function filterCoaches() {
+        window.filterCoaches = function() {
             var query = document.getElementById('coachSearch').value.toLowerCase();
             var rows = document.querySelectorAll('#coachTable tr');
             rows.forEach(function(row) {
                 var text = row.textContent.toLowerCase();
                 row.style.display = text.includes(query) ? '' : 'none';
             });
-        }
+        };
 
-        function saveCoach() {
+        window.saveCoach = async function() {
             var editId = document.getElementById('coachEditId').value;
             var name = document.getElementById('coachName').value.trim();
             var email = document.getElementById('coachEmail').value.trim();
@@ -622,32 +605,23 @@
 
             if (!name || !email || !specialty) { showToast('Lütfen zorunlu alanları doldurun.', 'error'); return; }
 
-            var coaches = getCoaches();
-
-            if (editId) {
-                var idx = coaches.findIndex(function(c) { return c.id == editId; });
-                if (idx !== -1) {
-                    coaches[idx].name = name;
-                    coaches[idx].email = email;
-                    coaches[idx].specialty = specialty;
-                    coaches[idx].phone = phone;
-                    coaches[idx].bio = bio;
+            try {
+                if (editId) {
+                    await updateCoach(editId, { name, email, specialty, phone, bio });
+                    showToast('Koç başarıyla güncellendi!', 'success');
+                } else {
+                    await insertCoach({ name, email, specialty, phone, bio, status: 'Aktif', students_count: 0, rating: 0, experience: '0 Yıl' });
+                    showToast('Koç başarıyla kaydedildi!', 'success');
                 }
-                addActivity('<strong>' + name + '</strong> koç bilgileri güncellendi', 'green');
-            } else {
-                var newId = coaches.length > 0 ? Math.max.apply(null, coaches.map(function(c) { return c.id; })) + 1 : 1;
-                coaches.push({ id: newId, name: name, email: email, specialty: specialty, phone: phone, bio: bio, status: 'Aktif', students: 0, rating: 0, experience: '0 Yıl' });
-                addActivity('<strong>' + name + '</strong> yeni koç olarak eklendi', 'blue');
+                window.closeModal('coach');
+                await refreshAll();
+            } catch(e) {
+                showToast('Hata: ' + e.message, 'error');
             }
+        };
 
-            saveCoaches(coaches);
-            closeModal('coach');
-            renderAll();
-            showToast(editId ? 'Koç başarıyla güncellendi!' : 'Koç başarıyla kaydedildi!', 'success');
-        }
-
-        function editCoach(id) {
-            var coach = getCoaches().find(function(c) { return c.id === id; });
+        window._editCoach = function(id) {
+            var coach = cachedCoaches.find(function(c) { return c.id === id; });
             if (!coach) return;
             document.getElementById('coachModalTitle').textContent = 'Koç Düzenle';
             document.getElementById('coachEditId').value = coach.id;
@@ -657,130 +631,102 @@
             document.getElementById('coachPhone').value = coach.phone || '';
             document.getElementById('coachBio').value = coach.bio || '';
             document.getElementById('coachModal').classList.add('active');
-        }
+        };
 
-        function deleteCoach(id) {
+        window._deleteCoach = async function(id) {
             if (!confirm('Bu koçu silmek istediğinize emin misiniz?')) return;
-            var coaches = getCoaches();
-            var coach = coaches.find(function(c) { return c.id === id; });
-            coaches = coaches.filter(function(c) { return c.id !== id; });
-            saveCoaches(coaches);
-            if (coach) addActivity('<strong>' + coach.name + '</strong> koç silindi', 'orange');
-            renderAll();
-            showToast('Koç başarıyla silindi.', 'success');
-        }
-
-        function saveStudent() {
-            var editId = document.getElementById('studentEditId').value;
-            var name = document.getElementById('studentName').value.trim();
-            var email = document.getElementById('studentEmail').value.trim();
-            var phone = document.getElementById('studentPhone').value.trim();
-            var grade = document.getElementById('studentGrade').value;
-            var status = document.getElementById('studentStatus').value;
-            var coachId = document.getElementById('studentCoach').value ? parseInt(document.getElementById('studentCoach').value) : null;
-
-            if (!name || !email || !grade) { showToast('Lütfen zorunlu alanları doldurun.', 'error'); return; }
-
-            var students = getStudents();
-
-            if (editId) {
-                var idx = students.findIndex(function(s) { return s.id == editId; });
-                if (idx !== -1) {
-                    students[idx].name = name;
-                    students[idx].email = email;
-                    students[idx].phone = phone;
-                    students[idx].grade = grade;
-                    students[idx].status = status;
-                    students[idx].coachId = coachId;
-                }
-                addActivity('<strong>' + name + '</strong> öğrenci bilgileri güncellendi', 'green');
-            } else {
-                var newId = students.length > 0 ? Math.max.apply(null, students.map(function(s) { return s.id; })) + 1 : 1;
-                students.push({ id: newId, name: name, email: email, phone: phone, grade: grade, status: status, coachId: coachId });
-                addActivity('<strong>' + name + '</strong> yeni öğrenci olarak eklendi', 'blue');
+            try {
+                await dbDeleteCoach(id);
+                showToast('Koç başarıyla silindi.', 'success');
+                await refreshAll();
+            } catch(e) {
+                showToast('Hata: ' + e.message, 'error');
             }
+        };
 
-            saveStudents(students);
-            closeModal('student');
-            renderAll();
-            showToast(editId ? 'Öğrenci başarıyla güncellendi!' : 'Öğrenci başarıyla kaydedildi!', 'success');
-        }
-
-        function populateCoachDropdown(selectedId) {
+        window.populateCoachDropdown = function(selectedId) {
             var select = document.getElementById('studentCoach');
-            var coaches = getCoaches();
             select.innerHTML = '<option value="">Koç Seçiniz</option>';
-            coaches.forEach(function(c) {
+            cachedCoaches.forEach(function(c) {
                 var opt = document.createElement('option');
                 opt.value = c.id;
                 opt.textContent = c.name + ' - ' + c.specialty;
                 if (selectedId && c.id == selectedId) opt.selected = true;
                 select.appendChild(opt);
             });
-        }
+        };
 
-        function editStudent(id) {
-            var student = getStudents().find(function(s) { return s.id === id; });
+        window._editStudent = function(id) {
+            var student = cachedStudents.find(function(s) { return s.id === id; });
             if (!student) return;
             document.getElementById('studentModalTitle').textContent = 'Öğrenci Düzenle';
             document.getElementById('studentEditId').value = student.id;
-            document.getElementById('studentName').value = student.name;
+            document.getElementById('studentName').value = student.full_name;
             document.getElementById('studentEmail').value = student.email;
             document.getElementById('studentPhone').value = student.phone || '';
-            document.getElementById('studentGrade').value = student.grade;
-            document.getElementById('studentStatus').value = student.status;
-            populateCoachDropdown(student.coachId);
+            document.getElementById('studentGrade').value = student.grade || '';
+            var assignment = cachedStudentCoaches.find(function(a) { return a.student_id === id; });
+            window.populateCoachDropdown(assignment ? assignment.coach_id : null);
             document.getElementById('studentModal').classList.add('active');
-        }
+        };
 
-        function deleteStudent(id) {
-            if (!confirm('Bu öğrenciyi silmek istediğinize emin misiniz?')) return;
-            var students = getStudents();
-            var student = students.find(function(s) { return s.id === id; });
-            students = students.filter(function(s) { return s.id !== id; });
-            saveStudents(students);
-            if (student) addActivity('<strong>' + student.name + '</strong> öğrenci silindi', 'orange');
-            renderAll();
-            showToast('Öğrenci başarıyla silindi.', 'success');
-        }
+        window.saveStudent = async function() {
+            var editId = document.getElementById('studentEditId').value;
+            var name = document.getElementById('studentName').value.trim();
+            var email = document.getElementById('studentEmail').value.trim();
+            var phone = document.getElementById('studentPhone').value.trim();
+            var grade = document.getElementById('studentGrade').value;
+            var coachId = document.getElementById('studentCoach').value ? document.getElementById('studentCoach').value : null;
 
-        function deleteMessage(id) {
+            if (!name || !email || !grade) { showToast('Lütfen zorunlu alanları doldurun.', 'error'); return; }
+
+            try {
+                if (editId) {
+                    await updateStudent(editId, { full_name: name, email, phone, grade });
+                    if (coachId) {
+                        await assignStudentToCoach(editId, coachId);
+                    } else {
+                        await removeStudentCoach(editId);
+                    }
+                    showToast('Öğrenci başarıyla güncellendi!', 'success');
+                } else {
+                    showToast('Yeni öğrenci ekleme Supabase Auth üzerinden yapılmalıdır.', 'info');
+                }
+                window.closeModal('student');
+                await refreshAll();
+            } catch(e) {
+                showToast('Hata: ' + e.message, 'error');
+            }
+        };
+
+        window._deleteMessage = async function(id) {
             if (!confirm('Bu mesajı silmek istediğinize emin misiniz?')) return;
-            var messages = getMessages().filter(function(m) { return m.id !== id; });
-            saveMessages(messages);
-            addActivity('Mesaj silindi', 'orange');
-            renderAll();
-            showToast('Mesaj başarıyla silindi.', 'success');
-        }
+            try {
+                await dbDeleteMessage(id);
+                showToast('Mesaj başarıyla silindi.', 'success');
+                await refreshAll();
+            } catch(e) {
+                showToast('Hata: ' + e.message, 'error');
+            }
+        };
 
         function saveSettings() {
-            var settings = {
-                name: document.getElementById('settingName').value,
-                email: document.getElementById('settingEmail').value,
-                phone: document.getElementById('settingPhone').value
-            };
-            localStorage.setItem('pusula_settings', JSON.stringify(settings));
-            showToast('Ayarlar başarıyla kaydedildi!', 'success');
-            addActivity('Sistem ayarları güncellendi', 'green');
+            showToast('Ayarlar kaydedildi.', 'success');
         }
 
-        function loadSettings() {
-            var saved = localStorage.getItem('pusula_settings');
-            if (saved) {
-                var settings = JSON.parse(saved);
-                if (settings.name) document.getElementById('settingName').value = settings.name;
-                if (settings.email) document.getElementById('settingEmail').value = settings.email;
-                if (settings.phone) document.getElementById('settingPhone').value = settings.phone;
+        window.refreshData = async function() {
+            await refreshAll();
+            showToast('Veriler yenilendi!', 'info');
+        };
+
+        window.logout = async function() {
+            try {
+                await logoutUser();
+                window.location.replace('admin.html');
+            } catch(e) {
+                window.location.replace('admin.html');
             }
-        }
-
-        function refreshData() { renderAll(); showToast('Veriler yenilendi!', 'info'); }
-
-        function logout() {
-            localStorage.removeItem('pusula_admin_logged');
-            localStorage.removeItem('pusula_admin_email');
-            window.location.replace('admin.html');
-        }
+        };
 
         document.querySelectorAll('.sidebar-menu-link').forEach(function(link) {
             link.addEventListener('click', function(e) {
@@ -795,8 +741,8 @@
                 document.getElementById('section-' + section).classList.remove('section-hidden');
 
                 var addBtn = document.getElementById('addNewBtn');
-                if (section === 'students') { addBtn.style.display = 'inline-flex'; addBtn.textContent = ''; addBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Yeni Öğrenci'; addBtn.onclick = function() { openModal('student'); }; }
-                else if (section === 'coaches') { addBtn.style.display = 'inline-flex'; addBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Yeni Koç'; addBtn.onclick = function() { openModal('coach'); }; }
+                if (section === 'students') { addBtn.style.display = 'inline-flex'; addBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Yeni Öğrenci'; addBtn.onclick = function() { window.openModal('student'); }; }
+                else if (section === 'coaches') { addBtn.style.display = 'inline-flex'; addBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Yeni Koç'; addBtn.onclick = function() { window.openModal('coach'); }; }
                 else { addBtn.style.display = 'none'; }
             });
         });
@@ -809,12 +755,7 @@
             if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(function(o) { o.classList.remove('active'); });
         });
 
-        var isLoggedIn = localStorage.getItem('pusula_admin_logged');
-        if (isLoggedIn !== 'true') window.location.replace('admin.html');
-
-        initData();
-        renderAll();
-        loadSettings();
+        init();
     </script>
 </body>
 </html>

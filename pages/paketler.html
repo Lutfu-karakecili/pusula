@@ -402,99 +402,8 @@
     <!-- Pricing Section -->
     <section class="section">
         <div class="container">
-            <div class="pricing-grid">
-
-                <!-- Başlangıç -->
-                <div class="pricing-card">
-                    <h3 class="pricing-name">Başlangıç</h3>
-                    <div class="pricing-price">499₺ <span>/ay</span></div>
-                    <p class="pricing-period">İlk adımı atmak isteyenler için</p>
-                    <ul class="pricing-features">
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            TYT Koçluk
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            Haftalık Plan
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            SMS Desteği
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            2 Koç Görüşmesi
-                        </li>
-                    </ul>
-                    <a href="kayit.html" class="btn btn-secondary" onclick="localStorage.setItem('pusula_selected_package', 'baslangic');">Hemen Başla</a>
-                </div>
-
-                <!-- Standart -->
-                <div class="pricing-card popular">
-                    <span class="pricing-badge">Popüler</span>
-                    <h3 class="pricing-name">Standart</h3>
-                    <div class="pricing-price">999₺ <span>/ay</span></div>
-                    <p class="pricing-period">Kapsamlı hazırlık için ideal</p>
-                    <ul class="pricing-features">
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            TYT + AYT Koçluk
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            Günlük Plan
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            WhatsApp Desteği
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            4 Koç Görüşmesi
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            Deneme Analizi
-                        </li>
-                    </ul>
-                    <a href="kayit.html" class="btn btn-primary" onclick="localStorage.setItem('pusula_selected_package', 'standart');">Hemen Başla</a>
-                </div>
-
-                <!-- Premium -->
-                <div class="pricing-card">
-                    <h3 class="pricing-name">Premium</h3>
-                    <div class="pricing-price">1499₺ <span>/ay</span></div>
-                    <p class="pricing-period">Tam destek, tam başarı</p>
-                    <ul class="pricing-features">
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            TYT + AYT + PDR
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            Sınırsız Plan
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            7/24 Destek
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            Sınırsız Koç Görüşmesi
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            Deneme Analizi
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            Bireysel Motivasyon
-                        </li>
-                    </ul>
-                    <a href="kayit.html" class="btn btn-secondary" onclick="localStorage.setItem('pusula_selected_package', 'premium');">Hemen Başla</a>
-                </div>
-
+            <div class="pricing-grid" id="pricingGrid">
+                <div style="grid-column:1/-1; text-align:center; padding:40px 0; color:var(--gray-500);">Paketler yükleniyor...</div>
             </div>
         </div>
     </section>
@@ -649,7 +558,44 @@
     </button>
 
     <script src="../js/main.js"></script>
-    <script>
+    <script type="module">
+        import { getPackages } from '../src/lib/db.js';
+
+        async function loadPackages() {
+            var grid = document.getElementById('pricingGrid');
+            try {
+                var packages = await getPackages();
+                if (packages.length === 0) {
+                    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px 0; color:var(--gray-500);">Henüz paket eklenmemiş.</div>';
+                    return;
+                }
+
+                var html = '';
+                packages.forEach(function(pkg) {
+                    var features = typeof pkg.features === 'string' ? JSON.parse(pkg.features) : (pkg.features || []);
+                    var featuresHtml = '';
+                    features.forEach(function(f) {
+                        featuresHtml += '<li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' + f + '</li>';
+                    });
+
+                    html +=
+                        '<div class="pricing-card' + (pkg.is_popular ? ' popular' : '') + '">' +
+                            (pkg.is_popular ? '<span class="pricing-badge">Popüler</span>' : '') +
+                            '<h3 class="pricing-name">' + pkg.name + '</h3>' +
+                            '<div class="pricing-price">' + pkg.price + '₺ <span>' + pkg.period + '</span></div>' +
+                            '<p class="pricing-period">' + (pkg.description || '') + '</p>' +
+                            '<ul class="pricing-features">' + featuresHtml + '</ul>' +
+                            '<a href="kayit.html" class="btn ' + (pkg.is_popular ? 'btn-primary' : 'btn-secondary') + '">Hemen Başla</a>' +
+                        '</div>';
+                });
+                grid.innerHTML = html;
+            } catch(e) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px 0; color:#e63946;">Paketler yüklenirken hata oluştu.</div>';
+            }
+        }
+
+        loadPackages();
+
         document.querySelectorAll('.faq-question').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 var item = this.parentElement;
