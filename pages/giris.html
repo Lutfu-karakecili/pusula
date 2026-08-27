@@ -90,11 +90,13 @@
 
     <script type="module">
         import { loginUser, getCurrentSession } from '../src/lib/auth.js';
+        import { isTurnstileEnabled, initTurnstileWidgets } from '../src/lib/turnstile.js';
+        initTurnstileWidgets();
 
         (async function() {
             const existingSession = await getCurrentSession();
             if (existingSession) {
-                window.location.replace('index.html');
+                window.location.replace('../index.html');
             }
         })();
 
@@ -129,12 +131,14 @@
             
             if (!valid) return;
 
-            var turnstileToken = document.querySelector('#loginForm [name="cf-turnstile-response"]');
-            if (!turnstileToken || !turnstileToken.value) {
-                emailError.textContent = 'Lütfen robot olmadığını doğrulayın.';
-                email.classList.add('error');
-                emailError.style.display = 'block';
-                return;
+            if (isTurnstileEnabled()) {
+                var turnstileToken = document.querySelector('#loginForm [name="cf-turnstile-response"]');
+                if (!turnstileToken || !turnstileToken.value) {
+                    emailError.textContent = 'Lütfen robot olmadığını doğrulayın.';
+                    email.classList.add('error');
+                    emailError.style.display = 'block';
+                    return;
+                }
             }
 
             // Loading state
@@ -143,7 +147,7 @@
 
             try {
                 await loginUser({ email: email.value, password: password.value });
-                window.location.replace('index.html');
+                window.location.replace('../index.html');
             } catch (err) {
                 loginBtn.classList.remove('btn-loading');
                 loginBtn.disabled = false;

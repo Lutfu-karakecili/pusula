@@ -393,6 +393,8 @@
     <script src="../js/main.js"></script>
     <script type="module">
         import { sendContactMessage } from '../src/lib/db.js';
+        import { isTurnstileEnabled, initTurnstileWidgets } from '../src/lib/turnstile.js';
+        initTurnstileWidgets();
 
         function clearError(input) {
             input.classList.remove('error');
@@ -436,10 +438,12 @@
 
             if (!valid) return;
 
-            var turnstileToken = document.querySelector('#contactForm [name="cf-turnstile-response"]');
-            if (!turnstileToken || !turnstileToken.value) {
-                alert('Lütfen robot olmadığını doğrulayın.');
-                return;
+            if (isTurnstileEnabled()) {
+                var turnstileToken = document.querySelector('#contactForm [name="cf-turnstile-response"]');
+                if (!turnstileToken || !turnstileToken.value) {
+                    alert('Lütfen robot olmadığını doğrulayın.');
+                    return;
+                }
             }
 
             var submitBtn = this.querySelector('button[type="submit"]');

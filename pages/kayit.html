@@ -127,6 +127,8 @@
 
     <script type="module">
         import { registerUser } from '../src/lib/auth.js';
+        import { isTurnstileEnabled, initTurnstileWidgets } from '../src/lib/turnstile.js';
+        initTurnstileWidgets();
 
         function showError(fieldId, message) {
             var input = document.getElementById(fieldId);
@@ -263,10 +265,15 @@
                 hasError = true;
             }
 
-            var turnstileToken = document.querySelector('#registerForm [name="cf-turnstile-response"]');
-            if (!turnstileToken || !turnstileToken.value) {
-                showError('regEmail', 'Lütfen robot olmadığını doğrulayın.');
-                hasError = true;
+            var turnstileToken = { value: 'disabled' };
+            if (isTurnstileEnabled()) {
+                var _t = document.querySelector('#registerForm [name="cf-turnstile-response"]');
+                if (!_t || !_t.value) {
+                    showError('regEmail', 'Lütfen robot olmadığını doğrulayın.');
+                    hasError = true;
+                } else {
+                    turnstileToken.value = _t.value;
+                }
             }
 
             if (hasError) {
