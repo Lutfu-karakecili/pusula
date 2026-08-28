@@ -360,3 +360,27 @@ VALUES
    '["TYT + AYT Koçluk", "Günlük Plan", "WhatsApp Desteği", "4 Koç Görüşmesi", "Deneme Analizi"]'::jsonb, true),
   ('Premium', 1499, '/ay', 'Tam destek, tam başarı',
    '["TYT + AYT + PDR", "Sınırsız Plan", "7/24 Destek", "Sınırsız Koç Görüşmesi", "Deneme Analizi", "Bireysel Motivasyon"]'::jsonb, false);
+
+-- =============================================
+-- ADMIN YARDIMCISI (opsiyonel seed)
+-- Bir kullanıcıyı e-posta ile admin yapar.
+-- Kullanım: SELECT public.make_admin('admin@pusula.com');
+-- =============================================
+CREATE OR REPLACE FUNCTION public.make_admin(p_email TEXT)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, phone, grade, role)
+  SELECT id,
+         COALESCE(raw_user_meta_data->>'full_name', ''),
+         '',
+         '',
+         'admin'
+  FROM auth.users
+  WHERE email = p_email
+  ON CONFLICT (id) DO UPDATE SET role = 'admin';
+END;
+$$;

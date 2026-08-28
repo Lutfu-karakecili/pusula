@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Pusula logo">
+  <defs>
+    <linearGradient id="pLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="100%" stop-color="#2d5a87"/>
+    </linearGradient>
+    <linearGradient id="pLogoAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e63946"/>
+      <stop offset="100%" stop-color="#c1121f"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="48" fill="url(#pLogoGrad)"/>
+  <rect x="8" y="8" width="240" height="240" rx="44" fill="none" stroke="url(#pLogoAccent)" stroke-width="4"/>
+  <text x="128" y="175" font-family="Poppins, Inter, Arial, sans-serif" font-size="150" font-weight="800" fill="#ffffff" text-anchor="middle">P</text>
+  <circle cx="128" cy="128" r="112" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.18"/>
+</svg>

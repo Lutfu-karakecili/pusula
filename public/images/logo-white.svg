@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 232 64" width="232" height="64" role="img" aria-label="Pusula">
+  <defs>
+    <linearGradient id="pLogoGradW" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e6eefb"/>
+    </linearGradient>
+    <linearGradient id="pLogoAccentW" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff6b6b"/>
+      <stop offset="100%" stop-color="#e63946"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="8" width="48" height="48" rx="12" fill="url(#pLogoGradW)"/>
+  <rect x="0" y="8" width="48" height="48" rx="12" fill="none" stroke="url(#pLogoAccentW)" stroke-width="2"/>
+  <text x="24" y="43" font-family="Poppins, Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1e3a5f" text-anchor="middle">P</text>
+  <text x="60" y="43" font-family="Poppins, Inter, Arial, sans-serif" font-size="30" font-weight="800" fill="#ffffff" letter-spacing="-0.5">Pusula</text>
+</svg>

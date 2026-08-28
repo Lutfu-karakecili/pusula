@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img" aria-label="404 - Sayfa bulunamadı">
+  <defs>
+    <linearGradient id="illBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f2f6fc"/>
+      <stop offset="100%" stop-color="#e6eefb"/>
+    </linearGradient>
+    <linearGradient id="illCompass" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="100%" stop-color="#2d5a87"/>
+    </linearGradient>
+    <linearGradient id="illNeedle" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e63946"/>
+      <stop offset="100%" stop-color="#c1121f"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" rx="24" fill="url(#illBg)"/>
+  <circle cx="200" cy="135" r="78" fill="none" stroke="#cdddf2" stroke-width="3"/>
+  <circle cx="200" cy="135" r="60" fill="url(#illCompass)"/>
+  <g transform="translate(200,135)">
+    <polygon points="0,-42 12,0 0,8 -12,0" fill="url(#illNeedle)"/>
+    <polygon points="0,42 12,0 0,-8 -12,0" fill="#ffffff" opacity="0.85"/>
+    <circle cx="0" cy="0" r="9" fill="#1e3a5f" stroke="#ffffff" stroke-width="2"/>
+  </g>
+  <text x="200" y="250" font-family="Poppins, Inter, Arial, sans-serif" font-size="40" font-weight="800" fill="#1e3a5f" text-anchor="middle" letter-spacing="2">4 0 4</text>
+  <text x="200" y="282" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500" fill="#5a6b82" text-anchor="middle">Aradığın sayfa pusulada kayboldu</text>
+</svg>

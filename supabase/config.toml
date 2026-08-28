@@ -1,0 +1,18 @@
+# Supabase CLI yapılandırması
+# Daha fazla bilgi: https://supabase.com/docs/guides/cli/config
+project_id = "pusula"
+
+[functions.contact]
+# İletişim formu herkese açık olduğundan JWT doğrulaması kapatıldı.
+# Güvenlik Turnstile + rate-limit (Edge Function içinde) ile sağlanır.
+verify_jwt = false
+
+[functions.verify-turnstile]
+# Turnstile doğrulaması herkese açık olduğundan JWT doğrulaması kapatıldı.
+# Güvenlik secret key'in yalnızca Edge Function ortamında tutulmasıyla sağlanır.
+verify_jwt = false
+
+[functions.contact-guard]
+# İletişim gönderimi herkese açık olduğundan JWT doğrulaması kapatıldı.
+# Güvenlik Turnstile + rate-limit (Edge Function içinde) ile sağlanır.
+verify_jwt = false

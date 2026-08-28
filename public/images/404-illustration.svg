@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="404 - Sayfa bulunamadı">
+  <defs>
+    <linearGradient id="illCompass" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="100%" stop-color="#2d5a87"/>
+    </linearGradient>
+    <linearGradient id="illNeedle" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e63946"/>
+      <stop offset="100%" stop-color="#c1121f"/>
+    </linearGradient>
+  </defs>
+  <circle cx="100" cy="100" r="84" fill="none" stroke="#cdddf2" stroke-width="3"/>
+  <circle cx="100" cy="100" r="64" fill="url(#illCompass)"/>
+  <g transform="translate(100,100)">
+    <polygon points="0,-44 13,0 0,9 -13,0" fill="url(#illNeedle)"/>
+    <polygon points="0,44 13,0 0,-9 -13,0" fill="#ffffff" opacity="0.9"/>
+    <circle cx="0" cy="0" r="10" fill="#1e3a5f" stroke="#ffffff" stroke-width="2"/>
+  </g>
+  <g stroke="#5a6b82" stroke-width="3" stroke-linecap="round" opacity="0.55">
+    <line x1="100" y1="8" x2="100" y2="22"/>
+    <line x1="100" y1="178" x2="100" y2="192"/>
+    <line x1="8" y1="100" x2="22" y2="100"/>
+    <line x1="178" y1="100" x2="192" y2="100"/>
+  </g>
+</svg>
