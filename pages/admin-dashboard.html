@@ -157,6 +157,7 @@
             <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="students"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Öğrenciler</a></li>
             <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="coaches"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Koçlar</a></li>
             <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="messages"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Mesajlar</a></li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="packages"><svg viewBox="0 0 24 24"><path d="M20 7h-4V5l-2-2h-4L8 5v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM12 18c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>Paketler</a></li>
             <li class="sidebar-menu-title">Yönetim</li>
             <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="settings"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Ayarlar</a></li>
         </ul>
@@ -211,9 +212,9 @@
                     <div class="stat-label">Mesaj</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-header"><div class="stat-icon red"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div></div>
-                    <div class="stat-value" id="statActive">0</div>
-                    <div class="stat-label">Aktif Öğrenci</div>
+                    <div class="stat-header"><div class="stat-icon red"><svg viewBox="0 0 24 24"><path d="M20 7h-4V5l-2-2h-4L8 5v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM12 18c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg></div></div>
+                    <div class="stat-value" id="statActivePackages">0</div>
+                    <div class="stat-label">Aktif Paket</div>
                 </div>
             </div>
 
@@ -301,6 +302,34 @@
                     <div class="empty-state" id="emptyMessages" style="display:none;">
                         <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
                         <p>Henüz mesaj yok.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Packages Section -->
+        <div id="section-packages" class="section-hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Paketler</h3>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input type="text" class="form-input" id="packageSearch" placeholder="Paket ara..." oninput="filterPackages()" style="width:200px; padding:8px 12px; font-size:0.85rem;">
+                        <button class="btn btn-primary btn-sm" onclick="openModal('package')">
+                            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                            Yeni Paket
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead><tr><th>Paket</th><th>Fiyat</th><th>Popüler</th><th>Açıklama</th><th>İşlem</th></tr></thead>
+                            <tbody id="packageTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="emptyPackages" style="display:none;">
+                        <svg viewBox="0 0 24 24"><path d="M20 7h-4V5l-2-2h-4L8 5v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM12 18c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+                        <p>Henüz paket eklenmemiş.</p>
                     </div>
                 </div>
             </div>
@@ -398,6 +427,17 @@
                             <option value="">Koç Seçiniz</option>
                         </select>
                     </div>
+                    <div class="form-group"><label class="form-label">Paket Ata</label>
+                        <select class="form-select" id="studentPackage">
+                            <option value="">Paket Seçiniz</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Rol</label>
+                        <select class="form-select" id="studentRole">
+                            <option value="student">Öğrenci</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -407,18 +447,54 @@
         </div>
     </div>
 
+    <!-- Package Modal -->
+    <div class="modal-overlay" id="packageModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="packageModalTitle">Yeni Paket Ekle</h3>
+                <button class="modal-close" onclick="closeModal('package')"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+            </div>
+            <div class="modal-body">
+                <form id="packageForm">
+                    <input type="hidden" id="packageEditId">
+                    <div class="form-group"><label class="form-label">Paket Adı</label><input type="text" class="form-input" id="packageName" placeholder="Örn. Standart" required></div>
+                    <div class="form-group"><label class="form-label">Fiyat (₺)</label><input type="number" class="form-input" id="packagePrice" placeholder="999" min="0" required></div>
+                    <div class="form-group"><label class="form-label">Periyot</label>
+                        <select class="form-select" id="packagePeriod">
+                            <option value="/ay">/ay</option>
+                            <option value="/aylık">/aylık</option>
+                            <option value="/yıl">/yıl</option>
+                            <option value="Tek Seferlik">Tek Seferlik</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Açıklama</label><textarea class="form-textarea" id="packageDescription" placeholder="Paket açıklaması..."></textarea></div>
+                    <div class="form-group"><label class="form-label">Özellikler (her satıra bir tane)</label><textarea class="form-textarea" id="packageFeatures" placeholder="TYT Koçluk&#10;Haftalık Plan&#10;WhatsApp Desteği"></textarea></div>
+                    <div class="form-group"><label class="form-checkbox" style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="packagePopular"> Popüler paket olarak işaretle</label></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('package')">İptal</button>
+                <button class="btn btn-primary" onclick="savePackage()">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { requireAdmin, logoutUser } from '../src/lib/auth.js';
         import {
             getCoaches as dbGetCoaches, insertCoach, updateCoach, deleteCoach as dbDeleteCoach,
-            getStudents, getStudentCoaches, updateStudent, assignStudentToCoach, removeStudentCoach,
-            getMessages as dbGetMessages, deleteMessage as dbDeleteMessage, sendMessage
+            getPackages as dbGetPackages, insertPackage, updatePackage, deletePackage as dbDeletePackage,
+            getStudents, getStudentCoaches, getStudentPackages, updateStudent,
+            assignStudentToCoach, removeStudentCoach, assignPackageToStudent, updateStudentPackage,
+            getMessages as dbGetMessages, deleteMessage as dbDeleteMessage, markMessageRead, sendMessage
         } from '../src/lib/db.js';
 
         var currentSection = 'dashboard';
         var cachedCoaches = [];
         var cachedStudents = [];
         var cachedStudentCoaches = [];
+        var cachedStudentPackages = [];
+        var cachedPackages = [];
         var cachedMessages = [];
 
         async function init() {
@@ -437,6 +513,8 @@
                 cachedCoaches = await dbGetCoaches();
                 cachedStudents = await getStudents();
                 cachedStudentCoaches = await getStudentCoaches();
+                cachedStudentPackages = await getStudentPackages();
+                cachedPackages = await dbGetPackages();
                 cachedMessages = await dbGetMessages();
             } catch(e) {
                 showToast('Veri yüklenirken hata oluştu: ' + e.message, 'error');
@@ -487,7 +565,7 @@
             document.getElementById('statStudents').textContent = cachedStudents.length;
             document.getElementById('statCoaches').textContent = cachedCoaches.filter(function(c) { return c.status === 'Aktif'; }).length;
             document.getElementById('statMessages').textContent = cachedMessages.length;
-            document.getElementById('statActive').textContent = cachedStudents.length;
+            document.getElementById('statActivePackages').textContent = cachedStudentPackages.filter(function(p) { return p.status === 'Aktif'; }).length;
 
             var tbody = document.getElementById('dashStudentTable');
             tbody.innerHTML = '';
@@ -547,7 +625,24 @@
             cachedMessages.forEach(function(m) {
                 var date = m.created_at ? new Date(m.created_at).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' }) : '';
                 var preview = (m.body || '').substring(0, 50);
-                tbody.innerHTML += '<tr><td><strong>' + (m.sender_name || 'Bilinmeyen') + '</strong></td><td>' + sanitizeHTML(m.subject || '') + '</td><td>' + sanitizeHTML(preview) + '...</td><td>' + date + '</td><td><div class="action-btns"><button class="btn btn-danger btn-sm" onclick="window._deleteMessage(' + m.id + ')">Sil</button></div></td></tr>';
+                var readBadge = m.is_read
+                    ? '<span class="badge badge-success">Okundu</span>'
+                    : '<span class="badge badge-warning">Yeni</span>';
+                var readBtn = m.is_read
+                    ? ''
+                    : '<button class="btn btn-secondary btn-sm" onclick="window._markMessageRead(' + m.id + ')">Okundu İşaretle</button>';
+                tbody.innerHTML += '<tr><td><strong>' + (m.sender_name || 'Bilinmeyen') + '</strong><br><span style="font-size:0.75rem;color:#6c757d;">' + readBadge + '</span></td><td>' + sanitizeHTML(m.subject || '') + '</td><td>' + sanitizeHTML(preview) + '...</td><td>' + date + '</td><td><div class="action-btns"><button class="btn btn-danger btn-sm" onclick="window._deleteMessage(' + m.id + ')">Sil</button>' + readBtn + '</div></td></tr>';
+            });
+        }
+
+        function renderPackages() {
+            var tbody = document.getElementById('packageTable');
+            var empty = document.getElementById('emptyPackages');
+            tbody.innerHTML = '';
+            if (cachedPackages.length === 0) { empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            cachedPackages.forEach(function(p) {
+                tbody.innerHTML += '<tr><td><div class="user-name">' + sanitizeHTML(p.name || '') + '</div></td><td>' + (p.price || 0) + ' ₺' + sanitizeHTML(p.period || '') + '</td><td>' + (p.is_popular ? '<span class="badge badge-info">Popüler</span>' : '—') + '</td><td>' + sanitizeHTML((p.description || '').substring(0, 60)) + '</td><td><div class="action-btns"><button class="btn btn-secondary btn-sm" onclick="window._editPackage(' + p.id + ')">Düzenle</button><button class="btn btn-danger btn-sm" onclick="window._deletePackage(' + p.id + ')">Sil</button></div></td></tr>';
             });
         }
 
@@ -555,6 +650,7 @@
             renderDashboard();
             renderStudents();
             renderCoaches();
+            renderPackages();
             renderMessages();
         }
 
@@ -565,11 +661,16 @@
                 document.getElementById('coachModalTitle').textContent = 'Yeni Koç Ekle';
                 document.getElementById('coachEditId').value = '';
                 document.getElementById('coachForm').reset();
+            } else if (type === 'package') {
+                document.getElementById('packageModalTitle').textContent = 'Yeni Paket Ekle';
+                document.getElementById('packageEditId').value = '';
+                document.getElementById('packageForm').reset();
             } else if (type === 'student') {
                 document.getElementById('studentModalTitle').textContent = 'Yeni Öğrenci Ekle';
                 document.getElementById('studentEditId').value = '';
                 document.getElementById('studentForm').reset();
                 window.populateCoachDropdown(null);
+                window.populatePackageDropdown(null);
             }
         };
 
@@ -593,6 +694,78 @@
                 var text = row.textContent.toLowerCase();
                 row.style.display = text.includes(query) ? '' : 'none';
             });
+        };
+
+        window.filterPackages = function() {
+            var query = document.getElementById('packageSearch').value.toLowerCase();
+            var rows = document.querySelectorAll('#packageTable tr');
+            rows.forEach(function(row) {
+                var text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        };
+
+        window.savePackage = async function() {
+            var editId = document.getElementById('packageEditId').value;
+            var name = document.getElementById('packageName').value.trim();
+            var price = parseFloat(document.getElementById('packagePrice').value) || 0;
+            var period = document.getElementById('packagePeriod').value;
+            var description = document.getElementById('packageDescription').value.trim();
+            var featuresRaw = document.getElementById('packageFeatures').value.trim();
+            var isPopular = document.getElementById('packagePopular').checked;
+            var features = featuresRaw ? featuresRaw.split('\n').map(function(f) { return f.trim(); }).filter(Boolean) : [];
+
+            if (!name) { showToast('Lütfen paket adını girin.', 'error'); return; }
+
+            try {
+                var payload = { name, price, period, description, features, is_popular: isPopular };
+                if (editId) {
+                    await updatePackage(editId, payload);
+                    showToast('Paket başarıyla güncellendi!', 'success');
+                } else {
+                    await insertPackage(payload);
+                    showToast('Paket başarıyla kaydedildi!', 'success');
+                }
+                window.closeModal('package');
+                await refreshAll();
+            } catch(e) {
+                showToast('Hata: ' + e.message, 'error');
+            }
+        };
+
+        window._editPackage = function(id) {
+            var pkg = cachedPackages.find(function(p) { return p.id === id; });
+            if (!pkg) return;
+            document.getElementById('packageModalTitle').textContent = 'Paket Düzenle';
+            document.getElementById('packageEditId').value = pkg.id;
+            document.getElementById('packageName').value = pkg.name || '';
+            document.getElementById('packagePrice').value = pkg.price || 0;
+            document.getElementById('packagePeriod').value = pkg.period || '/ay';
+            document.getElementById('packageDescription').value = pkg.description || '';
+            document.getElementById('packageFeatures').value = (pkg.features && pkg.features.length ? pkg.features.join('\n') : '');
+            document.getElementById('packagePopular').checked = !!pkg.is_popular;
+            document.getElementById('packageModal').classList.add('active');
+        };
+
+        window._deletePackage = async function(id) {
+            if (!confirm('Bu paketi silmek istediğinize emin misiniz?')) return;
+            try {
+                await dbDeletePackage(id);
+                showToast('Paket başarıyla silindi.', 'success');
+                await refreshAll();
+            } catch(e) {
+                showToast('Hata: ' + e.message, 'error');
+            }
+        };
+
+        window._markMessageRead = async function(id) {
+            try {
+                await markMessageRead(id);
+                showToast('Mesaj okundu olarak işaretlendi.', 'success');
+                await refreshAll();
+            } catch(e) {
+                showToast('Hata: ' + e.message, 'error');
+            }
         };
 
         window.saveCoach = async function() {
@@ -656,6 +829,18 @@
             });
         };
 
+        window.populatePackageDropdown = function(selectedId) {
+            var select = document.getElementById('studentPackage');
+            select.innerHTML = '<option value="">Paket Seçiniz</option>';
+            cachedPackages.forEach(function(p) {
+                var opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.name + ' (' + (p.price || 0) + ' ₺' + (p.period || '') + ')';
+                if (selectedId && p.id == selectedId) opt.selected = true;
+                select.appendChild(opt);
+            });
+        };
+
         window._editStudent = function(id) {
             var student = cachedStudents.find(function(s) { return s.id === id; });
             if (!student) return;
@@ -665,8 +850,11 @@
             document.getElementById('studentEmail').value = student.email;
             document.getElementById('studentPhone').value = student.phone || '';
             document.getElementById('studentGrade').value = student.grade || '';
+            document.getElementById('studentRole').value = student.role || 'student';
             var assignment = cachedStudentCoaches.find(function(a) { return a.student_id === id; });
+            var pkgAss = cachedStudentPackages.find(function(a) { return a.student_id === id; });
             window.populateCoachDropdown(assignment ? assignment.coach_id : null);
+            window.populatePackageDropdown(pkgAss && pkgAss.package_id ? pkgAss.package_id : null);
             document.getElementById('studentModal').classList.add('active');
         };
 
@@ -677,16 +865,28 @@
             var phone = document.getElementById('studentPhone').value.trim();
             var grade = document.getElementById('studentGrade').value;
             var coachId = document.getElementById('studentCoach').value ? document.getElementById('studentCoach').value : null;
+            var packageId = document.getElementById('studentPackage').value ? document.getElementById('studentPackage').value : null;
+            var role = document.getElementById('studentRole').value;
 
             if (!name || !email || !grade) { showToast('Lütfen zorunlu alanları doldurun.', 'error'); return; }
 
             try {
                 if (editId) {
-                    await updateStudent(editId, { full_name: name, email, phone, grade });
+                    await updateStudent(editId, { full_name: name, email, phone, grade, role });
                     if (coachId) {
                         await assignStudentToCoach(editId, coachId);
                     } else {
                         await removeStudentCoach(editId);
+                    }
+                    var existingPkg = cachedStudentPackages.find(function(sp) { return sp.student_id === editId; });
+                    if (packageId) {
+                        if (existingPkg) {
+                            await updateStudentPackage(existingPkg.id, { package_id: packageId, status: 'Aktif' });
+                        } else {
+                            await assignPackageToStudent(editId, packageId);
+                        }
+                    } else if (existingPkg) {
+                        await updateStudentPackage(existingPkg.id, { status: 'Pasif' });
                     }
                     showToast('Öğrenci başarıyla güncellendi!', 'success');
                 } else {
@@ -735,7 +935,7 @@
                 this.classList.add('active');
                 var section = this.getAttribute('data-section');
                 currentSection = section;
-                document.getElementById('pageTitle').textContent = { dashboard: 'Ana Panel', students: 'Öğrenciler', coaches: 'Koçlar', messages: 'Mesajlar', settings: 'Ayarlar' }[section] || section;
+                document.getElementById('pageTitle').textContent = { dashboard: 'Ana Panel', students: 'Öğrenciler', coaches: 'Koçlar', messages: 'Mesajlar', packages: 'Paketler', settings: 'Ayarlar' }[section] || section;
 
                 document.querySelectorAll('[id^="section-"]').forEach(function(s) { s.classList.add('section-hidden'); });
                 document.getElementById('section-' + section).classList.remove('section-hidden');
@@ -743,6 +943,7 @@
                 var addBtn = document.getElementById('addNewBtn');
                 if (section === 'students') { addBtn.style.display = 'inline-flex'; addBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Yeni Öğrenci'; addBtn.onclick = function() { window.openModal('student'); }; }
                 else if (section === 'coaches') { addBtn.style.display = 'inline-flex'; addBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Yeni Koç'; addBtn.onclick = function() { window.openModal('coach'); }; }
+                else if (section === 'packages') { addBtn.style.display = 'inline-flex'; addBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Yeni Paket'; addBtn.onclick = function() { window.openModal('package'); }; }
                 else { addBtn.style.display = 'none'; }
             });
         });

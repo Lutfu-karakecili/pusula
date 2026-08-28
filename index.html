@@ -413,94 +413,8 @@
                 Alanında uzman, derece yapmış koçlarımızla tanışın.
             </p>
             
-            <div class="coaches-grid">
-                <div class="coach-card">
-                    <div class="coach-image">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                        </svg>
-                    </div>
-                    <div class="coach-info">
-                        <h4 class="coach-name">Emre Demir</h4>
-                        <p class="coach-specialty">TYT Matematik Uzmanı</p>
-                        <div class="coach-stats">
-                            <div class="coach-stat">
-                                <div class="coach-stat-number">500+</div>
-                                <div class="coach-stat-label">Öğrenci</div>
-                            </div>
-                            <div class="coach-stat">
-                                <div class="coach-stat-number">4.9</div>
-                                <div class="coach-stat-label">Puan</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="coach-card">
-                    <div class="coach-image">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                        </svg>
-                    </div>
-                    <div class="coach-info">
-                        <h4 class="coach-name">Selin Çelik</h4>
-                        <p class="coach-specialty">AYT Fen Bilimleri Uzmanı</p>
-                        <div class="coach-stats">
-                            <div class="coach-stat">
-                                <div class="coach-stat-number">350+</div>
-                                <div class="coach-stat-label">Öğrenci</div>
-                            </div>
-                            <div class="coach-stat">
-                                <div class="coach-stat-number">4.8</div>
-                                <div class="coach-stat-label">Puan</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="coach-card">
-                    <div class="coach-image">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                        </svg>
-                    </div>
-                    <div class="coach-info">
-                        <h4 class="coach-name">Ahmet Korkmaz</h4>
-                        <p class="coach-specialty">TYT Türkçe Uzmanı</p>
-                        <div class="coach-stats">
-                            <div class="coach-stat">
-                                <div class="coach-stat-number">420+</div>
-                                <div class="coach-stat-label">Öğrenci</div>
-                            </div>
-                            <div class="coach-stat">
-                                <div class="coach-stat-number">4.9</div>
-                                <div class="coach-stat-label">Puan</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="coach-card">
-                    <div class="coach-image">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                        </svg>
-                    </div>
-                    <div class="coach-info">
-                        <h4 class="coach-name">Zeynep Arslan</h4>
-                        <p class="coach-specialty">PDR Uzmanı</p>
-                        <div class="coach-stats">
-                            <div class="coach-stat">
-                                <div class="coach-stat-number">600+</div>
-                                <div class="coach-stat-label">Öğrenci</div>
-                            </div>
-                            <div class="coach-stat">
-                                <div class="coach-stat-number">5.0</div>
-                                <div class="coach-stat-label">Puan</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="coaches-grid" id="coachesGrid">
+                <div style="grid-column:1/-1;text-align:center;padding:40px 0;color:var(--gray-500);">Koçlar yükleniyor...</div>
             </div>
             
             <div style="text-align: center; margin-top: var(--spacing-xl);">
@@ -803,6 +717,42 @@
         
         // Sayfa yüklendiğinde kontrol et
         checkAuth();
+    </script>
+
+    <script type="module">
+        import { getCoaches } from './src/lib/db.js';
+
+        const COACH_AVATAR_SVG = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+
+        async function loadCoachesPreview() {
+            const grid = document.getElementById('coachesGrid');
+            if (!grid) return;
+            try {
+                const coaches = await getCoaches();
+                if (!coaches || coaches.length === 0) {
+                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:var(--gray-500);">Henüz koç eklenmemiş.</div>';
+                    return;
+                }
+
+                grid.innerHTML = coaches.map(function(c) {
+                    return '<div class="coach-card">' +
+                        '<div class="coach-image">' + COACH_AVATAR_SVG + '</div>' +
+                        '<div class="coach-info">' +
+                            '<h4 class="coach-name">' + (c.name || '') + '</h4>' +
+                            '<p class="coach-specialty">' + (c.specialty || '') + ' Uzmanı</p>' +
+                            '<div class="coach-stats">' +
+                                '<div class="coach-stat"><div class="coach-stat-number">' + (c.students_count || 0) + '+</div><div class="coach-stat-label">Öğrenci</div></div>' +
+                                '<div class="coach-stat"><div class="coach-stat-number">' + (c.rating || 0) + '</div><div class="coach-stat-label">Puan</div></div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+            } catch (e) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:#e63946;">Koçlar yüklenirken hata oluştu. Lütfen sayfayı yenileyin.</div>';
+            }
+        }
+
+        loadCoachesPreview();
     </script>
 </body>
 </html>

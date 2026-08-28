@@ -1,6 +1,16 @@
 -- =============================================
 -- PUSULA - Supabase Veritabanı Şeması
--- Bu dosyayı Supabase SQL Editor'da çalıştırın
+-- =============================================
+-- NASIL ÇALIŞTIRILIR:
+--   1. Supabase paneli -> SQL Editor -> "New query" açın.
+--   2. Bu dosyanın TAMAMINI kopyalayıp yapıştırın.
+--   3. "Run" (▶) butonuna basın.
+--   4. Idempotenttir: tekrar çalıştırmak güvenlidir (IF NOT EXISTS /
+--      CREATE OR REPLACE / ON CONFLICT kullanılır). Mevcut örnek veriler
+--      korunur, hiçbir destructive (DROP/TRUNCATE) işlem yapılmaz.
+--   5. Sonrasında Supabase -> Authentication menüsünden ilk admin
+--      hesabını oluşturup, profiles tablosunda o kaydın rolünü
+--      'admin' yapın (veya Örnek Veriler bölümündeki yorumu açın).
 -- =============================================
 
 -- 1. PROFILES tablosu (auth trigger ile otomatik oluşur, sadece garanti altına al)
@@ -32,6 +42,39 @@ CREATE POLICY "Admins can read all profiles"
 CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE
   USING (auth.uid() = id);
+
+-- =============================================
+-- Yeni kullanıcı kaydolduğunda otomatik profil oluşturma
+-- auth.users -> profiles  (full_name, phone, grade, role)
+-- =============================================
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, phone, grade, role)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    COALESCE(NEW.raw_user_meta_data->>'phone', ''),
+    COALESCE(NEW.raw_user_meta_data->>'grade', ''),
+    COALESCE(NEW.raw_user_meta_data->>'role', 'student')
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    full_name = COALESCE(EXCLUDED.full_name, profiles.full_name),
+    phone     = COALESCE(EXCLUDED.phone, profiles.phone),
+    grade     = COALESCE(EXCLUDED.grade, profiles.grade),
+    role      = COALESCE(EXCLUDED.role, profiles.role);
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- 2. COACHES tablosu
 CREATE TABLE IF NOT EXISTS coaches (
@@ -219,6 +262,73 @@ CREATE POLICY "Admins can delete messages"
   USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
   );
+
+-- =============================================
+-- UPDATED_AT otomatik güncelleme trigger'ı
+-- =============================================
+CREATE OR REPLACE FUNCTION public.trigger_set_updated_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$;
+
+-- İlgili tablolara updated_at sütunu ekle (varsa atla)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='updated_at') THEN
+    ALTER TABLE profiles ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='coaches' AND column_name='updated_at') THEN
+    ALTER TABLE coaches ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='packages' AND column_name='updated_at') THEN
+    ALTER TABLE packages ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='student_packages' AND column_name='updated_at') THEN
+    ALTER TABLE student_packages ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+  END IF;
+END $$;
+
+DROP TRIGGER IF EXISTS set_profiles_updated_at ON profiles;
+CREATE TRIGGER set_profiles_updated_at
+  BEFORE UPDATE ON profiles
+  FOR EACH ROW EXECUTE FUNCTION public.trigger_set_updated_at();
+
+DROP TRIGGER IF EXISTS set_coaches_updated_at ON coaches;
+CREATE TRIGGER set_coaches_updated_at
+  BEFORE UPDATE ON coaches
+  FOR EACH ROW EXECUTE FUNCTION public.trigger_set_updated_at();
+
+DROP TRIGGER IF EXISTS set_packages_updated_at ON packages;
+CREATE TRIGGER set_packages_updated_at
+  BEFORE UPDATE ON packages
+  FOR EACH ROW EXECUTE FUNCTION public.trigger_set_updated_at();
+
+DROP TRIGGER IF EXISTS set_student_packages_updated_at ON student_packages;
+CREATE TRIGGER set_student_packages_updated_at
+  BEFORE UPDATE ON student_packages
+  FOR EACH ROW EXECUTE FUNCTION public.trigger_set_updated_at();
+
+-- =============================================
+-- PERFORMANS İNDEX'LERİ (sık sorgulanan kolonlar)
+-- =============================================
+CREATE INDEX IF NOT EXISTS idx_profiles_role ON profiles(role);
+
+CREATE INDEX IF NOT EXISTS idx_coaches_status ON coaches(status);
+
+CREATE INDEX IF NOT EXISTS idx_student_coaches_student_id ON student_coaches(student_id);
+CREATE INDEX IF NOT EXISTS idx_student_coaches_coach_id ON student_coaches(coach_id);
+
+CREATE INDEX IF NOT EXISTS idx_student_packages_student_id ON student_packages(student_id);
+CREATE INDEX IF NOT EXISTS idx_student_packages_status ON student_packages(status);
+CREATE INDEX IF NOT EXISTS idx_student_packages_package_id ON student_packages(package_id);
+
+CREATE INDEX IF NOT EXISTS idx_messages_target_student_id ON messages(target_student_id);
+CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON messages(sender_id);
 
 -- =============================================
 -- ÖRNEK VERİLER (isteğe bağlı - admin hesabı,

@@ -76,8 +76,18 @@ export async function getCurrentProfile() {
  */
 export async function sendPasswordReset(email) {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/yeni-sifre.html`
+    redirectTo: `${window.location.origin}/pages/yeni-sifre.html`
   });
+  if (error) throw error;
+}
+
+/**
+ * Şifre sıfırlama akışında, kullanıcı e-postadaki linke tıklayıp
+ * pages/yeni-sifre.html sayfasına düştüğünde yeni şifresini günceller.
+ * Supabase recovery oturumunu (URL'deki token) otomatik algılar.
+ */
+export async function updateUserPassword(newPassword) {
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
   if (error) throw error;
 }
 

@@ -105,11 +105,12 @@
                     </div>
                     
                     <div class="form-checkbox">
-                        <input type="checkbox" id="terms" required>
+                        <input type="checkbox" id="terms" required onchange="clearError('terms')">
                         <label for="terms">
                             <a href="kullanim-sartlari.html">Kullanım Şartları</a>'nı ve <a href="gizlilik-politikasi.html">Gizlilik Politikası</a>'nı okudum, kabul ediyorum.
                         </label>
                     </div>
+                    <div class="form-error" id="regTerms-error"></div>
 
                     <div class="cf-turnstile" data-sitekey="0x4AAAAAAA" data-theme="light" style="margin: 16px 0;"></div>
                     
@@ -155,7 +156,7 @@
         }
 
         function clearAllErrors() {
-            var ids = ['regName', 'regSurname', 'regEmail', 'regPhone', 'regPassword', 'regPasswordConfirm', 'regGrade'];
+            var ids = ['regName', 'regSurname', 'regEmail', 'regPhone', 'regPassword', 'regPasswordConfirm', 'regGrade', 'terms'];
             for (var i = 0; i < ids.length; i++) {
                 clearError(ids[i]);
             }
@@ -224,34 +225,32 @@
             var hasError = false;
 
             if (name.length < 2) {
-                showError('regName', 'Ad en az 2 karakter olmalıdır.');
+                showError('regName', 'Lütfen adınızı giriniz (en az 2 karakter).');
                 hasError = true;
             }
 
             if (surname.length < 2) {
-                showError('regSurname', 'Soyad en az 2 karakter olmalıdır.');
+                showError('regSurname', 'Lütfen soyadınızı giriniz (en az 2 karakter).');
                 hasError = true;
             }
 
             var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
-                showError('regEmail', 'Geçerli bir e-posta adresi giriniz.');
+                showError('regEmail', 'Geçerli bir e-posta adresi giriniz (örn. ad@site.com).');
                 hasError = true;
             }
 
-            if (phone.length > 0) {
-                var digitsOnly = phone.replace(/\D/g, '');
-                if (digitsOnly.length < 10) {
-                    showError('regPhone', 'Telefon numarası en az 10 haneli olmalıdır.');
-                    hasError = true;
-                }
-            } else {
-                showError('regPhone', 'Telefon numarası gereklidir.');
+            var digitsOnly = phone.replace(/\D/g, '');
+            if (digitsOnly.length < 10) {
+                showError('regPhone', 'Lütfen geçerli bir telefon numarası giriniz (en az 10 hane, örn. 05XX XXX XX XX).');
                 hasError = true;
             }
 
             if (password.length < 6) {
                 showError('regPassword', 'Şifre en az 6 karakter olmalıdır.');
+                hasError = true;
+            } else if (password.length > 8) {
+                showError('regPassword', 'Şifre en fazla 8 karakter olmalıdır.');
                 hasError = true;
             }
 
@@ -261,7 +260,7 @@
             }
 
             if (!document.getElementById('terms').checked) {
-                showError('regPasswordConfirm', 'Kullanım şartlarını kabul etmelisiniz.');
+                showError('terms', 'Devam etmek için kullanım şartlarını kabul etmelisiniz.');
                 hasError = true;
             }
 

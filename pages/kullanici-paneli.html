@@ -379,6 +379,31 @@
             line-height: 1.6;
         }
 
+        .message-subject {
+            font-weight: 600;
+            color: var(--gray-800);
+            font-size: 1rem;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .message-item.unread {
+            border-left-color: var(--accent);
+            background: rgba(230, 57, 70, 0.05);
+            cursor: pointer;
+        }
+
+        .message-unread-badge {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 2px 8px;
+            background: var(--accent);
+            color: var(--white);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+
         .settings-form {
             display: flex;
             flex-direction: column;
@@ -718,7 +743,7 @@
 
     <script type="module">
         import { requireAuth, logoutUser } from '../src/lib/auth.js';
-        import { updateProfile, getStudentCoachByStudentId, getStudentPackageByStudentId, getMessagesForStudent } from '../src/lib/db.js';
+        import { updateProfile, getStudentCoachByStudentId, getStudentPackageByStudentId, getMessagesForStudent, markMessageRead } from '../src/lib/db.js';
 
         var currentUser = null;
         var currentProfile = null;
@@ -855,13 +880,21 @@
                 var html = '<div class="messages-list">';
                 messages.forEach(function(msg) {
                     var date = msg.created_at ? new Date(msg.created_at).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+                    var isOwn = msg.sender_id === currentUser.id;
+                    var isReceived = msg.target_student_id === currentUser.id;
+                    var unread = isReceived && !msg.is_read;
+                    var senderLabel = isOwn ? 'Siz' : (msg.sender_name || 'Admin');
                     html +=
-                        '<div class="message-item">' +
+                        '<div class="message-item' + (unread ? ' unread' : '') + '"' +
+                            (unread ? ' onclick="markMessageReadClick(\'' + msg.id + '\', this)" title="Okundu olarak işaretle"' : '') + '>' +
                             '<div class="message-header">' +
-                                '<span class="message-sender">' + (msg.sender_name || 'Admin') + '</span>' +
+                                '<span class="message-sender">' + escapeHtml(senderLabel) +
+                                    (unread ? ' <span class="message-unread-badge">Okunmadı</span>' : '') +
+                                '</span>' +
                                 '<span class="message-date">' + date + '</span>' +
                             '</div>' +
-                            '<div class="message-body">' + msg.body + '</div>' +
+                            (msg.subject ? '<div class="message-subject">' + escapeHtml(msg.subject) + '</div>' : '') +
+                            '<div class="message-body">' + escapeHtml(msg.body) + '</div>' +
                         '</div>';
                 });
                 html += '</div>';

@@ -172,6 +172,32 @@
             border-color: #e63946;
         }
 
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            min-width: 280px;
+            max-width: 90%;
+            padding: 14px 18px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.95rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+            opacity: 0;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            z-index: 9999;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast-success { background: #2a9d8f; }
+        .toast-error { background: #e63946; }
+
         @media (max-width: 768px) {
             .contact-grid {
                 grid-template-columns: 1fr;
@@ -314,11 +340,11 @@
                         
                         <div class="cf-turnstile" data-sitekey="0x4AAAAAAA" data-theme="light" style="margin: 16px 0;"></div>
                         
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            Mesaj Gönder
+                        <button type="submit" class="btn btn-primary" style="width: 100%;" id="contactSubmitBtn">
+                            <span>Mesaj Gönder
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                            </svg>
+                            </svg></span>
                         </button>
                     </form>
                 </div>
@@ -407,6 +433,18 @@
             document.getElementById(errorElId).style.display = 'block';
         }
 
+        function showToast(message, type) {
+            var toast = document.createElement('div');
+            toast.className = 'toast ' + (type === 'success' ? 'toast-success' : 'toast-error');
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            requestAnimationFrame(function() { toast.classList.add('show'); });
+            setTimeout(function() {
+                toast.classList.remove('show');
+                setTimeout(function() { toast.remove(); }, 300);
+            }, 4000);
+        }
+
         document.getElementById('contactForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -416,13 +454,13 @@
             var subject = document.getElementById('subject');
             var message = document.getElementById('message');
 
-            var valid = true;
-
             clearError(name);
             clearError(email);
             clearError(phone);
             clearError(subject);
             clearError(message);
+
+            var valid = true;
 
             if (name.value.trim().length < 2) { showError(name, 'nameError'); valid = false; }
 
@@ -441,15 +479,14 @@
             if (isTurnstileEnabled()) {
                 var turnstileToken = document.querySelector('#contactForm [name="cf-turnstile-response"]');
                 if (!turnstileToken || !turnstileToken.value) {
-                    alert('Lütfen robot olmadığını doğrulayın.');
+                    showToast('Lütfen robot olmadığınızı doğrulayın.', 'error');
                     return;
                 }
             }
 
-            var submitBtn = this.querySelector('button[type="submit"]');
-            var originalText = submitBtn.innerHTML;
+            var submitBtn = document.getElementById('contactSubmitBtn');
+            submitBtn.classList.add('btn-loading');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = 'Gönderiliyor...';
 
             try {
                 await sendContactMessage({
@@ -460,13 +497,13 @@
                     message: message.value.trim()
                 });
 
-                alert('Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağız.');
+                showToast('Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağız.', 'success');
                 this.reset();
             } catch (err) {
-                alert('Mesaj gönderilirken bir hata oluştu: ' + err.message);
+                showToast('Mesaj gönderilirken bir hata oluştu: ' + (err.message || 'Bilinmeyen hata'), 'error');
             } finally {
+                submitBtn.classList.remove('btn-loading');
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
             }
         });
     </script>

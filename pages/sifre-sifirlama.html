@@ -82,6 +82,8 @@
 
     <script type="module">
         import { sendPasswordReset } from '../src/lib/auth.js';
+        import { isTurnstileEnabled, initTurnstileWidgets } from '../src/lib/turnstile.js';
+        initTurnstileWidgets();
 
         document.getElementById('passwordResetForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -99,11 +101,13 @@
                 return;
             }
 
-            var turnstileToken = document.querySelector('#passwordResetForm [name="cf-turnstile-response"]');
-            if (!turnstileToken || !turnstileToken.value) {
-                resetError.textContent = 'Lütfen robot olmadığını doğrulayın.';
-                resetError.style.display = 'block';
-                return;
+            if (isTurnstileEnabled()) {
+                var turnstileToken = document.querySelector('#passwordResetForm [name="cf-turnstile-response"]');
+                if (!turnstileToken || !turnstileToken.value) {
+                    resetError.textContent = 'Lütfen robot olmadığını doğrulayın.';
+                    resetError.style.display = 'block';
+                    return;
+                }
             }
 
             // Loading state
