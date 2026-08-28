@@ -1,19 +1,24 @@
 -- =============================================
--- PUSULA - Supabase Veritabanı Şeması
+-- PUSULA - Supabase Veritabanı Şeması (UUID)
 -- =============================================
 -- NASIL ÇALIŞTIRILIR:
---   1. Supabase paneli -> SQL Editor -> "New query" açın.
+--   1. Supabase Dashboard -> SQL Editor -> "New query" açın.
 --   2. Bu dosyanın TAMAMINI kopyalayıp yapıştırın.
 --   3. "Run" (▶) butonuna basın.
 --   4. Idempotenttir: tekrar çalıştırmak güvenlidir (IF NOT EXISTS /
---      CREATE OR REPLACE / ON CONFLICT kullanılır). Mevcut örnek veriler
---      korunur, hiçbir destructive (DROP/TRUNCATE) işlem yapılmaz.
---   5. Sonrasında Supabase -> Authentication menüsünden ilk admin
---      hesabını oluşturup, profiles tablosunda o kaydın rolünü
---      'admin' yapın (veya Örnek Veriler bölümündeki yorumu açın).
+--      CREATE OR REPLACE / ON CONFLICT kullanılır). Hiçbir destructive
+--      (DROP/TRUNCATE) işlem yapılmaz.
+--   5. İlk admin hesabı için en alttaki make_admin fonksiyonunu kullanın:
+--      SELECT public.make_admin('admin@ornek.com');
+-- =============================================
+-- TÜM TABLOLAR UUID BİRİNCİL ANAHTAR KULLANIR (Supabase best practice).
+-- Kod (db.js) id'leri tipten bağımsız kullandığı için uyumludur.
 -- =============================================
 
--- 1. PROFILES tablosu (auth trigger ile otomatik oluşur, sadece garanti altına al)
+-- =============================================
+-- 1. PROFILES tablosu
+-- auth trigger ile otomatik oluşur, sadece garanti altına alınır.
+-- =============================================
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   full_name TEXT NOT NULL DEFAULT '',
@@ -23,7 +28,6 @@ CREATE TABLE IF NOT EXISTS profiles (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- profiles tablosunda RLS
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
 -- Herkes kendi profilini okuyabilir
@@ -39,13 +43,18 @@ CREATE POLICY "Admins can read all profiles"
   );
 
 -- Herkes kendi profilini güncelleyebilir
+-- GÜVENLİK: role sütunu kullanıcı tarafından değiştirilemez (rol yükseltme engeli)
 CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE
-  USING (auth.uid() = id);
+  USING (auth.uid() = id)
+  WITH CHECK (
+    auth.uid() = id
+    AND (role = (SELECT role FROM profiles WHERE id = auth.uid()))
+  );
 
 -- =============================================
 -- Yeni kullanıcı kaydolduğunda otomatik profil oluşturma
--- auth.users -> profiles  (full_name, phone, grade, role)
+-- auth.users -> profiles
 -- =============================================
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
@@ -76,9 +85,11 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+-- =============================================
 -- 2. COACHES tablosu
+-- =============================================
 CREATE TABLE IF NOT EXISTS coaches (
-  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT NOT NULL,
   specialty TEXT NOT NULL,
@@ -91,7 +102,6 @@ CREATE TABLE IF NOT EXISTS coaches (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Coaches RLS: Herkes okuyabilir, sadece admin yazabilir
 ALTER TABLE coaches ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Anyone can read coaches"
@@ -116,9 +126,11 @@ CREATE POLICY "Admins can delete coaches"
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
   );
 
+-- =============================================
 -- 3. PACKAGES tablosu
+-- =============================================
 CREATE TABLE IF NOT EXISTS packages (
-  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   price NUMERIC NOT NULL DEFAULT 0,
   period TEXT DEFAULT '/ay',
@@ -128,7 +140,6 @@ CREATE TABLE IF NOT EXISTS packages (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Packages RLS
 ALTER TABLE packages ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Anyone can read packages"
@@ -153,16 +164,17 @@ CREATE POLICY "Admins can delete packages"
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
   );
 
+-- =============================================
 -- 4. STUDENT_COACHES tablosu (öğrenci-koç eşleştirme)
+-- =============================================
 CREATE TABLE IF NOT EXISTS student_coaches (
-  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   student_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
-  coach_id BIGINT REFERENCES coaches(id) ON DELETE SET NULL,
+  coach_id UUID REFERENCES coaches(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE(student_id)
 );
 
--- Student_Coaches RLS
 ALTER TABLE student_coaches ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Students can read own assignment"
@@ -181,17 +193,18 @@ CREATE POLICY "Admins can manage assignments"
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
   );
 
+-- =============================================
 -- 5. STUDENT_PACKAGES tablosu
+-- =============================================
 CREATE TABLE IF NOT EXISTS student_packages (
-  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   student_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
-  package_id BIGINT REFERENCES packages(id) ON DELETE SET NULL,
+  package_id UUID REFERENCES packages(id) ON DELETE SET NULL,
   start_date DATE DEFAULT CURRENT_DATE,
-  status TEXT NOT NULL DEFAULT 'Aktif' CHECK (status IN ('Aktif', 'Pasif', 'Süresi Doldu')),
+  status TEXT NOT NULL DEFAULT 'Aktif' CHECK (status IN ('Aktif', 'Pasif', 'Suresi Doldu')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Student_Packages RLS
 ALTER TABLE student_packages ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Students can read own packages"
@@ -210,9 +223,11 @@ CREATE POLICY "Admins can manage student packages"
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
   );
 
+-- =============================================
 -- 6. MESSAGES tablosu (iletim formu + admin mesajları)
+-- =============================================
 CREATE TABLE IF NOT EXISTS messages (
-  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   sender_name TEXT DEFAULT '',
   sender_email TEXT DEFAULT '',
   sender_phone TEXT DEFAULT '',
@@ -224,13 +239,13 @@ CREATE TABLE IF NOT EXISTS messages (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Messages RLS
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
 -- Herkes mesaj gönderebilir (iletisim formu)
+-- GÜVENLİK: giriş yapmış kullanıcı kendi adına gönderebilir, anonim sender_id NULL
 CREATE POLICY "Anyone can insert messages"
   ON messages FOR INSERT
-  WITH CHECK (true);
+  WITH CHECK (sender_id = auth.uid());
 
 -- Admin tüm mesajları okuyabilir
 CREATE POLICY "Admins can read all messages"
@@ -256,6 +271,12 @@ CREATE POLICY "Admins can update messages"
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
   );
 
+-- Öğrenciler kendi (hedeflenen) mesajlarını okundu işaretleyebilir
+CREATE POLICY "Students can mark own messages as read"
+  ON messages FOR UPDATE
+  USING (auth.uid() = target_student_id)
+  WITH CHECK (auth.uid() = target_student_id);
+
 -- Admin mesajları silebilir
 CREATE POLICY "Admins can delete messages"
   ON messages FOR DELETE
@@ -277,8 +298,7 @@ END;
 $$;
 
 -- İlgili tablolara updated_at sütunu ekle (varsa atla)
-DO $$
-BEGIN
+DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='updated_at') THEN
     ALTER TABLE profiles ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
   END IF;
@@ -314,7 +334,7 @@ CREATE TRIGGER set_student_packages_updated_at
   FOR EACH ROW EXECUTE FUNCTION public.trigger_set_updated_at();
 
 -- =============================================
--- PERFORMANS İNDEX'LERİ (sık sorgulanan kolonlar)
+-- PERFORMANS İNDEX'LERİ
 -- =============================================
 CREATE INDEX IF NOT EXISTS idx_profiles_role ON profiles(role);
 
@@ -331,17 +351,9 @@ CREATE INDEX IF NOT EXISTS idx_messages_target_student_id ON messages(target_stu
 CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON messages(sender_id);
 
 -- =============================================
--- ÖRNEK VERİLER (isteğe bağlı - admin hesabı,
--- koçlar, paketler)
+-- ÖRNEK VERİLER (isteğe bağlı - koçlar, paketler)
 -- =============================================
 
--- Admin hesabını profiles tablosuna ekle
--- (Bu hesap zaten Supabase Auth'ta kayıtlı olmalı)
--- INSERT INTO profiles (id, full_name, role)
--- VALUES ('ADMIN_USER_UUID', 'Admin', 'admin')
--- ON CONFLICT (id) DO NOTHING;
-
--- Örnek koçlar
 INSERT INTO coaches (name, email, specialty, phone, bio, status, students_count, rating, experience)
 VALUES
   ('Emre Demir', 'emre@pusula.com', 'TYT Matematik', '0532 111 22 33', 'İTÜ Matematik Bölümü mezunu. 5 yıl deneyimli TYT Matematik koçu.', 'Aktif', 500, 4.9, '5 Yıl'),
@@ -351,7 +363,6 @@ VALUES
   ('Merve Yıldız', 'merve@pusula.com', 'PDR Uzmanı', '0536 555 66 77', 'Psikolojik Danışmanlık ve Rehberlik uzmanı. 6 yıl deneyim.', 'Aktif', 600, 5.0, '6 Yıl'),
   ('Burak Özkan', 'burak@pusula.com', 'TYT Sosyal Bilimler', '0537 666 77 88', 'Tarih Bölümü mezunu, Sosyal Bilimlerde uzman koç.', 'Aktif', 310, 4.8, '3 Yıl');
 
--- Örnek paketler
 INSERT INTO packages (name, price, period, description, features, is_popular)
 VALUES
   ('Başlangıç', 499, '/ay', 'İlk adımı atmak isteyenler için',
@@ -362,7 +373,7 @@ VALUES
    '["TYT + AYT + PDR", "Sınırsız Plan", "7/24 Destek", "Sınırsız Koç Görüşmesi", "Deneme Analizi", "Bireysel Motivasyon"]'::jsonb, false);
 
 -- =============================================
--- ADMIN YARDIMCISI (opsiyonel seed)
+-- ADMIN YARDIMCISI
 -- Bir kullanıcıyı e-posta ile admin yapar.
 -- Kullanım: SELECT public.make_admin('admin@pusula.com');
 -- =============================================
