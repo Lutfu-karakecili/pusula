@@ -84,12 +84,21 @@
                 <p class="auth-footer">
                     Hesabınız yok mu? <a href="kayit.html">Kayıt Ol</a>
                 </p>
+
+                <div id="resendBox" style="display: none; margin-top: 14px; text-align: center;">
+                    <p style="font-size: 0.85rem; color: #6c757d; margin-bottom: 8px;">
+                        E-posta adresiniz henüz doğrulanmamış olabilir. Doğrulama mailini tekrar gönderelim mi?
+                    </p>
+                    <button type="button" class="btn btn-secondary" id="resendBtn" style="width: 100%;">
+                        Doğrulama Maili Gönder
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <script type="module">
-        import { loginUser, getCurrentSession } from '../src/lib/auth.js';
+        import { loginUser, getCurrentSession, resendConfirmationEmail } from '../src/lib/auth.js';
         import { isTurnstileEnabled, initTurnstileWidgets } from '../src/lib/turnstile.js';
         initTurnstileWidgets();
 
@@ -99,6 +108,31 @@
                 window.location.replace('../index.html');
             }
         })();
+
+        document.getElementById('resendBtn').addEventListener('click', async function() {
+            var emailEl = document.getElementById('loginEmail');
+            var emailVal = emailEl.value.trim();
+            var errEl = document.getElementById('emailError');
+            var resendBtn = this;
+            if (!emailVal) {
+                errEl.textContent = 'Lütfen e-posta adresinizi girin.';
+                errEl.style.display = 'block';
+                return;
+            }
+            resendBtn.classList.add('btn-loading');
+            resendBtn.disabled = true;
+            try {
+                await resendConfirmationEmail(emailVal);
+                errEl.textContent = 'Doğrulama maili tekrar gönderildi. Gelen kutunuzu (ve spam klasörünü) kontrol edin.';
+                errEl.style.display = 'block';
+            } catch (e) {
+                errEl.textContent = 'Mail gönderilemedi: ' + (e.message || 'Lütfen tekrar deneyin.');
+                errEl.style.display = 'block';
+            } finally {
+                resendBtn.classList.remove('btn-loading');
+                resendBtn.disabled = false;
+            }
+        });
 
         function mapLoginError(err) {
             var m = (err && err.message) ? err.message.toLowerCase() : '';
@@ -172,6 +206,9 @@
 
                 var msg = mapLoginError(err);
                 emailError.textContent = msg;
+                if (msg.toLowerCase().indexOf('doğrulanmamış') !== -1) {
+                    document.getElementById('resendBox').style.display = 'block';
+                }
                 email.classList.add('error');
                 emailError.style.display = 'block';
                 password.value = '';

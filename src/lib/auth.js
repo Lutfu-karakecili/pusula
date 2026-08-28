@@ -37,6 +37,15 @@ export async function loginUser({ email, password }) {
 }
 
 /**
+ * Doğrulanmamış e-posta için doğrulama mailini tekrar gönderir.
+ * (Kayıt sonrası "Confirm email" açıkken giriş engellenirse kullanılır.)
+ */
+export async function resendConfirmationEmail(email) {
+  const { error } = await supabase.auth.resend({ type: 'signup', email });
+  if (error) throw error;
+}
+
+/**
  * Çıkış yapma.
  */
 export async function logoutUser() {
