@@ -20,6 +20,7 @@ const pagesHtmlFiles = globSync('pages/*.html').reduce((entries, file) => {
 const allHtmlFiles = { ...rootHtmlFiles, ...pagesHtmlFiles };
 
 export default defineConfig({
+  base: '/pusula/',
   root: '.',
   build: {
     outDir: 'dist',

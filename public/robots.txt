@@ -10,4 +10,4 @@ Disallow: /src/
 Disallow: /dist/
 Disallow: /supabase/
 
-Sitemap: https://pusula.com/sitemap.xml
+Sitemap: https://lutfu-karakecili.github.io/pusula/sitemap.xml

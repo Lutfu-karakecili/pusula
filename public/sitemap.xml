@@ -1,47 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-        <loc>https://pusula.com/</loc>
+        <loc>https://lutfu-karakecili.github.io/pusula/</loc>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
-        <loc>https://pusula.com/pages/koclar.html</loc>
+        <loc>https://lutfu-karakecili.github.io/pusula/pages/koclar.html</loc>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://pusula.com/pages/paketler.html</loc>
+        <loc>https://lutfu-karakecili.github.io/pusula/pages/koc-detay.html</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://lutfu-karakecili.github.io/pusula/pages/paketler.html</loc>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://pusula.com/pages/iletisim.html</loc>
+        <loc>https://lutfu-karakecili.github.io/pusula/pages/iletisim.html</loc>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
     <url>
-        <loc>https://pusula.com/pages/giris.html</loc>
+        <loc>https://lutfu-karakecili.github.io/pusula/pages/gizlilik-politikasi.html</loc>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
     </url>
     <url>
-        <loc>https://pusula.com/pages/kayit.html</loc>
+        <loc>https://lutfu-karakecili.github.io/pusula/pages/cerez-politikasi.html</loc>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
     </url>
     <url>
-        <loc>https://pusula.com/pages/cerez-politikasi.html</loc>
-        <changefreq>yearly</changefreq>
-        <priority>0.3</priority>
-    </url>
-    <url>
-        <loc>https://pusula.com/pages/gizlilik-politikasi.html</loc>
-        <changefreq>yearly</changefreq>
-        <priority>0.3</priority>
-    </url>
-    <url>
-        <loc>https://pusula.com/pages/kullanim-sartlari.html</loc>
+        <loc>https://lutfu-karakecili.github.io/pusula/pages/kullanim-sartlari.html</loc>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
     </url>
