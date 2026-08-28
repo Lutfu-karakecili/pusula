@@ -11,7 +11,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
     <div class="auth-page">
@@ -128,7 +127,8 @@
 
     <script type="module">
         import { registerUser } from '../src/lib/auth.js';
-        import { isTurnstileEnabled, initTurnstileWidgets } from '../src/lib/turnstile.js';
+        import { isTurnstileEnabled, initTurnstileWidgets, loadTurnstileScript } from '../src/lib/turnstile.js';
+        await loadTurnstileScript();
         initTurnstileWidgets();
 
         function showError(fieldId, message) {
