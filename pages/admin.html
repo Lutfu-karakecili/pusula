@@ -145,17 +145,22 @@
         import { loginUser, getCurrentSession, getCurrentProfile } from '../src/lib/auth.js';
 
         (async function() {
-            const existingSession = await getCurrentSession();
-            if (existingSession) {
-                try {
-                    const profile = await getCurrentProfile();
-                    if (profile && profile.role === 'admin') {
-                        window.location.replace('admin-dashboard.html');
-                        return;
+            try {
+                const existingSession = await getCurrentSession();
+                if (existingSession) {
+                    try {
+                        const profile = await getCurrentProfile();
+                        if (profile && profile.role === 'admin') {
+                            window.location.replace('admin-dashboard.html');
+                            return;
+                        }
+                    } catch (e) {
+                        // Profil alınamadı, devam et
                     }
-                } catch (e) {
-                    // Profil alınamadı, devam et
                 }
+            } catch (e) {
+                document.getElementById('errorMessage').textContent = 'Bağlantı hatası: ' + e.message;
+                document.getElementById('errorMessage').classList.add('show');
             }
         })();
 
