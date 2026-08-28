@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vite build",
+    "audit": "npm audit --audit-level=high"
   },
   "dependencies": {
     "@sentry/browser": "^10.71.0",
