@@ -783,7 +783,7 @@
                     await updateCoach(editId, { name, email, specialty, phone, bio });
                     showToast('Koç başarıyla güncellendi!', 'success');
                 } else {
-                    await insertCoach({ name, email, specialty, phone, bio, status: 'Aktif', students_count: 0, rating: 0, experience: '0 Yıl' });
+                    await insertCoach({ name, email, specialty, phone, bio, status: 'Aktif', student_count: 0, rating: 0, experience: '0 Yıl' });
                     showToast('Koç başarıyla kaydedildi!', 'success');
                 }
                 window.closeModal('coach');
