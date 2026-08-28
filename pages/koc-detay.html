@@ -592,16 +592,7 @@
 
     <script src="../js/main.js"></script>
     <script type="module">
-        import { getCoachById } from '../src/lib/db.js';
-
-        var PACKAGES_BY_SPECIALTY = {
-            'TYT Matematik': ['TYT Matematik Birebir Ders', 'TYT Matematik Soru Çözüm Kampı', 'TYT Deneme Sınavı Paketi'],
-            'AYT Fen Bilimleri': ['AYT Fizik-Kimya-Biyoloji Ders', 'AYT Fen Soru Kampı', 'AYT Deneme Sınavı Paketi'],
-            'TYT Türkçe': ['TYT Türkçe Birebir Ders', 'TYT Paragraf ve Dilbilgisi Kampı', 'TYT Deneme Sınavı Paketi'],
-            'AYT Matematik': ['AYT Matematik Birebir Ders', 'AYT Matematik Soru Çözüm Kampı', 'AYT Deneme Sınavı Paketi'],
-            'PDR Uzmanı': ['Kariyer Danışmanlığı', 'Sınav Kaygısı Yönetimi', 'Motivasyon Koçluğu', 'Üniversite Tercih Danışmanlığı'],
-            'TYT Sosyal Bilimler': ['TYT Sosyal Bilimler Birebir Ders', 'TYT Tarih-Coğrafya-Vatandaşlık Kampı', 'TYT Deneme Sınavı Paketi']
-        };
+        import { getCoachById, getPackages } from '../src/lib/db.js';
 
         function getCoachIdFromUrl() {
             var params = new URLSearchParams(window.location.search);
@@ -622,14 +613,51 @@
             container.innerHTML = html;
         }
 
-        function generatePackages(specialty) {
+        function getCoachPackageTags(specialty) {
+            var s = (specialty || '').toUpperCase();
+            var tags = [];
+            if (s.indexOf('TYT') !== -1) tags.push('TYT');
+            if (s.indexOf('AYT') !== -1) tags.push('AYT');
+            if (s.indexOf('PDR') !== -1) tags.push('PDR');
+            return tags;
+        }
+
+        function packageMatchesCoach(pkg, tags) {
+            if (tags.length === 0) return true;
+            var haystack = (pkg.name + ' ' + (pkg.description || '') + ' ' + JSON.stringify(pkg.features || '')).toUpperCase();
+            return tags.some(function(t) { return haystack.indexOf(t) !== -1; });
+        }
+
+        function renderCoachPackages(packages, specialty) {
             var container = document.getElementById('coach-packages');
-            var packages = PACKAGES_BY_SPECIALTY[specialty] || ['Birebir Koçluk', 'Soru Çözüm Desteği', 'Deneme Sınavı Analizi'];
-            var html = '';
-            packages.forEach(function(pkg) {
-                html += '<li class="coach-package-item"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' + pkg + '</li>';
-            });
-            container.innerHTML = html;
+            var tags = getCoachPackageTags(specialty);
+
+            var matched = (packages || []).filter(function(p) { return packageMatchesCoach(p, tags); });
+            if (matched.length === 0) matched = packages || [];
+
+            if (matched.length === 0) {
+                container.innerHTML = '<li class="coach-package-item" style="color:var(--gray-500);">Şu an sunulan paket bulunmuyor.</li>';
+                return;
+            }
+
+            container.innerHTML = matched.map(function(p) {
+                var priceText = (p.price != null ? p.price + '₺' : '') + (p.period ? ' ' + p.period : '');
+                var priceHtml = priceText ? '<span style="margin-left:auto;font-weight:600;color:var(--primary);white-space:nowrap;">' + priceText + '</span>' : '';
+                return '<li class="coach-package-item">' +
+                    '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
+                    '<span>' + (p.name || '') + '</span>' + priceHtml + '</li>';
+            }).join('');
+        }
+
+        async function loadCoachPackages(specialty) {
+            var container = document.getElementById('coach-packages');
+            container.innerHTML = '<li class="coach-package-item" style="color:var(--gray-500);">Paketler yükleniyor...</li>';
+            try {
+                var packages = await getPackages();
+                renderCoachPackages(packages || [], specialty);
+            } catch (e) {
+                container.innerHTML = '<li class="coach-package-item" style="color:#e63946;">Paketler yüklenirken hata oluştu.</li>';
+            }
         }
 
         function renderCoach(coach) {
@@ -648,7 +676,6 @@
             document.getElementById('contact-phone').textContent = coach.phone || '';
 
             generateStars(coach.rating || 0);
-            generatePackages(coach.specialty);
 
             document.getElementById('loading').style.display = 'none';
             document.getElementById('coach-view').classList.remove('hidden');
@@ -672,6 +699,7 @@
                     return;
                 }
                 renderCoach(coach);
+                loadCoachPackages(coach.specialty);
             } catch (e) {
                 showError();
             }

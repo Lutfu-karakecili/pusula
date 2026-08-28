@@ -1,6 +1,8 @@
 User-agent: *
 Disallow: /pages/admin.html
 Disallow: /pages/admin-dashboard.html
+Disallow: /pages/kullanici-paneli.html
+Disallow: /pages/yeni-sifre.html
 Disallow: /pages/giris.html
 Disallow: /pages/kayit.html
 Disallow: /pages/sifre-sifirlama.html

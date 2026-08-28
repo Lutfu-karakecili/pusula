@@ -1724,3 +1724,91 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     50% { transform: translate(0, -40px) rotate(0deg); }
     75% { transform: translate(-20px, -20px) rotate(-5deg); }
 }
+
+/* ===== ACCESSIBILITY: SKIP LINK ===== */
+.skip-link {
+    position: absolute;
+    left: -999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    z-index: 3000;
+    background: var(--primary);
+    color: var(--white);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+}
+.skip-link:focus {
+    left: var(--spacing-md);
+    top: var(--spacing-md);
+    width: auto;
+    height: auto;
+    overflow: visible;
+}
+
+/* ===== ACCESSIBILITY: REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ===== PANEL CARD BASELINE (brand-consistent) =====
+   Not: Panel sayfaları (admin-dashboard / kullanici-paneli) kart stillerini
+   kendi inline <style> bloklarında tanımlar. Buradaki taban stil, ileride
+   inline stillerin style.css'e taşınması için markaya uygun referanstır.
+   Inline tanımlar kazandığı için bu yalnızca fallback'tir. */
+.card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-bottom: 1px solid var(--gray-200);
+}
+.card-title {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gray-800);
+}
+.card-body {
+    padding: var(--spacing-xl);
+}
+.stat-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-sm);
+}
+.stat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+.stat-value {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+}

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f2340;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1e3a5f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d5a87;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e63946;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c1121f;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g opacity="0.06" stroke="#ffffff" stroke-width="1" fill="none">
+    <path d="M0 80 H1200 M0 160 H1200 M0 240 H1200 M0 320 H1200 M0 400 H1200 M0 480 H1200 M0 560 H1200"/>
+    <path d="M80 0 V630 M160 0 V630 M240 0 V630 M320 0 V630 M400 0 V630 M480 0 V630 M560 0 V630 M640 0 V630 M720 0 V630 M800 0 V630 M880 0 V630 M960 0 V630 M1040 0 V630 M1120 0 V630"/>
+  </g>
+  <g transform="translate(120,150)">
+    <rect width="120" height="120" rx="24" fill="url(#accent)"/>
+    <text x="60" y="82" font-family="Arial, sans-serif" font-size="64" font-weight="800" fill="#ffffff" text-anchor="middle">P</text>
+  </g>
+  <text x="280" y="230" font-family="Arial, sans-serif" font-size="64" font-weight="800" fill="#ffffff">Pusula</text>
+  <text x="120" y="360" font-family="Arial, sans-serif" font-size="40" font-weight="600" fill="#ffffff">YKS Koçluk Platformu</text>
+  <text x="120" y="430" font-family="Arial, sans-serif" font-size="28" fill="#ff6b6b">Kişiye özel çalışma programı ile hedefine ulaş.</text>
+  <rect x="120" y="500" width="360" height="64" rx="32" fill="url(#accent)"/>
+  <text x="300" y="542" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#ffffff" text-anchor="middle">pusula.com</text>
+</svg>

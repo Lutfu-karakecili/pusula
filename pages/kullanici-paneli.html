@@ -960,6 +960,27 @@
             }
         };
 
+        window.markMessageReadClick = async function(id, el) {
+            try {
+                await markMessageRead(id);
+                el.classList.remove('unread');
+                var badge = el.querySelector('.message-unread-badge');
+                if (badge) badge.remove();
+            } catch (e) {
+                /* sessiz */
+            }
+        };
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function showToast(message, type) {
             var toast = document.getElementById('toast');
             toast.textContent = message;
