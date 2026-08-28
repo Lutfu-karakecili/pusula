@@ -71,3 +71,12 @@ CREATE INDEX IF NOT EXISTS idx_student_coaches_coach_id ON student_coaches(coach
 CREATE INDEX IF NOT EXISTS idx_student_packages_student_id ON student_packages(student_id);
 CREATE INDEX IF NOT EXISTS idx_student_packages_status ON student_packages(status);
 CREATE INDEX IF NOT EXISTS idx_student_packages_package_id ON student_packages(package_id);
+
+-- 4. Mesaj okundu işaretleme RLS düzeltmesi
+-- Mevcut policy sadece admin'lere UPDATE izni veriyor.
+-- Öğrenciler kendi mesajlarını "okundu" olarak işaretleyebilmeli.
+DROP POLICY IF EXISTS "Students can mark own messages as read" ON messages;
+CREATE POLICY "Students can mark own messages as read"
+  ON messages FOR UPDATE
+  USING (auth.uid() = target_student_id)
+  WITH CHECK (auth.uid() = target_student_id);
