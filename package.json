@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vite build",
-    "audit": "npm audit --audit-level=high"
+    "audit": "npm audit --audit-level=high",
+    "make-admin": "node scripts/setup-admin.mjs"
   },
   "dependencies": {
     "@sentry/browser": "^10.71.0",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "glob": "^13.0.6",
-    "vite": "^8.2.2"
+    "vite": "^8.2.2",
+    "ws": "^8.21.3"
   }
 }
