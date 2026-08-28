@@ -1,13 +1,6 @@
 User-agent: *
-Disallow: /pages/admin.html
-Disallow: /pages/admin-dashboard.html
-Disallow: /pages/kullanici-paneli.html
-Disallow: /pages/yeni-sifre.html
-Disallow: /pages/giris.html
-Disallow: /pages/kayit.html
-Disallow: /pages/sifre-sifirlama.html
-Disallow: /src/
-Disallow: /dist/
-Disallow: /supabase/
+Allow: /
+Disallow: /admin*
+Disallow: /pages/admin*
 
-Sitemap: https://lutfu-karakecili.github.io/pusula/sitemap.xml
+Sitemap: https://pusula.com/sitemap.xml
