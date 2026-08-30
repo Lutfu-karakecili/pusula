@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   phone TEXT DEFAULT '',
   grade TEXT DEFAULT '',
   role TEXT NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'admin', 'coach')),
+  email TEXT DEFAULT '',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -45,6 +46,24 @@ AS $$
   );
 $$;
 
+-- Admin kullanicinin hesabini tamamen siler (auth.users -> profiles cascade).
+-- SADECE admin tarafindan cagrilabilir. Cagri: select admin_delete_user('uuid');
+CREATE OR REPLACE FUNCTION public.admin_delete_user(target_id UUID)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NOT public.is_admin() THEN
+    RAISE EXCEPTION 'Yetkisiz islem';
+  END IF;
+  DELETE FROM auth.users WHERE id = target_id;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.admin_delete_user(UUID) TO authenticated;
+
 -- Herkes kendi profilini okuyabilir
 CREATE POLICY "Users can read own profile"
   ON profiles FOR SELECT
@@ -58,14 +77,30 @@ CREATE POLICY "Admins can read all profiles"
   );
 
 -- Herkes kendi profilini güncelleyebilir
--- GÜVENLİK: role sütunu kullanıcı tarafından değiştirilemez (rol yükseltme engeli)
+-- GÜVENLİK: rol sütunu kullanıcı tarafından 'admin' yapılamaz (rol yükseltme engeli).
+-- (Alt sorgu yerine sabit izin listesi kullanılır — RLS sonsuz özyineleme olmaz.)
 CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE
   USING (auth.uid() = id)
   WITH CHECK (
-    auth.uid() = id
-    AND (role = (SELECT role FROM profiles WHERE id = auth.uid()))
+    (auth.uid() = id AND role IN ('student', 'coach'))
+    OR public.is_admin()
   );
+
+-- Admin tüm profilleri güncelleyebilir (rol değişimi dahil)
+CREATE POLICY "Admins can update all profiles"
+  ON profiles FOR UPDATE
+  USING (public.is_admin());
+
+-- Admin yeni profil ekleyebilir (mevcut bir auth kullanıcısına bağlamak için)
+CREATE POLICY "Admins can insert profiles"
+  ON profiles FOR INSERT
+  WITH CHECK (public.is_admin());
+
+-- Admin profil silebilir (auth kullanıcısı silinmediği sürece hesapla birlikte)
+CREATE POLICY "Admins can delete all profiles"
+  ON profiles FOR DELETE
+  USING (public.is_admin());
 
 -- =============================================
 -- KOÇ ROLÜ (coach)
@@ -107,19 +142,21 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, phone, grade, role)
+  INSERT INTO public.profiles (id, full_name, phone, grade, role, email)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
     COALESCE(NEW.raw_user_meta_data->>'phone', ''),
     COALESCE(NEW.raw_user_meta_data->>'grade', ''),
-    COALESCE(NEW.raw_user_meta_data->>'role', 'student')
+    COALESCE(NEW.raw_user_meta_data->>'role', 'student'),
+    NEW.email
   )
   ON CONFLICT (id) DO UPDATE SET
     full_name = COALESCE(EXCLUDED.full_name, profiles.full_name),
     phone     = COALESCE(EXCLUDED.phone, profiles.phone),
     grade     = COALESCE(EXCLUDED.grade, profiles.grade),
-    role      = COALESCE(EXCLUDED.role, profiles.role);
+    role      = COALESCE(EXCLUDED.role, profiles.role),
+    email     = COALESCE(EXCLUDED.email, profiles.email);
   RETURN NEW;
 END;
 $$;

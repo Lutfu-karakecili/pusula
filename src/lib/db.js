@@ -160,6 +160,11 @@ export async function updateStudent(id, updates) {
   return data;
 }
 
+export async function deleteStudentAccount(id) {
+  const { error } = await supabase.rpc('admin_delete_user', { target_id: id });
+  if (error) throw error;
+}
+
 /* ================================================
    STUDENT-COACH ASSIGNMENTS
    ================================================ */
