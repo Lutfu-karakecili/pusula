@@ -311,6 +311,68 @@ export async function deleteMessage(id) {
 }
 
 /* ================================================
+   WEEKLY PLANS (koç -> öğrenci haftalık plan)
+   RLS koçun yalnızca kendi öğrencisine planını yazar.
+   ================================================ */
+
+export async function getCoachPlans() {
+  const { data, error } = await supabase
+    .from('weekly_plans')
+    .select('*, profiles!student_id(id, full_name, email, grade), coaches(name, specialty)')
+    .order('week_start', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getPlansByStudent(studentId) {
+  const { data, error } = await supabase
+    .from('weekly_plans')
+    .select('*, coaches(name, specialty)')
+    .eq('student_id', studentId)
+    .order('week_start', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getAllPlansForAdmin() {
+  const { data, error } = await supabase
+    .from('weekly_plans')
+    .select('*, profiles!student_id(id, full_name, email, grade), coaches(name, specialty)')
+    .order('week_start', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function insertWeeklyPlan(plan) {
+  const { data, error } = await supabase
+    .from('weekly_plans')
+    .insert(plan)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateWeeklyPlan(id, updates) {
+  const { data, error } = await supabase
+    .from('weekly_plans')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteWeeklyPlan(id) {
+  const { error } = await supabase
+    .from('weekly_plans')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+}
+
+/* ================================================
    PROFILE
    ================================================ */
 

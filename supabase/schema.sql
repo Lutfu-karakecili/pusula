@@ -305,6 +305,54 @@ CREATE POLICY "Admins can manage student packages"
   );
 
 -- =============================================
+-- 5B. WEEKLY_PLANS tablosu (koç -> öğrenci haftalık plan)
+-- =============================================
+CREATE TABLE IF NOT EXISTS weekly_plans (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  student_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  coach_id UUID REFERENCES coaches(id) ON DELETE CASCADE NOT NULL,
+  week_start DATE NOT NULL DEFAULT CURRENT_DATE,
+  plan_text TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'Aktif' CHECK (status IN ('Aktif', 'Tamamlandı')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE weekly_plans ENABLE ROW LEVEL SECURITY;
+
+-- Koç yalnızca kendisine atanmış öğrencinin planını ekleyebilir/değiştirebilir
+CREATE POLICY "Coaches can manage own students plans"
+  ON weekly_plans FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM coaches c
+      WHERE c.id = coach_id
+        AND c.email = auth.jwt() ->> 'email'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM coaches c
+      JOIN student_coaches sc ON sc.coach_id = c.id
+      WHERE c.id = coach_id
+        AND c.email = auth.jwt() ->> 'email'
+        AND sc.student_id = student_id
+    )
+  );
+
+-- Öğrenci kendi planlarını görebilir
+CREATE POLICY "Students can read own weekly plans"
+  ON weekly_plans FOR SELECT
+  USING (auth.uid() = student_id);
+
+-- Admin tüm planları görebilir/yönetebilir
+CREATE POLICY "Admins can manage all weekly plans"
+  ON weekly_plans FOR ALL
+  USING (
+    public.is_admin()
+  );
+
+-- =============================================
 -- 6. MESSAGES tablosu (iletim formu + admin mesajları)
 -- =============================================
 CREATE TABLE IF NOT EXISTS messages (

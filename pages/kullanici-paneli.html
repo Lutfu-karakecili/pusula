@@ -404,6 +404,62 @@
             vertical-align: middle;
         }
 
+        .plans-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .plan-item {
+            padding: var(--spacing-lg);
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--primary);
+        }
+
+        .plan-item.tamamlandi {
+            border-left-color: var(--success);
+        }
+
+        .plan-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .plan-tag {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .plan-tag.aktif {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .plan-tag.tamamlandi {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .plan-date {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        .plan-body {
+            color: var(--gray-600);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
         .settings-form {
             display: flex;
             flex-direction: column;
@@ -626,6 +682,10 @@
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14zM4 0h16v2H4zm0 22h16v2H4zm8-10c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/></svg>
                             Paketlerim
                         </button>
+                        <button class="sidebar-menu-item" data-section="planlar" onclick="showSection('planlar')">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 12h4v2H6zm7 0h5v2h-5zM6 8h12v2H6z"/></svg>
+                            Haftalık Planım
+                        </button>
                         <button class="sidebar-menu-item" data-section="mesajlar" onclick="showSection('mesajlar')">
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
                             Mesajlarım
@@ -689,6 +749,13 @@
                     <div id="packageContent"></div>
                 </section>
 
+                <!-- Haftalık Planım -->
+                <section class="content-card section-content section-hidden" id="section-planlar">
+                    <h2 class="content-title">Haftalık Planım</h2>
+                    <p class="content-subtitle">Koçunuz tarafından oluşturulan haftalık planlar</p>
+                    <div id="planContent"></div>
+                </section>
+
                 <!-- Mesajlarım -->
                 <section class="content-card section-content section-hidden" id="section-mesajlar">
                     <h2 class="content-title">Mesajlarım</h2>
@@ -748,7 +815,7 @@
 
     <script type="module">
         import { requireAuth, logoutUser } from '../src/lib/auth.js';
-        import { updateProfile, getStudentCoachByStudentId, getStudentPackageByStudentId, getMessagesForStudent, markMessageRead } from '../src/lib/db.js';
+        import { updateProfile, getStudentCoachByStudentId, getStudentPackageByStudentId, getMessagesForStudent, markMessageRead, getPlansByStudent } from '../src/lib/db.js';
 
         var currentUser = null;
         var currentProfile = null;
@@ -768,6 +835,7 @@
             loadCoach();
             loadPackage();
             loadMessages();
+            loadPlans();
         }
 
         async function getProfile(userId) {
@@ -866,6 +934,41 @@
                             '<a href="paketler.html" class="btn btn-primary">Paketleri İncele</a>' +
                         '</div>';
                 }
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state"><p>Yüklenirken hata oluştu.</p></div>';
+            }
+        }
+
+        async function loadPlans() {
+            var container = document.getElementById('planContent');
+            try {
+                var plans = await getPlansByStudent(currentUser.id);
+                if (plans.length === 0) {
+                    container.innerHTML =
+                        '<div class="empty-state">' +
+                            '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 12h4v2H6zm7 0h5v2h-5zM6 8h12v2H6z"/></svg>' +
+                            '<h3>Henüz bir haftalık planınız yok</h3>' +
+                            '<p>Koçunuz size plan atadığında burada görünecek.</p>' +
+                        '</div>';
+                    return;
+                }
+
+                var html = '<div class="plans-list">';
+                plans.forEach(function(p) {
+                    var isDone = p.status === 'Tamamlandı';
+                    var date = p.week_start ? new Date(p.week_start + 'T00:00:00').toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+                    var coachName = (p.coaches && p.coaches.name) ? p.coaches.name : 'Koçunuz';
+                    html +=
+                        '<div class="plan-item' + (isDone ? ' tamamlandi' : '') + '">' +
+                            '<div class="plan-head">' +
+                                '<span class="plan-tag ' + (isDone ? 'tamamlandi' : 'aktif') + '">' + escapeHtml(p.status) + '</span>' +
+                                '<span class="plan-date">' + date + ' · ' + escapeHtml(coachName) + '</span>' +
+                            '</div>' +
+                            '<div class="plan-body">' + escapeHtml(p.plan_text) + '</div>' +
+                        '</div>';
+                });
+                html += '</div>';
+                container.innerHTML = html;
             } catch (e) {
                 container.innerHTML = '<div class="empty-state"><p>Yüklenirken hata oluştu.</p></div>';
             }

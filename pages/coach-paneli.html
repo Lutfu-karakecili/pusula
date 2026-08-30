@@ -422,6 +422,158 @@
             display: none;
         }
 
+        .plan-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .plans-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .plan-item {
+            padding: var(--spacing-lg);
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--primary);
+        }
+
+        .plan-item.tamamlandi {
+            border-left-color: var(--success);
+        }
+
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .plan-student {
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .plan-meta {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        .plan-status {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .plan-status.aktif {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .plan-status.tamamlandi {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .plan-text {
+            color: var(--gray-600);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            white-space: pre-line;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .plan-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: var(--spacing-lg);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: var(--spacing-xxl);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .modal-header h3 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .modal-close {
+            border: none;
+            background: none;
+            font-size: 1.5rem;
+            color: var(--gray-500);
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-form .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .modal-form textarea,
+        .modal-form select,
+        .modal-form input[type="date"] {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .modal-form textarea:focus,
+        .modal-form select:focus,
+        .modal-form input[type="date"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
+        }
+
+        .modal-form textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+
         .mobile-menu-toggle {
             display: none;
             background: none;
@@ -551,6 +703,10 @@
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
                             Öğrencilerim
                         </button>
+                        <button class="sidebar-menu-item" data-section="planlar" onclick="showSection('planlar')">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 12h4v2H6zm7 0h5v2h-5zM6 8h12v2H6z"/></svg>
+                            Haftalık Planlar
+                        </button>
                         <button class="sidebar-menu-item" data-section="ayarlar" onclick="showSection('ayarlar')">
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
                             Ayarlar
@@ -613,6 +769,18 @@
                     <div id="studentsContent"></div>
                 </section>
 
+                <!-- Haftalık Planlar -->
+                <section class="content-card section-content section-hidden" id="section-planlar">
+                    <div class="plan-toolbar">
+                        <div>
+                            <h2 class="content-title" style="margin-bottom:0;">Haftalık Planlar</h2>
+                            <p class="content-subtitle" style="margin-bottom:0;">Öğrencilerinize haftalık plan atayın</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openPlanModal()">+ Plan Ata</button>
+                    </div>
+                    <div id="plansContent" style="margin-top: var(--spacing-lg);"></div>
+                </section>
+
                 <!-- Ayarlar -->
                 <section class="content-card section-content section-hidden" id="section-ayarlar">
                     <h2 class="content-title">Ayarlar</h2>
@@ -638,13 +806,50 @@
 
     <div class="toast" id="toast"></div>
 
+    <div class="modal-overlay" id="planModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="planModalTitle">Plan Ata</h3>
+                <button class="modal-close" onclick="closePlanModal()" aria-label="Kapat">&times;</button>
+            </div>
+            <form class="modal-form" id="planForm" onsubmit="event.preventDefault(); savePlan();">
+                <input type="hidden" id="planEditId">
+                <div class="form-group">
+                    <label>Öğrenci</label>
+                    <select id="planStudent"></select>
+                </div>
+                <div class="form-group">
+                    <label>Hafta Başlangıcı</label>
+                    <input type="date" id="planWeekStart" required>
+                </div>
+                <div class="form-group">
+                    <label>Haftalık Plan</label>
+                    <textarea id="planText" placeholder="Pazartesi: ...&#10;Salı: ...&#10;Çarşamba: ..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Durum</label>
+                    <select id="planStatus">
+                        <option value="Aktif">Aktif</option>
+                        <option value="Tamamlandı">Tamamlandı</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap: var(--spacing-sm);">
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                    <button type="button" class="btn btn-secondary" onclick="closePlanModal()">Vazgeç</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script type="module">
         import { requireAuth, logoutUser } from '../src/lib/auth.js';
-        import { getProfile, getCoachByEmail, getCoachStudents } from '../src/lib/db.js';
+        import { getProfile, getCoachByEmail, getCoachStudents, getCoachPlans, insertWeeklyPlan, updateWeeklyPlan, deleteWeeklyPlan } from '../src/lib/db.js';
 
         var currentUser = null;
         var currentProfile = null;
         var currentCoach = null;
+        var coachAssignments = [];
+        var cachedPlans = [];
 
         async function init() {
             var session = await requireAuth();
@@ -664,7 +869,9 @@
 
             currentCoach = await getCoachByEmail(currentUser.email);
             initPanel();
+            coachAssignments = await getCoachStudents();
             loadStudents();
+            loadPlans();
 
             if (currentProfile.role === 'admin') {
                 document.getElementById('adminLink').style.display = 'flex';
@@ -748,6 +955,134 @@
                 container.innerHTML = '<div class="empty-state"><p>Yüklenirken hata oluştu.</p></div>';
             }
         }
+
+        function formatWeek(dateStr) {
+            if (!dateStr) return '';
+            var d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            return d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function studentNameFor(id) {
+            for (var i = 0; i < coachAssignments.length; i++) {
+                var s = coachAssignments[i].profiles;
+                if (!s) continue;
+                var stu = s[0] || s;
+                if (coachAssignments[i].student_id === id && stu) return stu.full_name || 'Öğrenci';
+            }
+            return 'Öğrenci';
+        }
+
+        async function loadPlans() {
+            var container = document.getElementById('plansContent');
+            try {
+                var plans = await getCoachPlans();
+                cachedPlans = plans;
+                if (plans.length === 0) {
+                    container.innerHTML =
+                        '<div class="empty-state">' +
+                            '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 12h4v2H6zm7 0h5v2h-5zM6 8h12v2H6z"/></svg>' +
+                            '<h3>Henüz plan atanmamış</h3>' +
+                            '<p>Öğrencileriniz için haftalık plan oluşturabilirsiniz.</p>' +
+                        '</div>';
+                    return;
+                }
+
+                var html = '<div class="plans-list">';
+                plans.forEach(function(p) {
+                    var st = (p.status === 'Tamamlandı') ? 'tamamlandi' : 'aktif';
+                    html +=
+                        '<div class="plan-item ' + st + '">' +
+                            '<div class="plan-header">' +
+                                '<span class="plan-student">' + escapeHtml(studentNameFor(p.student_id)) + '</span>' +
+                                '<span class="plan-meta">' + formatWeek(p.week_start) + '</span>' +
+                            '</div>' +
+                            '<span class="plan-status ' + st + '">' + escapeHtml(p.status) + '</span>' +
+                            '<div class="plan-text">' + escapeHtml(p.plan_text) + '</div>' +
+                            '<div class="plan-actions">' +
+                                '<button class="btn btn-secondary btn-sm" onclick=\'openPlanModal("' + p.id + '")\'>Düzenle</button>' +
+                                '<button class="btn btn-danger btn-sm" onclick=\'deletePlan("' + p.id + '")\'>Sil</button>' +
+                            '</div>' +
+                        '</div>';
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state"><p>Yüklenirken hata oluştu: ' + escapeHtml(e.message) + '</p></div>';
+            }
+        }
+
+        function populatePlanStudentDropdown(selectedId) {
+            var select = document.getElementById('planStudent');
+            select.innerHTML = '<option value="">Öğrenci Seçiniz</option>';
+            var seen = {};
+            coachAssignments.forEach(function(assignment) {
+                var s = assignment.profiles;
+                if (!s) return;
+                var stu = s[0] || s;
+                if (!stu || seen[assignment.student_id]) return;
+                seen[assignment.student_id] = true;
+                var opt = document.createElement('option');
+                opt.value = assignment.student_id;
+                opt.textContent = stu.full_name + (stu.grade ? ' (' + stu.grade + '. Sınıf)' : '');
+                if (selectedId && assignment.student_id === selectedId) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        window.openPlanModal = function(id) {
+            var plan = null;
+            if (id) plan = cachedPlans.find(function(p) { return p.id === id; }) || null;
+            document.getElementById('planModalTitle').textContent = plan ? 'Planı Düzenle' : 'Haftalık Plan Ata';
+            document.getElementById('planEditId').value = plan ? plan.id : '';
+            populatePlanStudentDropdown(plan ? plan.student_id : null);
+            document.getElementById('planStudent').value = plan ? plan.student_id : '';
+            document.getElementById('planStudent').disabled = !!plan;
+            document.getElementById('planWeekStart').value = plan ? plan.week_start : new Date().toISOString().split('T')[0];
+            document.getElementById('planText').value = plan ? plan.plan_text : '';
+            document.getElementById('planStatus').value = plan ? plan.status : 'Aktif';
+            document.getElementById('planModal').classList.add('active');
+        };
+
+        window.closePlanModal = function() {
+            document.getElementById('planModal').classList.remove('active');
+        };
+
+        window.savePlan = async function() {
+            var editId = document.getElementById('planEditId').value;
+            var studentId = document.getElementById('planStudent').value;
+            var weekStart = document.getElementById('planWeekStart').value;
+            var planText = document.getElementById('planText').value.trim();
+            var status = document.getElementById('planStatus').value;
+
+            if (!studentId) { showToast('Lütfen öğrenci seçin.', 'error'); return; }
+            if (!planText) { showToast('Plan içeriği boş olamaz.', 'error'); return; }
+
+            try {
+                if (editId) {
+                    await updateWeeklyPlan(editId, { week_start: weekStart, plan_text: planText, status: status });
+                    showToast('Plan güncellendi.');
+                } else {
+                    await insertWeeklyPlan({ student_id: studentId, coach_id: currentCoach.id, week_start: weekStart, plan_text: planText, status: status });
+                    showToast('Plan atandı!');
+                }
+                closePlanModal();
+                await loadPlans();
+            } catch (e) {
+                showToast('Hata: ' + e.message, 'error');
+            }
+        };
+
+        window.deletePlan = async function(id) {
+            if (!confirm('Bu haftalık planı silmek istediğinize emin misiniz?')) return;
+            try {
+                await deleteWeeklyPlan(id);
+                showToast('Plan silindi.');
+                await loadPlans();
+            } catch (e) {
+                showToast('Hata: ' + e.message, 'error');
+            }
+        };
 
         document.getElementById('passwordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
