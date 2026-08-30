@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   full_name TEXT NOT NULL DEFAULT '',
   phone TEXT DEFAULT '',
   grade TEXT DEFAULT '',
-  role TEXT NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'admin')),
+  role TEXT NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'admin', 'coach')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -65,6 +65,35 @@ CREATE POLICY "Users can update own profile"
   WITH CHECK (
     auth.uid() = id
     AND (role = (SELECT role FROM profiles WHERE id = auth.uid()))
+  );
+
+-- =============================================
+-- KOÇ ROLÜ (coach)
+-- Koç, yalnızca kendi email adresine atanmış öğrencilerini görebilir.
+-- Tarayıcı: pages/coach-paneli.html
+-- =============================================
+
+-- Koç kendisine atanan öğrencilerin temel bilgilerini (profiles) okuyabilir
+CREATE POLICY "Coaches can read own students profiles"
+  ON profiles FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM student_coaches sc
+      JOIN coaches c ON c.id = sc.coach_id
+      WHERE sc.student_id = profiles.id
+        AND c.email = auth.jwt() ->> 'email'
+    )
+  );
+
+-- Koç yalnızca kendi atamalarını (student_coaches) görebilir
+CREATE POLICY "Coaches can read own students"
+  ON student_coaches FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM coaches c
+      WHERE c.id = coach_id
+        AND c.email = auth.jwt() ->> 'email'
+    )
   );
 
 -- =============================================

@@ -105,6 +105,8 @@
         function redirectByRole(profile) {
             if (profile && profile.role === 'admin') {
                 window.location.replace('admin-dashboard.html');
+            } else if (profile && profile.role === 'coach') {
+                window.location.replace('coach-paneli.html');
             } else {
                 window.location.replace('kullanici-paneli.html');
             }

@@ -24,6 +24,16 @@ export async function getCoachById(id) {
   return data;
 }
 
+export async function getCoachByEmail(email) {
+  const { data, error } = await supabase
+    .from('coaches')
+    .select('*')
+    .eq('email', email)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 export async function getCoachesBySpecialty(specialty) {
   const { data, error } = await supabase
     .from('coaches')
@@ -188,6 +198,14 @@ export async function removeStudentCoach(studentId) {
     .delete()
     .eq('student_id', studentId);
   if (error) throw error;
+}
+
+export async function getCoachStudents() {
+  const { data, error } = await supabase
+    .from('student_coaches')
+    .select('*, profiles!student_id(id, full_name, email, phone, grade, created_at), coaches(*)');
+  if (error) throw error;
+  return data || [];
 }
 
 /* ================================================

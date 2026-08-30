@@ -707,7 +707,7 @@
                 var userName = localStorage.getItem('pusula_user_name') || 'Kullanıcı';
                 var initials = userName.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase().substring(0, 2);
                 var role = localStorage.getItem('pusula_user_role');
-                var panelHref = (role === 'admin') ? 'pages/admin-dashboard.html' : 'pages/kullanici-paneli.html';
+                var panelHref = (role === 'admin') ? 'pages/admin-dashboard.html' : (role === 'coach') ? 'pages/coach-paneli.html' : 'pages/kullanici-paneli.html';
                 
                 navButtons.innerHTML = 
                     '<div style="display:flex;align-items:center;gap:10px;">' +
