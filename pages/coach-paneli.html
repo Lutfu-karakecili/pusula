@@ -707,6 +707,10 @@
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 12h4v2H6zm7 0h5v2h-5zM6 8h12v2H6z"/></svg>
                             Haftalık Planlar
                         </button>
+                        <button class="sidebar-menu-item" data-section="ilerleme" onclick="showSection('ilerleme')">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l4-4 4 4 6-6 4 4v8H3V12z"/></svg>
+                            İlerleme Takibi
+                        </button>
                         <button class="sidebar-menu-item" data-section="ayarlar" onclick="showSection('ayarlar')">
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
                             Ayarlar
@@ -781,6 +785,30 @@
                     <div id="plansContent" style="margin-top: var(--spacing-lg);"></div>
                 </section>
 
+                <!-- İlerleme Takibi -->
+                <section class="content-card section-content section-hidden" id="section-ilerleme">
+                    <div class="plan-toolbar">
+                        <div>
+                            <h2 class="content-title" style="margin-bottom:0;">İlerleme Takibi</h2>
+                            <p class="content-subtitle" style="margin-bottom:0;">Öğrencilerinizin çalışma kayıtları ve deneme sonuçları</p>
+                        </div>
+                        <div style="display:flex; gap: var(--spacing-sm);">
+                            <button class="btn btn-primary" onclick="openStudyLogModal()">+ Çalışma Kaydı</button>
+                            <button class="btn btn-secondary" onclick="openExamResultModal()">+ Deneme Sonucu</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: var(--spacing-lg);">
+                        <h3 class="content-title" style="margin-bottom:0;">Çalışma Kayıtları</h3>
+                        <div id="studyLogsContent" style="margin-top: var(--spacing-md);"></div>
+                    </div>
+
+                    <div style="margin-top: var(--spacing-lg);">
+                        <h3 class="content-title" style="margin-bottom:0;">Deneme Sonuçları</h3>
+                        <div id="examResultsContent" style="margin-top: var(--spacing-md);"></div>
+                    </div>
+                </section>
+
                 <!-- Ayarlar -->
                 <section class="content-card section-content section-hidden" id="section-ayarlar">
                     <h2 class="content-title">Ayarlar</h2>
@@ -841,15 +869,109 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="studyLogModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="studyLogModalTitle">Çalışma Kaydı Ekle</h3>
+                <button class="modal-close" onclick="closeStudyLogModal()" aria-label="Kapat">&times;</button>
+            </div>
+            <form class="modal-form" id="studyLogForm" onsubmit="event.preventDefault(); saveStudyLog();">
+                <input type="hidden" id="studyLogEditId">
+                <div class="form-group">
+                    <label>Öğrenci</label>
+                    <select id="studyLogStudent" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Ders</label>
+                    <select id="studyLogSubject" required>
+                        <option value="">Ders Seçiniz</option>
+                        <option>Matematik</option>
+                        <option>Türkçe</option>
+                        <option>Edebiyat</option>
+                        <option>Fizik</option>
+                        <option>Kimya</option>
+                        <option>Biyoloji</option>
+                        <option>Tarih</option>
+                        <option>Coğrafya</option>
+                        <option>İngilizce</option>
+                        <option>Diğer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tarih</label>
+                    <input type="date" id="studyLogDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Süre (dakika)</label>
+                    <input type="number" id="studyLogDuration" min="0" step="5" placeholder="örn. 120" required>
+                </div>
+                <div class="form-group">
+                    <label>Not</label>
+                    <textarea id="studyLogNotes" placeholder="Konu, tekrar, hedef... (opsiyonel)"></textarea>
+                </div>
+                <div style="display:flex; gap: var(--spacing-sm);">
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeStudyLogModal()">Vazgeç</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="examResultModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="examResultModalTitle">Deneme Sonucu Ekle</h3>
+                <button class="modal-close" onclick="closeExamResultModal()" aria-label="Kapat">&times;</button>
+            </div>
+            <form class="modal-form" id="examResultForm" onsubmit="event.preventDefault(); saveExamResult();">
+                <input type="hidden" id="examResultEditId">
+                <div class="form-group">
+                    <label>Öğrenci</label>
+                    <select id="examResultStudent" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Deneme Adı</label>
+                    <input type="text" id="examResultName" placeholder="örn. TYT 3. Deneme" required>
+                </div>
+                <div class="form-group">
+                    <label>Tarih</label>
+                    <input type="date" id="examResultDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Doğru</label>
+                    <input type="number" id="examResultCorrect" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Yanlış</label>
+                    <input type="number" id="examResultIncorrect" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Boş</label>
+                    <input type="number" id="examResultBlank" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Toplam Puan (opsiyonel)</label>
+                    <input type="number" id="examResultScore" min="0" step="0.1" placeholder="örn. 382.50">
+                </div>
+                <div style="display:flex; gap: var(--spacing-sm);">
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeExamResultModal()">Vazgeç</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script type="module">
         import { requireAuth, logoutUser } from '../src/lib/auth.js';
-        import { getProfile, getCoachByEmail, getCoachStudents, getCoachPlans, insertWeeklyPlan, updateWeeklyPlan, deleteWeeklyPlan } from '../src/lib/db.js';
+        import { getProfile, getCoachByEmail, getCoachStudents, getCoachPlans, insertWeeklyPlan, updateWeeklyPlan, deleteWeeklyPlan, getCoachStudyLogs, insertStudyLog, updateStudyLog, deleteStudyLog, getCoachExamResults, insertExamResult, updateExamResult, deleteExamResult } from '../src/lib/db.js';
 
         var currentUser = null;
         var currentProfile = null;
         var currentCoach = null;
         var coachAssignments = [];
         var cachedPlans = [];
+        var cachedStudyLogs = [];
+        var cachedExamResults = [];
 
         async function init() {
             var session = await requireAuth();
@@ -872,6 +994,8 @@
             coachAssignments = await getCoachStudents();
             loadStudents();
             loadPlans();
+            loadStudyLogs();
+            loadExamResults();
 
             if (currentProfile.role === 'admin') {
                 document.getElementById('adminLink').style.display = 'flex';
@@ -1079,6 +1203,211 @@
                 await deleteWeeklyPlan(id);
                 showToast('Plan silindi.');
                 await loadPlans();
+            } catch (e) {
+                showToast('Hata: ' + e.message, 'error');
+            }
+        };
+
+        function populateProgressStudentDropdown(selectId, selectedId) {
+            var select = document.getElementById(selectId);
+            select.innerHTML = '<option value="">Öğrenci Seçiniz</option>';
+            var seen = {};
+            coachAssignments.forEach(function(assignment) {
+                var s = assignment.profiles;
+                if (!s) return;
+                var stu = s[0] || s;
+                if (!stu || seen[assignment.student_id]) return;
+                seen[assignment.student_id] = true;
+                var opt = document.createElement('option');
+                opt.value = assignment.student_id;
+                opt.textContent = stu.full_name + (stu.grade ? ' (' + stu.grade + '. Sınıf)' : '');
+                if (selectedId && assignment.student_id === selectedId) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        async function loadStudyLogs() {
+            var container = document.getElementById('studyLogsContent');
+            try {
+                var logs = await getCoachStudyLogs();
+                cachedStudyLogs = logs;
+                if (logs.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><p>Henüz çalışma kaydı yok. "+ Çalışma Kaydı" ile ekleyin.</p></div>';
+                    return;
+                }
+                var html = '<div class="plans-list">';
+                logs.forEach(function(l) {
+                    var stu = studentNameFor(l.student_id);
+                    html +=
+                        '<div class="plan-item">' +
+                            '<div class="plan-header">' +
+                                '<span class="plan-student">' + escapeHtml(stu) + ' · ' + escapeHtml(l.subject) + '</span>' +
+                                '<span class="plan-meta">' + formatWeek(l.log_date) + ' · ' + (l.duration_min || 0) + ' dk</span>' +
+                            '</div>' +
+                            (l.notes ? '<div class="plan-text">' + escapeHtml(l.notes) + '</div>' : '') +
+                            '<div class="plan-actions">' +
+                                '<button class="btn btn-secondary btn-sm" onclick=\'openStudyLogModal("' + l.id + '")\'>Düzenle</button>' +
+                                '<button class="btn btn-danger btn-sm" onclick=\'deleteStudyLog("' + l.id + '")\'>Sil</button>' +
+                            '</div>' +
+                        '</div>';
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state"><p>Yüklenirken hata oluştu: ' + escapeHtml(e.message) + '</p></div>';
+            }
+        }
+
+        window.openStudyLogModal = function(id) {
+            var log = id ? (cachedStudyLogs.find(function(l) { return l.id === id; }) || null) : null;
+            document.getElementById('studyLogModalTitle').textContent = log ? 'Çalışma Kaydını Düzenle' : 'Çalışma Kaydı Ekle';
+            document.getElementById('studyLogEditId').value = log ? log.id : '';
+            populateProgressStudentDropdown('studyLogStudent', log ? log.student_id : null);
+            document.getElementById('studyLogStudent').value = log ? log.student_id : '';
+            if (log && log.subject) {
+                document.getElementById('studyLogSubject').value = log.subject;
+            } else {
+                document.getElementById('studyLogSubject').value = '';
+            }
+            document.getElementById('studyLogDate').value = log ? log.log_date : new Date().toISOString().split('T')[0];
+            document.getElementById('studyLogDuration').value = log ? log.duration_min : '';
+            document.getElementById('studyLogNotes').value = log ? (log.notes || '') : '';
+            document.getElementById('studyLogModal').classList.add('active');
+        };
+
+        window.closeStudyLogModal = function() {
+            document.getElementById('studyLogModal').classList.remove('active');
+        };
+
+        window.saveStudyLog = async function() {
+            var studentId = document.getElementById('studyLogStudent').value;
+            var subject = document.getElementById('studyLogSubject').value;
+            var logDate = document.getElementById('studyLogDate').value;
+            var durationMin = parseInt(document.getElementById('studyLogDuration').value, 10);
+            var notes = document.getElementById('studyLogNotes').value.trim();
+            var editId = document.getElementById('studyLogEditId').value;
+
+            if (!studentId || !subject || !logDate || isNaN(durationMin)) {
+                showToast('Zorunlu alanları doldurun.', 'error');
+                return;
+            }
+
+            try {
+                if (editId) {
+                    await updateStudyLog(editId, { subject: subject, log_date: logDate, duration_min: durationMin, notes: notes });
+                } else {
+                    await insertStudyLog({ student_id: studentId, coach_id: currentCoach.id, subject: subject, log_date: logDate, duration_min: durationMin, notes: notes });
+                }
+                showToast('Çalışma kaydı kaydedildi.');
+                closeStudyLogModal();
+                await loadStudyLogs();
+            } catch (e) {
+                showToast('Hata: ' + e.message, 'error');
+            }
+        };
+
+        window.deleteStudyLog = async function(id) {
+            if (!confirm('Bu çalışma kaydını silmek istediğinize emin misiniz?')) return;
+            try {
+                await deleteStudyLog(id);
+                showToast('Kayıt silindi.');
+                await loadStudyLogs();
+            } catch (e) {
+                showToast('Hata: ' + e.message, 'error');
+            }
+        };
+
+        async function loadExamResults() {
+            var container = document.getElementById('examResultsContent');
+            try {
+                var results = await getCoachExamResults();
+                cachedExamResults = results;
+                if (results.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><p>Henüz deneme sonucu yok. "+ Deneme Sonucu" ile ekleyin.</p></div>';
+                    return;
+                }
+                var html = '<div class="plans-list">';
+                results.forEach(function(r) {
+                    var stu = studentNameFor(r.student_id);
+                    var net = (r.correct || 0) - (r.incorrect || 0) / 4;
+                    html +=
+                        '<div class="plan-item">' +
+                            '<div class="plan-header">' +
+                                '<span class="plan-student">' + escapeHtml(stu) + ' · ' + escapeHtml(r.exam_name) + '</span>' +
+                                '<span class="plan-meta">' + formatWeek(r.exam_date) + '</span>' +
+                            '</div>' +
+                            '<div class="plan-text">Doğru: ' + (r.correct || 0) + ' | Yanlış: ' + (r.incorrect || 0) + ' | Boş: ' + (r.blank || 0) + ' | Net: ' + net.toFixed(2) + (r.total_score != null ? ' | Puan: ' + r.total_score : '') + '</div>' +
+                            '<div class="plan-actions">' +
+                                '<button class="btn btn-secondary btn-sm" onclick=\'openExamResultModal("' + r.id + '")\'>Düzenle</button>' +
+                                '<button class="btn btn-danger btn-sm" onclick=\'deleteExamResult("' + r.id + '")\'>Sil</button>' +
+                            '</div>' +
+                        '</div>';
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state"><p>Yüklenirken hata oluştu: ' + escapeHtml(e.message) + '</p></div>';
+            }
+        }
+
+        window.openExamResultModal = function(id) {
+            var r = id ? (cachedExamResults.find(function(x) { return x.id === id; }) || null) : null;
+            document.getElementById('examResultModalTitle').textContent = r ? 'Deneme Sonucunu Düzenle' : 'Deneme Sonucu Ekle';
+            document.getElementById('examResultEditId').value = r ? r.id : '';
+            populateProgressStudentDropdown('examResultStudent', r ? r.student_id : null);
+            document.getElementById('examResultStudent').value = r ? r.student_id : '';
+            document.getElementById('examResultName').value = r ? r.exam_name : '';
+            document.getElementById('examResultDate').value = r ? r.exam_date : new Date().toISOString().split('T')[0];
+            document.getElementById('examResultCorrect').value = r ? r.correct : '';
+            document.getElementById('examResultIncorrect').value = r ? r.incorrect : '';
+            document.getElementById('examResultBlank').value = r ? r.blank : '';
+            document.getElementById('examResultScore').value = r ? (r.total_score != null ? r.total_score : '') : '';
+            document.getElementById('examResultModal').classList.add('active');
+        };
+
+        window.closeExamResultModal = function() {
+            document.getElementById('examResultModal').classList.remove('active');
+        };
+
+        window.saveExamResult = async function() {
+            var studentId = document.getElementById('examResultStudent').value;
+            var name = document.getElementById('examResultName').value.trim();
+            var examDate = document.getElementById('examResultDate').value;
+            var correct = parseInt(document.getElementById('examResultCorrect').value, 10);
+            var incorrect = parseInt(document.getElementById('examResultIncorrect').value, 10);
+            var blank = parseInt(document.getElementById('examResultBlank').value, 10);
+            var scoreVal = document.getElementById('examResultScore').value;
+            var totalScore = scoreVal === '' ? null : parseFloat(scoreVal);
+            var editId = document.getElementById('examResultEditId').value;
+
+            if (!studentId || !name || !examDate || isNaN(correct) || isNaN(incorrect) || isNaN(blank)) {
+                showToast('Zorunlu alanları doldurun.', 'error');
+                return;
+            }
+
+            try {
+                var payload = { exam_name: name, exam_date: examDate, correct: correct, incorrect: incorrect, blank: blank, total_score: totalScore };
+                if (editId) {
+                    await updateExamResult(editId, payload);
+                } else {
+                    payload.student_id = studentId;
+                    payload.coach_id = currentCoach.id;
+                    await insertExamResult(payload);
+                }
+                showToast('Deneme sonucu kaydedildi.');
+                closeExamResultModal();
+                await loadExamResults();
+            } catch (e) {
+                showToast('Hata: ' + e.message, 'error');
+            }
+        };
+
+        window.deleteExamResult = async function(id) {
+            if (!confirm('Bu deneme sonucunu silmek istediğinize emin misiniz?')) return;
+            try {
+                await deleteExamResult(id);
+                showToast('Sonuç silindi.');
+                await loadExamResults();
             } catch (e) {
                 showToast('Hata: ' + e.message, 'error');
             }

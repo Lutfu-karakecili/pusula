@@ -158,6 +158,7 @@
             <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="coaches"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Koçlar</a></li>
             <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="messages"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Mesajlar</a></li>
             <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="plans"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 12h4v2H6zm7 0h5v2h-5zM6 8h12v2H6z"/></svg>Haftalık Planlar</a></li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="progress"><svg viewBox="0 0 24 24"><path d="M3 12l4-4 4 4 6-6 4 4v8H3V12z"/></svg>İlerleme</a></li>
             <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="packages"><svg viewBox="0 0 24 24"><path d="M20 7h-4V5l-2-2h-4L8 5v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM12 18c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>Paketler</a></li>
             <li class="sidebar-menu-title">Yönetim</li>
             <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link" data-section="settings"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Ayarlar</a></li>
@@ -303,6 +304,40 @@
                     <div class="empty-state" id="emptyPlans" style="display:none;">
                         <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 12h4v2H6zm7 0h5v2h-5zM6 8h12v2H6z"/></svg>
                         <p>Henüz plan atanmamış. Koçlar öğrencilerine kendi panellerinden plan atayabilir.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div id="section-progress" class="section-hidden">
+            <div class="card">
+                <div class="card-header"><h3 class="card-title">Çalışma Kayıtları</h3></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead><tr><th>Öğrenci</th><th>Koç</th><th>Ders</th><th>Tarih</th><th>Süre</th><th>Not</th><th>İşlem</th></tr></thead>
+                            <tbody id="studyLogTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="emptyStudyLogs" style="display:none;">
+                        <svg viewBox="0 0 24 24"><path d="M3 12l4-4 4 4 6-6 4 4v8H3V12z"/></svg>
+                        <p>Henüz çalışma kaydı yok.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 1.2rem;">
+                <div class="card-header"><h3 class="card-title">Deneme Sonuçları</h3></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead><tr><th>Öğrenci</th><th>Koç</th><th>Deneme</th><th>Tarih</th><th>D/Y/B</th><th>Net</th><th>Puan</th><th>İşlem</th></tr></thead>
+                            <tbody id="examResultTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="emptyExamResults" style="display:none;">
+                        <svg viewBox="0 0 24 24"><path d="M3 12l4-4 4 4 6-6 4 4v8H3V12z"/></svg>
+                        <p>Henüz deneme sonucu yok.</p>
                     </div>
                 </div>
             </div>
@@ -507,7 +542,9 @@
             getStudents, getStudentCoaches, getStudentPackages, updateStudent, deleteStudentAccount,
             assignStudentToCoach, removeStudentCoach, assignPackageToStudent, updateStudentPackage,
             getMessages as dbGetMessages, deleteMessage as dbDeleteMessage, markMessageRead, sendMessage,
-            getAllPlansForAdmin, deleteWeeklyPlan
+            getAllPlansForAdmin, deleteWeeklyPlan,
+            getAllStudyLogsForAdmin, deleteStudyLog,
+            getAllExamResultsForAdmin, deleteExamResult
         } from '../src/lib/db.js';
 
         var currentSection = 'dashboard';
@@ -518,6 +555,8 @@
         var cachedPackages = [];
         var cachedMessages = [];
         var cachedPlans = [];
+        var cachedStudyLogs = [];
+        var cachedExamResults = [];
 
         async function init() {
             var profile = await requireAdmin();
@@ -539,6 +578,8 @@
                 cachedPackages = await dbGetPackages();
                 cachedMessages = await dbGetMessages();
                 cachedPlans = await getAllPlansForAdmin();
+                cachedStudyLogs = await getAllStudyLogsForAdmin();
+                cachedExamResults = await getAllExamResultsForAdmin();
             } catch(e) {
                 showToast('Veri yüklenirken hata oluştu: ' + e.message, 'error');
             }
@@ -687,6 +728,44 @@
             });
         }
 
+        function renderProgress() {
+            renderStudyLogs();
+            renderExamResults();
+        }
+
+        function renderStudyLogs() {
+            var tbody = document.getElementById('studyLogTable');
+            var empty = document.getElementById('emptyStudyLogs');
+            tbody.innerHTML = '';
+            if (!cachedStudyLogs || cachedStudyLogs.length === 0) { empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            cachedStudyLogs.forEach(function(l) {
+                var stu = l.profiles;
+                var st = stu ? (stu[0] || stu) : null;
+                var studentName = st ? (st.full_name || 'Öğrenci') : '—';
+                var coachName = (l.coaches && l.coaches.name) || '—';
+                var date = l.log_date ? l.log_date.split('T')[0] : '—';
+                tbody.innerHTML += '<tr><td><div class="user-name">' + sanitizeHTML(studentName) + '</div></td><td>' + sanitizeHTML(coachName) + '</td><td>' + sanitizeHTML(l.subject || '') + '</td><td>' + sanitizeHTML(date) + '</td><td>' + (l.duration_min || 0) + ' dk</td><td>' + sanitizeHTML((l.notes || '').substring(0, 50)) + '</td><td><div class="action-btns"><button class="btn btn-danger btn-sm" onclick="window._deleteStudyLog(\'' + l.id + '\')">Sil</button></div></td></tr>';
+            });
+        }
+
+        function renderExamResults() {
+            var tbody = document.getElementById('examResultTable');
+            var empty = document.getElementById('emptyExamResults');
+            tbody.innerHTML = '';
+            if (!cachedExamResults || cachedExamResults.length === 0) { empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            cachedExamResults.forEach(function(r) {
+                var stu = r.profiles;
+                var st = stu ? (stu[0] || stu) : null;
+                var studentName = st ? (st.full_name || 'Öğrenci') : '—';
+                var coachName = (r.coaches && r.coaches.name) || '—';
+                var date = r.exam_date ? r.exam_date.split('T')[0] : '—';
+                var net = ((r.correct || 0) - (r.incorrect || 0) / 4).toFixed(2);
+                tbody.innerHTML += '<tr><td><div class="user-name">' + sanitizeHTML(studentName) + '</div></td><td>' + sanitizeHTML(coachName) + '</td><td>' + sanitizeHTML(r.exam_name || '') + '</td><td>' + sanitizeHTML(date) + '</td><td>' + (r.correct || 0) + ' / ' + (r.incorrect || 0) + ' / ' + (r.blank || 0) + '</td><td>' + net + '</td><td>' + (r.total_score != null ? r.total_score : '—') + '</td><td><div class="action-btns"><button class="btn btn-danger btn-sm" onclick="window._deleteExamResult(\'' + r.id + '\')">Sil</button></div></td></tr>';
+            });
+        }
+
         function renderAll() {
             renderDashboard();
             renderStudents();
@@ -694,6 +773,7 @@
             renderPackages();
             renderMessages();
             renderPlans();
+            renderProgress();
         }
 
         window.openModal = function(type) {
@@ -952,6 +1032,28 @@
             }
         };
 
+        window._deleteStudyLog = async function(id) {
+            if (!confirm('Bu çalışma kaydını silmek istediğinize emin misiniz?')) return;
+            try {
+                await deleteStudyLog(id);
+                showToast('Kayıt silindi.', 'success');
+                await refreshAll();
+            } catch(e) {
+                showToast('Hata: ' + e.message, 'error');
+            }
+        };
+
+        window._deleteExamResult = async function(id) {
+            if (!confirm('Bu deneme sonucunu silmek istediğinize emin misiniz?')) return;
+            try {
+                await deleteExamResult(id);
+                showToast('Sonuç silindi.', 'success');
+                await refreshAll();
+            } catch(e) {
+                showToast('Hata: ' + e.message, 'error');
+            }
+        };
+
         window._deletePlan = async function(id) {
             if (!confirm('Bu haftalık planı silmek istediğinize emin misiniz?')) return;
             try {
@@ -999,7 +1101,7 @@
                 this.classList.add('active');
                 var section = this.getAttribute('data-section');
                 currentSection = section;
-                document.getElementById('pageTitle').textContent = { dashboard: 'Ana Panel', students: 'Öğrenciler', coaches: 'Koçlar', messages: 'Mesajlar', packages: 'Paketler', plans: 'Haftalık Planlar', settings: 'Ayarlar' }[section] || section;
+                document.getElementById('pageTitle').textContent = { dashboard: 'Ana Panel', students: 'Öğrenciler', coaches: 'Koçlar', messages: 'Mesajlar', packages: 'Paketler', plans: 'Haftalık Planlar', progress: 'İlerleme', settings: 'Ayarlar' }[section] || section;
 
                 document.querySelectorAll('[id^="section-"]').forEach(function(s) { s.classList.add('section-hidden'); });
                 document.getElementById('section-' + section).classList.remove('section-hidden');

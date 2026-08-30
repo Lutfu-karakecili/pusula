@@ -373,6 +373,128 @@ export async function deleteWeeklyPlan(id) {
 }
 
 /* ================================================
+   STUDY LOGS (koç -> öğrenci çalışma kaydı)
+   ================================================ */
+
+export async function getCoachStudyLogs() {
+  const { data, error } = await supabase
+    .from('study_logs')
+    .select('*, profiles!student_id(id, full_name, email, grade), coaches(name, specialty)')
+    .order('log_date', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getStudyLogsByStudent(studentId) {
+  const { data, error } = await supabase
+    .from('study_logs')
+    .select('*, coaches(name, specialty)')
+    .eq('student_id', studentId)
+    .order('log_date', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getAllStudyLogsForAdmin() {
+  const { data, error } = await supabase
+    .from('study_logs')
+    .select('*, profiles!student_id(id, full_name, email, grade), coaches(name, specialty)')
+    .order('log_date', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function insertStudyLog(log) {
+  const { data, error } = await supabase
+    .from('study_logs')
+    .insert(log)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateStudyLog(id, updates) {
+  const { data, error } = await supabase
+    .from('study_logs')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteStudyLog(id) {
+  const { error } = await supabase
+    .from('study_logs')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+}
+
+/* ================================================
+   EXAM RESULTS (koç -> öğrenci deneme sonucu)
+   ================================================ */
+
+export async function getCoachExamResults() {
+  const { data, error } = await supabase
+    .from('exam_results')
+    .select('*, profiles!student_id(id, full_name, email, grade), coaches(name, specialty)')
+    .order('exam_date', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getExamResultsByStudent(studentId) {
+  const { data, error } = await supabase
+    .from('exam_results')
+    .select('*, coaches(name, specialty)')
+    .eq('student_id', studentId)
+    .order('exam_date', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getAllExamResultsForAdmin() {
+  const { data, error } = await supabase
+    .from('exam_results')
+    .select('*, profiles!student_id(id, full_name, email, grade), coaches(name, specialty)')
+    .order('exam_date', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function insertExamResult(result) {
+  const { data, error } = await supabase
+    .from('exam_results')
+    .insert(result)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateExamResult(id, updates) {
+  const { data, error } = await supabase
+    .from('exam_results')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteExamResult(id) {
+  const { error } = await supabase
+    .from('exam_results')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+}
+
+/* ================================================
    PROFILE
    ================================================ */
 

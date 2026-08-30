@@ -460,6 +460,97 @@
             white-space: pre-line;
         }
 
+        .prog-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .prog-stat {
+            padding: var(--spacing-lg);
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            text-align: center;
+        }
+
+        .prog-stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .prog-stat-label {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            margin-top: 4px;
+        }
+
+        .prog-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .prog-card {
+            padding: var(--spacing-lg);
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+        }
+
+        .prog-card-title {
+            font-size: 0.95rem;
+            color: var(--gray-700);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .prog-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 140px;
+        }
+
+        .prog-bar-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            height: 100%;
+        }
+
+        .prog-bar {
+            width: 100%;
+            max-width: 34px;
+            background: var(--primary);
+            border-radius: 6px 6px 0 0;
+            min-height: 3px;
+        }
+
+        .prog-bar-label {
+            font-size: 0.65rem;
+            color: var(--gray-500);
+            margin-top: 6px;
+            white-space: nowrap;
+        }
+
+        .prog-bar-val {
+            font-size: 0.65rem;
+            color: var(--gray-600);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .prog-grid {
+                grid-template-columns: 1fr;
+            }
+            .prog-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
         .settings-form {
             display: flex;
             flex-direction: column;
@@ -686,6 +777,10 @@
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 12h4v2H6zm7 0h5v2h-5zM6 8h12v2H6z"/></svg>
                             Haftalık Planım
                         </button>
+                        <button class="sidebar-menu-item" data-section="ilerleme" onclick="showSection('ilerleme')">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l4-4 4 4 6-6 4 4v8H3V12z"/></svg>
+                            İlerlemem
+                        </button>
                         <button class="sidebar-menu-item" data-section="mesajlar" onclick="showSection('mesajlar')">
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
                             Mesajlarım
@@ -756,6 +851,31 @@
                     <div id="planContent"></div>
                 </section>
 
+                <!-- İlerlemem -->
+                <section class="content-card section-content section-hidden" id="section-ilerleme">
+                    <h2 class="content-title">İlerlemem</h2>
+                    <p class="content-subtitle">Koçunuzun girdiği çalışma kayıtları ve deneme sonuçları</p>
+                    <div class="prog-stats" id="progStats"></div>
+                    <div class="prog-grid">
+                        <div class="prog-card">
+                            <h3 class="prog-card-title">Son 8 Hafta Çalışma Süresi</h3>
+                            <div id="progStudyChart"></div>
+                        </div>
+                        <div class="prog-card">
+                            <h3 class="prog-card-title">Deneme Net Trendi</h3>
+                            <div id="progExamChart"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: var(--spacing-lg);">
+                        <h2 class="content-title" style="margin-bottom:0;">Çalışma Kayıtlarım</h2>
+                        <div id="progStudyList" style="margin-top: var(--spacing-md);"></div>
+                    </div>
+                    <div style="margin-top: var(--spacing-lg);">
+                        <h2 class="content-title" style="margin-bottom:0;">Deneme Sonuçlarım</h2>
+                        <div id="progExamList" style="margin-top: var(--spacing-md);"></div>
+                    </div>
+                </section>
+
                 <!-- Mesajlarım -->
                 <section class="content-card section-content section-hidden" id="section-mesajlar">
                     <h2 class="content-title">Mesajlarım</h2>
@@ -815,7 +935,7 @@
 
     <script type="module">
         import { requireAuth, logoutUser } from '../src/lib/auth.js';
-        import { updateProfile, getStudentCoachByStudentId, getStudentPackageByStudentId, getMessagesForStudent, markMessageRead, getPlansByStudent } from '../src/lib/db.js';
+        import { updateProfile, getStudentCoachByStudentId, getStudentPackageByStudentId, getMessagesForStudent, markMessageRead, getPlansByStudent, getStudyLogsByStudent, getExamResultsByStudent } from '../src/lib/db.js';
 
         var currentUser = null;
         var currentProfile = null;
@@ -836,6 +956,7 @@
             loadPackage();
             loadMessages();
             loadPlans();
+            loadProgress();
         }
 
         async function getProfile(userId) {
@@ -972,6 +1093,146 @@
             } catch (e) {
                 container.innerHTML = '<div class="empty-state"><p>Yüklenirken hata oluştu.</p></div>';
             }
+        }
+
+        async function loadProgress() {
+            try {
+                var studyLogs = await getStudyLogsByStudent(currentUser.id);
+                var examResults = await getExamResultsByStudent(currentUser.id);
+                renderProgress(studyLogs, examResults);
+            } catch (e) {
+                document.getElementById('progStats').innerHTML = '<div class="empty-state"><p>İlerleme verileri yüklenemedi.</p></div>';
+            }
+        }
+
+        function renderProgress(studyLogs, examResults) {
+            var totalMin = studyLogs.reduce(function(sum, l) { return sum + (l.duration_min || 0); }, 0);
+            var totalExams = examResults.length;
+            var lastExam = examResults.length ? examResults[examResults.length - 1] : null;
+            var lastNet = lastExam ? (lastExam.correct - lastExam.incorrect / 4) : null;
+
+            document.getElementById('progStats').innerHTML =
+                '<div class="prog-stat"><div class="prog-stat-value">' + formatDuration(totalMin) + '</div><div class="prog-stat-label">Toplam Çalışma</div></div>' +
+                '<div class="prog-stat"><div class="prog-stat-value">' + totalExams + '</div><div class="prog-stat-label">Girilen Deneme</div></div>' +
+                '<div class="prog-stat"><div class="prog-stat-value">' + (lastNet != null ? lastNet.toFixed(2) : '—') + '</div><div class="prog-stat-label">Son Deneme Neti</div></div>';
+
+            renderStudyChart(studyLogs);
+            renderExamChart(examResults);
+            renderStudyList(studyLogs);
+            renderExamList(examResults);
+        }
+
+        function formatDuration(minutes) {
+            if (!minutes) return '0s';
+            if (minutes < 60) return minutes + ' dk';
+            var h = Math.floor(minutes / 60);
+            var m = minutes % 60;
+            return h + 's ' + m + 'dk';
+        }
+
+        function renderStudyChart(studyLogs) {
+            var el = document.getElementById('progStudyChart');
+            if (!studyLogs.length) {
+                el.innerHTML = '<div class="empty-state"><p>Henüz çalışma kaydı yok.</p></div>';
+                return;
+            }
+            var weeks = [];
+            for (var i = 7; i >= 0; i--) {
+                var d = new Date();
+                d.setDate(d.getDate() - i * 7);
+                var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                var date = new Date(key + 'T00:00:00');
+                var label = date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+                weeks.push({ label: label, minutes: 0 });
+            }
+            studyLogs.forEach(function(l) {
+                var dt = new Date(l.log_date + 'T00:00:00');
+                var idx = 7 - Math.floor((Date.now() - dt.getTime()) / (7 * 24 * 3600 * 1000));
+                if (idx >= 0 && idx < 8) weeks[7 - idx].minutes += (l.duration_min || 0);
+            });
+            var max = Math.max.apply(null, weeks.map(function(w) { return w.minutes; }));
+            var html = '<div class="prog-bars">';
+            weeks.forEach(function(w) {
+                var h = max > 0 ? Math.max(3, Math.round((w.minutes / max) * 100)) : 3;
+                html +=
+                    '<div class="prog-bar-wrap">' +
+                        '<div class="prog-bar-val">' + (w.minutes || '') + '</div>' +
+                        '<div class="prog-bar" style="height:' + h + '%;" title="' + w.minutes + ' dk"></div>' +
+                        '<div class="prog-bar-label">' + w.label + '</div>' +
+                    '</div>';
+            });
+            html += '</div>';
+            el.innerHTML = html;
+        }
+
+        function renderExamChart(examResults) {
+            var el = document.getElementById('progExamChart');
+            if (!examResults.length) {
+                el.innerHTML = '<div class="empty-state"><p>Henüz deneme sonucu yok.</p></div>';
+                return;
+            }
+            var series = examResults.slice();
+            var nets = series.map(function(r) { return r.correct - r.incorrect / 4; });
+            var max = Math.max.apply(null, nets.concat([1]));
+            var html = '<div class="prog-bars">';
+            series.forEach(function(r, i) {
+                var d = new Date(r.exam_date + 'T00:00:00');
+                var label = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+                var h = Math.max(3, Math.round((nets[i] / max) * 100));
+                html +=
+                    '<div class="prog-bar-wrap">' +
+                        '<div class="prog-bar-val">' + nets[i].toFixed(1) + '</div>' +
+                        '<div class="prog-bar" style="height:' + h + '%; background: var(--success);" title="' + escapeHtml(r.exam_name) + '"></div>' +
+                        '<div class="prog-bar-label">' + label + '</div>' +
+                    '</div>';
+            });
+            html += '</div>';
+            el.innerHTML = html;
+        }
+
+        function renderStudyList(studyLogs) {
+            var el = document.getElementById('progStudyList');
+            if (!studyLogs.length) {
+                el.innerHTML = '<div class="empty-state"><p>Henüz çalışma kaydı girilmemiş.</p></div>';
+                return;
+            }
+            var html = '<div class="plans-list">';
+            studyLogs.forEach(function(l) {
+                var d = new Date(l.log_date + 'T00:00:00').toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+                html +=
+                    '<div class="plan-item">' +
+                        '<div class="plan-head">' +
+                            '<span class="plan-tag aktif">' + escapeHtml(l.subject) + '</span>' +
+                            '<span class="plan-date">' + d + ' · ' + (l.duration_min || 0) + ' dk</span>' +
+                        '</div>' +
+                        (l.notes ? '<div class="plan-body">' + escapeHtml(l.notes) + '</div>' : '') +
+                    '</div>';
+            });
+            html += '</div>';
+            el.innerHTML = html;
+        }
+
+        function renderExamList(examResults) {
+            var el = document.getElementById('progExamList');
+            if (!examResults.length) {
+                el.innerHTML = '<div class="empty-state"><p>Henüz deneme sonucu girilmemiş.</p></div>';
+                return;
+            }
+            var html = '<div class="plans-list">';
+            examResults.forEach(function(r) {
+                var d = new Date(r.exam_date + 'T00:00:00').toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+                var net = (r.correct - r.incorrect / 4).toFixed(2);
+                html +=
+                    '<div class="plan-item">' +
+                        '<div class="plan-head">' +
+                            '<span class="plan-tag aktif">' + escapeHtml(r.exam_name) + '</span>' +
+                            '<span class="plan-date">' + d + '</span>' +
+                        '</div>' +
+                        '<div class="plan-body">Doğru: ' + r.correct + ' | Yanlış: ' + r.incorrect + ' | Boş: ' + r.blank + ' | Net: ' + net + (r.total_score != null ? ' | Puan: ' + r.total_score : '') + '</div>' +
+                    '</div>';
+            });
+            html += '</div>';
+            el.innerHTML = html;
         }
 
         async function loadMessages() {
