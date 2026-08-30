@@ -51,6 +51,33 @@ export async function resendConfirmationEmail(email) {
 export async function logoutUser() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
+  clearAuthState();
+}
+
+/**
+ * Navbar durumunu (index.html'deki legacy localStorage) günceller.
+ * Giriş sonrası çağrılır: oturum + profil.
+ */
+export function persistAuthState(session, profile) {
+  try {
+    localStorage.setItem('pusula_user_logged', 'true');
+    localStorage.setItem('pusula_user_name', (profile && profile.full_name) || '');
+    localStorage.setItem('pusula_user_email', (session && session.user && session.user.email) || '');
+    localStorage.setItem('pusula_user_role', (profile && profile.role) || 'student');
+  } catch (e) {
+    /* localStorage erişilemezse sessiz geç */
+  }
+}
+
+export function clearAuthState() {
+  try {
+    localStorage.removeItem('pusula_user_logged');
+    localStorage.removeItem('pusula_user_name');
+    localStorage.removeItem('pusula_user_email');
+    localStorage.removeItem('pusula_user_role');
+  } catch (e) {
+    /* sessiz */
+  }
 }
 
 /**

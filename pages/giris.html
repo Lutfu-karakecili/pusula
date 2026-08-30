@@ -97,15 +97,29 @@
     </div>
 
     <script type="module">
-        import { loginUser, getCurrentSession, resendConfirmationEmail } from '../src/lib/auth.js';
+        import { loginUser, getCurrentSession, getCurrentProfile, resendConfirmationEmail, persistAuthState } from '../src/lib/auth.js';
         import { isTurnstileEnabled, initTurnstileWidgets, loadTurnstileScript } from '../src/lib/turnstile.js';
         await loadTurnstileScript();
         initTurnstileWidgets();
 
+        function redirectByRole(profile) {
+            if (profile && profile.role === 'admin') {
+                window.location.replace('admin-dashboard.html');
+            } else {
+                window.location.replace('kullanici-paneli.html');
+            }
+        }
+
         (async function() {
             const existingSession = await getCurrentSession();
             if (existingSession) {
-                window.location.replace('../index.html');
+                try {
+                    const profile = await getCurrentProfile();
+                    persistAuthState(existingSession, profile);
+                    redirectByRole(profile);
+                } catch (e) {
+                    window.location.replace('../index.html');
+                }
             }
         })();
 
@@ -198,8 +212,10 @@
             loginBtn.disabled = true;
 
             try {
-                await loginUser({ email: email.value, password: password.value });
-                window.location.replace('../index.html');
+                var session = await loginUser({ email: email.value, password: password.value });
+                var profile = await getCurrentProfile();
+                persistAuthState(session, profile);
+                redirectByRole(profile);
             } catch (err) {
                 loginBtn.classList.remove('btn-loading');
                 loginBtn.disabled = false;

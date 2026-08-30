@@ -101,7 +101,7 @@
             <a href="pages/iletisim.html" class="mobile-menu-link">İletişim</a>
         </div>
         
-        <div class="mobile-menu-buttons">
+        <div class="mobile-menu-buttons" id="mobileMenuButtons">
             <a href="pages/giris.html" class="btn btn-secondary">Giriş Yap</a>
             <a href="pages/kayit.html" class="btn btn-primary">Kayıt Ol</a>
         </div>
@@ -706,15 +706,26 @@
             if (isLoggedIn) {
                 var userName = localStorage.getItem('pusula_user_name') || 'Kullanıcı';
                 var initials = userName.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase().substring(0, 2);
+                var role = localStorage.getItem('pusula_user_role');
+                var panelHref = (role === 'admin') ? 'pages/admin-dashboard.html' : 'pages/kullanici-paneli.html';
                 
                 navButtons.innerHTML = 
                     '<div style="display:flex;align-items:center;gap:10px;">' +
-                        '<a href="pages/kullanici-paneli.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;">' +
+                        '<a href="' + panelHref + '" style="display:flex;align-items:center;gap:8px;text-decoration:none;">' +
                             '<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#1e3a5f,#e63946);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:0.85rem;">' + initials + '</div>' +
                             '<span style="font-weight:500;color:#343a40;">' + userName + '</span>' +
                         '</a>' +
                         '<a href="#" onclick="logoutUser()" style="padding:8px 16px;border-radius:8px;background:#f8f9fa;color:#6c757d;font-weight:500;font-size:0.9rem;cursor:pointer;text-decoration:none;">Çıkış</a>' +
                     '</div>';
+
+                var mobileBtns = document.getElementById('mobileMenuButtons');
+                if (mobileBtns) {
+                    mobileBtns.innerHTML =
+                        '<div style="display:flex;align-items:center;gap:10px;width:100%;">' +
+                            '<a href="' + panelHref + '" class="btn btn-primary" style="flex:1;">Panelim</a>' +
+                            '<a href="#" onclick="logoutUser()" class="btn btn-secondary" style="flex:1;">Çıkış</a>' +
+                        '</div>';
+                }
             }
         }
         
@@ -722,6 +733,7 @@
             localStorage.removeItem('pusula_user_logged');
             localStorage.removeItem('pusula_user_name');
             localStorage.removeItem('pusula_user_email');
+            localStorage.removeItem('pusula_user_role');
             window.location.reload();
         }
         

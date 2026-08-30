@@ -142,7 +142,7 @@
     </div>
 
     <script type="module">
-        import { loginUser, getCurrentSession, getCurrentProfile } from '../src/lib/auth.js';
+        import { loginUser, getCurrentSession, getCurrentProfile, persistAuthState, clearAuthState } from '../src/lib/auth.js';
 
         (async function() {
             try {
@@ -151,6 +151,7 @@
                     try {
                         const profile = await getCurrentProfile();
                         if (profile && profile.role === 'admin') {
+                            persistAuthState(existingSession, profile);
                             window.location.replace('admin-dashboard.html');
                             return;
                         }
@@ -199,7 +200,7 @@
             
             try {
                 // Supabase ile giriş yap
-                await loginUser({ email: email.value, password: password.value });
+                var session = await loginUser({ email: email.value, password: password.value });
                 
                 // Profili kontrol et
                 const profile = await getCurrentProfile();
@@ -216,10 +217,12 @@
                     // Oturumu kapat (admin değilse giriş yapmasın)
                     const { logoutUser } = await import('../src/lib/auth.js');
                     await logoutUser();
+                    clearAuthState();
                     
                     return;
                 }
                 
+                persistAuthState(session, profile);
                 // Admin girişi başarılı
                 window.location.replace('admin-dashboard.html');
                 
