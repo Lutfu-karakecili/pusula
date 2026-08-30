@@ -30,6 +30,21 @@ CREATE TABLE IF NOT EXISTS profiles (
 
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
+-- Admin rolü kontrolü için yardımcı fonksiyon.
+-- SECURITY DEFINER + RLS bypass: polis içinde birebir "EXISTS (SELECT ... FROM profiles ...)"
+-- kullanımı Postgres'te "infinite recursion detected in policy" hatasına yol açar.
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
+  );
+$$;
+
 -- Herkes kendi profilini okuyabilir
 CREATE POLICY "Users can read own profile"
   ON profiles FOR SELECT
@@ -39,7 +54,7 @@ CREATE POLICY "Users can read own profile"
 CREATE POLICY "Admins can read all profiles"
   ON profiles FOR SELECT
   USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 -- Herkes kendi profilini güncelleyebilir
@@ -111,19 +126,19 @@ CREATE POLICY "Anyone can read coaches"
 CREATE POLICY "Admins can insert coaches"
   ON coaches FOR INSERT
   WITH CHECK (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 CREATE POLICY "Admins can update coaches"
   ON coaches FOR UPDATE
   USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 CREATE POLICY "Admins can delete coaches"
   ON coaches FOR DELETE
   USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 -- =============================================
@@ -149,19 +164,19 @@ CREATE POLICY "Anyone can read packages"
 CREATE POLICY "Admins can insert packages"
   ON packages FOR INSERT
   WITH CHECK (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 CREATE POLICY "Admins can update packages"
   ON packages FOR UPDATE
   USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 CREATE POLICY "Admins can delete packages"
   ON packages FOR DELETE
   USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 -- =============================================
@@ -184,13 +199,13 @@ CREATE POLICY "Students can read own assignment"
 CREATE POLICY "Admins can read all assignments"
   ON student_coaches FOR SELECT
   USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 CREATE POLICY "Admins can manage assignments"
   ON student_coaches FOR ALL
   USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 -- =============================================
@@ -214,13 +229,13 @@ CREATE POLICY "Students can read own packages"
 CREATE POLICY "Admins can read all student packages"
   ON student_packages FOR SELECT
   USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 CREATE POLICY "Admins can manage student packages"
   ON student_packages FOR ALL
   USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 -- =============================================
@@ -251,7 +266,7 @@ CREATE POLICY "Anyone can insert messages"
 CREATE POLICY "Admins can read all messages"
   ON messages FOR SELECT
   USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 -- Kullanıcılar kendilerine gönderilen mesajları okuyabilir
@@ -268,7 +283,7 @@ CREATE POLICY "Users can read own sent messages"
 CREATE POLICY "Admins can update messages"
   ON messages FOR UPDATE
   USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 -- Öğrenciler kendi (hedeflenen) mesajlarını okundu işaretleyebilir
@@ -281,7 +296,7 @@ CREATE POLICY "Students can mark own messages as read"
 CREATE POLICY "Admins can delete messages"
   ON messages FOR DELETE
   USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 -- =============================================
