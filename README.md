@@ -1,202 +1,101 @@
-# Pusula — YKS Koçluk Platformu
+# Pusula — YKS Koçluk Platformu (Next.js 15)
 
-> **Pusula**, Yükseköğretim Kurumları Sınavı (YKS) hazırlık sürecindeki öğrencilere
-> yönelik profesyonel bir çevrimiçi koçluk platformudur. Öğrenciler koçlarla
-> eşleşir, paket satın alır ve bireysel gelişim takibi yapar; yöneticiler (admin)
-> ise tüm öğrenci, koç ve mesaj trafiğini merkezi bir panelden yönetir.
-
-## Maarif Modeli Uyumu
-
-Pusula, Türk eğitim sistemine uygun **Maarif Modeli** prensiplerini temel alır:
-şeffaflık, ölçülebilir bireysel ilerleme ve rehberlik (PDR) odaklı yaklaşım.
-Arayüz Türkçe, erişilebilir ve mobil uyumludur (responsive).
-
----
+Next.js 15 (App Router) + TypeScript + Tailwind CSS + shadcn/ui + Supabase
+ile geliştirilmiş, **sadece YKS (TYT/AYT)** odaklı bir öğrenci-koç koçluk
+platformu. LGS ve genel PDR modülleri kapsam dışıdır.
 
 ## Teknoloji Yığını
+- **Framework:** Next.js 15 (App Router, Server Components, Server Actions)
+- **Dil:** TypeScript
+- **Stil:** Tailwind CSS + shadcn/ui (Radix primitives) — dark mode varsayılan
+- **Veritabanı/Auth:** Supabase (Postgres + RLS + Auth + Edge Functions)
+- **Grafikler:** Chart.js (react-chartjs-2) — net gelişimi, ödev durumu, alan dağılımı
+- **AI Sohbet:** Supabase Edge Function → Claude API, SSE ile gerçek zamanlı stream
+- **Görüşmeler:** Zoom Server-to-Server OAuth entegrasyonu
 
-| Katman      | Teknoloji                                              |
-|-------------|--------------------------------------------------------|
-| Build       | [Vite](https://vitejs.dev/) (MPA — çok sayfalı uygulama) |
-| Dil         | Vanilla JS (ES Modules) + HTML/CSS                     |
-| Kimlik      | [Supabase Auth](https://supabase.com/auth) (e-posta/şifre) |
-| Veritabanı  | [Supabase Postgres](https://supabase.com/database) (RLS korumalı) |
-| Hata Takibi | [Sentry](https://sentry.io/) (Browser JS)              |
-| Bot Koruması| Cloudflare Turnstile (opsiyonel)                       |
-| Dağıtım     | [Vercel](https://vercel.com/)                          |
+## Klasör Yapısı
+```
+app/
+├── (auth)/login, register           # Kimlik doğrulama
+├── (admin)/dashboard/...            # Yönetici paneli — /dashboard
+├── coach/dashboard, planning, ...   # Koç paneli — /coach/*
+├── student/dashboard, ai, ...       # Öğrenci paneli — /student/*
+├── api/
+│   ├── ai/chat/route.ts             # AI sohbet (Edge Function proxy, SSE)
+│   ├── admin/                       # Admin CRUD uçları (service_role)
+│   └── meetings/route.ts            # Zoom görüşme oluşturma
+components/
+├── ui/                              # shadcn/ui bileşenleri
+├── shared/                          # sidebar, topbar, dashboard-shell, stat-card
+├── charts/                          # Chart.js sarmalayıcıları
+lib/
+├── supabase/                        # client / server / admin / middleware
+├── database.types.ts, utils.ts, nav-config.ts, zoom.ts
+supabase/
+├── migrations/0001_init.sql         # Tablolar + RLS + trigger'lar
+├── migrations/0002_seed.sql         # Örnek ders/konu referans verisi
+├── functions/ai-chat/index.ts       # Edge Function (Claude API, streaming)
+middleware.ts                        # Rol bazlı yönlendirme
+```
 
----
+## Veritabanı Şeması (özet)
+`profiles` (auth.users genişlemesi, rol: admin/coach/student) · `students`
+(YKS'ye özel alanlar) · `plans` + `plan_items` (haftalık plan) · `homework`
+(ödev takvimi) · `meetings` (Zoom entegrasyonlu görüşmeler) ·
+`coaching_notes` (koç değerlendirme notları, öğrenciye görünürlük kontrolü
+ile) · `ai_conversations` + `ai_messages` (AI sohbet geçmişi).
 
-## Kurulum (Yerel Geliştirme)
+Tüm tablolarda **Row Level Security** aktiftir: öğrenci yalnızca kendi
+verisini, koç yalnızca kendi öğrencilerinin verisini, admin ise her şeyi
+görebilir/düzenleyebilir.
 
-### 1. Bağımlılıkları yükleyin
+## Kurulum
 
 ```bash
 npm install
+cp .env.example .env   # Supabase URL/anon key/service_role key gir
 ```
 
-### 2. Ortam değişkenlerini ayarlayın
+### Supabase
+1. Yeni proje oluştur → SQL Editor'de sırasıyla
+   `supabase/migrations/0001_init.sql` ve `0002_seed.sql` dosyalarını çalıştır.
+2. Edge Function'ı deploy et:
+   ```bash
+   supabase functions deploy ai-chat
+   supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
+   ```
+3. İlk admin hesabını oluştur: `Authentication > Users` üzerinden bir
+   kullanıcı ekle, sonra SQL Editor'de:
+   ```sql
+   update public.profiles set role = 'admin' where email = 'admin@ornek.com';
+   ```
 
-`.env.example` dosyasını `.env` olarak kopyalayın ve gerçek değerlerinizi girin:
+### Zoom (opsiyonel)
+`ZOOM_ACCOUNT_ID`, `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET` tanımlı değilse
+sistem geliştirme amaçlı sahte bir Zoom linki üretir; akış Zoom hesabı
+olmadan da test edilebilir.
 
-```bash
-cp .env.example .env
-# Ardından .env dosyasını düzenleyin (aşağıdaki "Ortam Değişkenleri" tablosuna bakın)
-```
-
-> ⚠️ **Güvenlik:** `.env` dosyası **ASLA** Git'e commit edilmemelidir
-> (`.gitignore` içinde zaten tanımlıdır). `service_role` anahtarını asla
-> frontend'e veya `.env` içine koymayın; bu anahtar RLS korumasını tamamen baypas eder.
-
-### 3. Supabase veritabanını kurun
-
-1. [supabase.com](https://supabase.com/) üzerinde yeni bir proje oluşturun.
-2. Sol menüden **SQL Editor** → **New query** açın.
-3. `supabase/schema.sql` dosyasının **tamamını** kopyalayıp yapıştırın ve **Run** edin.
-   - Bu işlem `profiles`, `coaches`, `packages`, `student_coaches`,
-     `student_packages` ve `messages` tablolarını, ilgili RLS politikalarını
-     ve örnek koç/paket verilerini oluşturur.
-4. (İsteğe bağlı) İlk admin hesabınızı oluşturun:
-   - **Authentication → Users** kısmından bir kullanıcı ekleyin (e-posta/şifre).
-   - O kullanıcının UUID'sini alıp `schema.sql` sonundaki yorum satırını
-     düzenleyerek `profiles` tablosuna `role = 'admin'` olarak ekleyin.
-
-> 💡 **Profil otomatik oluşur:** Supabase Auth ile yeni kayıt yapıldığında,
-> bir `profiles` kaydı otomatik tetiklenir (şema yorumunda belirtilmiştir).
-> Frontend `kayit.html` akışı bu yapıya uygundur.
-
-### 4. Geliştirme sunucusunu başlatın
-
+### Geliştirme sunucusu
 ```bash
 npm run dev
 ```
 
-Tarayıcı otomatik olarak `http://localhost:5173/index.html` adresini açar.
+## Rol Bazlı Yönlendirme
+`middleware.ts`, her istekte Supabase oturumunu kontrol eder ve kullanıcının
+`profiles.role` değerine göre:
+- `admin` → `/dashboard`
+- `coach` → `/coach/dashboard`
+- `student` → `/student/dashboard`
 
----
+alanlarına yönlendirir; yetkisi olmayan bir role ait yola girmeye çalışan
+kullanıcı kendi ana sayfasına geri gönderilir.
 
-## Yapı (Build) ve Önizleme
-
-```bash
-npm run build     # Çıktı: dist/ klasörü
-npm run preview   # dist/ üzerinde yerel önizleme sunucusu
-```
-
-`vite.config.js`, kök dizindeki ve `pages/` altındaki tüm `.html`
-dosyalarını ayrı giriş noktaları olarak derler (MPA yapısı).
-
----
-
-## Vercel Dağıtımı
-
-1. Projeyi GitHub'a push edin.
-2. [vercel.com](https://vercel.com/) → **New Project** → deposunu import edin.
-3. Build ayarları otomatik algılanır:
-   - **Build Command:** `npm run build`
-   - **Output Directory:** `dist`
-4. **Environment Variables** kısmına `.env` içindeki tüm
-   `VITE_*` değişkenlerini ekleyin (özellikle `VITE_SUPABASE_URL` ve
-   `VITE_SUPABASE_ANON_KEY`).
-5. **Deploy** edin.
-
-`vercel.json` zaten aşağıdakileri içerir ve dokunmanıza gerek yoktur:
-- Güvenlik başlıkları (HSTS, CSP, X-Frame-Options, XSS koruması vb.)
-- `cleanUrls: true` (`.html` uzantısız URL'ler)
-- `pages/` alt sayfaları için rewrite kuralı
-
-> ⚠️ **CSP notu:** `vercel.json` içindeki `Content-Security-Policy`,
-> `*.supabase.co`, `*.ingest.sentry.io` ve `challenges.cloudflare.com`
-> (Turnstile) bağlantılarına izin verecek şekilde ayarlıdır. Yeni bir
-> üçüncü-parti servis eklerse burayı güncelleyin.
-
-### Cloudflare Turnstile (Bot Koruması)
-- `.env`'de `VITE_TURNSTILE_SITE_KEY=0x4AAAAAAA` placeholder ise widget
-  **otomatik gizlenir** ve form doğrulaması atlanır.
-- Gerçek bir Cloudflare site key girildiğinde `giris.html`, `kayit.html`
-  ve `iletisim.html` sayfalarında otomatik aktif olur.
-
-### Sentry (Hata Takibi)
-- `VITE_SENTRY_DSN` boş bırakılırsa Sentry **pasif** kalır (kod içinde guard var).
-- Dolu olduğunda tarayıcı hataları Sentry'ye raporlanır.
-
----
-
-## Ortam Değişkenleri
-
-| Değişken                  | Zorunlu | Açıklama                                                                 |
-|---------------------------|---------|--------------------------------------------------------------------------|
-| `VITE_SUPABASE_URL`       | ✅      | Supabase projenizin URL'si (`Dashboard > Settings > API`)                |
-| `VITE_SUPABASE_ANON_KEY`  | ✅      | Supabase **anon/public** anahtarı (RLS ile korunur, frontend'de güvenli) |
-| `VITE_TURNSTILE_SITE_KEY` | ⛔*     | Cloudflare Turnstile site key. Placeholder ise devre dışı.              |
-| `VITE_SENTRY_DSN`         | ⛔*     | Sentry DSN. Boş ise hata takibi pasif.                                   |
-
-\* Opsiyonel — boş/placeholder bırakılabilir; uygulama çalışmaya devam eder.
-
-> 🔒 **ASLA** `service_role` key'ini frontend'e veya `.env` dosyasına koymayın.
-> Bu anahtar yalnızca sunucu tarafında (backend/Edge Function) kullanılır.
-
----
-
-## Klasör Yapısı
-
-```
-big/
-├── index.html              # Ana sayfa (landing)
-├── pages/                  # Tüm alt sayfalar (MPA)
-│   ├── giris.html          # Giriş
-│   ├── kayit.html          # Kayıt
-│   ├── sifre-sifirlama.html
-│   ├── kullanici-paneli.html   # Öğrenci paneli
-│   ├── koclar.html         # Koç listesi
-│   ├── koc-detay.html      # Koç detay
-│   ├── paketler.html       # Paketler
-│   ├── iletisim.html       # İletişim formu
-│   ├── admin.html          # Admin giriş
-│   ├── admin-dashboard.html# Admin yönetim paneli
-│   ├── basarili.html       # Başarı/hata sonrası yönlendirme
-│   ├── 404.html            # Sayfa bulunamadı
-│   ├── cerez-politikasi.html
-│   ├── gizlilik-politikasi.html
-│   └── kullanim-sartlari.html
-├── src/lib/                # JS modülleri
-│   ├── supabase.js         # Supabase istemci (env'den okur)
-│   ├── auth.js             # Kimlik doğrulama yardımcıları
-│   ├── db.js               # Veritabanı sorgu yardımcıları
-│   ├── sentry.js           # Sentry başlatma
-│   └── turnstile.js        # Cloudflare Turnstile (opsiyonel)
-├── css/style.css           # Ortak stiller
-├── js/main.js              # Ortak ön-yüz mantığı
-├── public/images/          # Statik görseller (favicon.svg vb.)
-├── supabase/
-│   └── schema.sql          # Veritabanı şeması + RLS + örnek veri
-├── .env.example            # Ortam değişkeni şablonu
-├── vercel.json             # Vercel yapılandırması (başlıklar, rewrite)
-├── vite.config.js          # Vite MPA yapılandırması
-├── robots.txt
-└── GUVENLIK.md             # Güvenlik notları ve yapılacaklar
-```
-
----
-
-## Kullanılan Sayfalar Özeti
-
-- **Genel:** `index.html` (ana tanıtım), `404.html`, `basarili.html`
-- **Kimlik:** `giris.html`, `kayit.html`, `sifre-sifirlama.html`
-- **Öğrenci:** `kullanici-paneli.html`
-- **Koçluk:** `koclar.html`, `koc-detay.html`, `paketler.html`
-- **İletişim:** `iletisim.html`
-- **Yönetim:** `admin.html`, `admin-dashboard.html`
-- **Yasal:** `cerez-politikasi.html`, `gizlilik-politikasi.html`, `kullanim-sartlari.html`
-
----
-
-## Güvenlik
-
-Detaylı güvenlik adımları, çözülen sorunlar ve yayın sonrası yapılacaklar
-için **`GUVENLIK.md`** dosyasına bakın.
-
----
+## Güvenlik Notları
+- `service_role` anahtarı yalnızca `lib/supabase/admin.ts` üzerinden,
+  sadece API route'ları içinde kullanılır — asla client'a sızmaz.
+- Tüm tablolarda RLS aktif; `coaching_notes` varsayılan olarak öğrenciden
+  gizlidir (`visible_to_student` alanı ile koç kontrol eder).
+- `vercel.json` güvenlik başlıkları (HSTS, X-Frame-Options vb.) içerir.
 
 ## Lisans
-
 Bu proje özel kullanım içindir.
