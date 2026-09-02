@@ -1,8 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { createClient } from '@supabase/supabase-js';
-import ws from 'ws';
 
-// .env'i basitçe oku (dotenv bağımlılığı olmadan)
 function loadEnv() {
   const out = {};
   try {
@@ -11,50 +8,59 @@ function loadEnv() {
       const m = line.match(/^\s*([\w.-]+)\s*=\s*(.*)\s*$/);
       if (m) out[m[1]] = m[2].replace(/^["']|["']$/g, '');
     });
-  } catch (e) {
-    // .env yoksa process.env'e düş
-  }
+  } catch {}
   return { ...process.env, ...out };
 }
 
 const env = loadEnv();
-const url = env.NEXT_PUBLIC_SUPABASE_URL || env.VITE_SUPABASE_URL;
+const url = env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!url || !serviceKey) {
-  console.error('HATA: VITE_SUPABASE_URL ve SUPABASE_SERVICE_ROLE_KEY (.env) gerekli.');
+  console.error('HATA: NEXT_PUBLIC_SUPABASE_URL ve SUPABASE_SERVICE_ROLE_KEY (.env) gerekli.');
   process.exit(1);
 }
 
 const email = process.argv[2];
 const password = process.argv[3];
 if (!email || !password) {
-  console.error('Kullanım: npm run make-admin <email> <parola>');
-  console.error('Örnek:   npm run make-admin admin@pusula.com ************');
+  console.error('Kullanım: node scripts/setup-admin.mjs <email> <parola>');
   process.exit(1);
 }
 
-const supabase = createClient(url, serviceKey, {
-  realtime: { transport: ws },
-  auth: { autoRefreshToken: false, persistSession: false }
+// Auth API ile kullanıcı oluştur
+const res = await fetch(`${url}/auth/v1/admin/users`, {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${serviceKey}`,
+    'Content-Type': 'application/json',
+    'apikey': serviceKey,
+  },
+  body: JSON.stringify({ email, password, email_confirm: true }),
 });
 
-try {
-  const { data, error } = await supabase.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true
-  });
-  if (error) throw new Error('Kullanıcı oluşturulamadı: ' + error.message);
-
-  const { error: e2 } = await supabase
-    .from('profiles')
-    .update({ role: 'admin' })
-    .eq('id', data.user.id);
-  if (e2) throw new Error('Rol güncellenemedi: ' + e2.message);
-
-  console.log('✓ Admin hesabı oluşturuldu ve role=admin yapıldı: ' + email);
-} catch (e) {
-  console.error(e.message);
+const data = await res.json();
+if (data.code) {
+  console.error('HATA:', data.msg || data.message);
   process.exit(1);
 }
+
+// Profile'ı admin yap
+const profileRes = await fetch(`${url}/rest/v1/profiles?id=eq.${data.id}`, {
+  method: 'PATCH',
+  headers: {
+    'Authorization': `Bearer ${serviceKey}`,
+    'Content-Type': 'application/json',
+    'apikey': serviceKey,
+    'Prefer': 'return=minimal',
+  },
+  body: JSON.stringify({ role: 'admin' }),
+});
+
+if (!profileRes.ok) {
+  const err = await profileRes.text();
+  console.error('Rol güncellenemedi:', err);
+  process.exit(1);
+}
+
+console.log('✓ Admin oluşturuldu:', email);
