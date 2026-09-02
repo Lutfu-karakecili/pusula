@@ -7,9 +7,10 @@ export async function GET() {
   const auth = await assertAdmin();
   if (!auth.ok) return NextResponse.json({ error: "Yetkisiz." }, { status: auth.status });
 
-  const { data, error } = await auth.supabase
+  const admin = createAdminClient();
+  const { data, error } = await admin
     .from("profiles")
-    .select("*, students(coach_id)")
+    .select("*")
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });

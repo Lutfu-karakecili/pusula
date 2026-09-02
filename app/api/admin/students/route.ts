@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { assertAdmin } from "@/lib/assert-admin";
+import { createAdminClient } from "@/lib/supabase/admin";
 
+// GET /api/admin/students
 export async function GET() {
   const auth = await assertAdmin();
   if (!auth.ok) return NextResponse.json({ error: "Yetkisiz." }, { status: auth.status });
 
-  const { data, error } = await auth.supabase
+  const admin = createAdminClient();
+  const { data, error } = await admin
     .from("students")
     .select("*, profile:profiles(full_name, email, avatar_url)")
     .order("created_at", { ascending: false });
