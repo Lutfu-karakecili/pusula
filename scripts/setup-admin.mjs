@@ -13,54 +13,94 @@ function loadEnv() {
 }
 
 const env = loadEnv();
-const url = env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL = env.NEXT_PUBLIC_SUPABASE_URL;
+const SERVICE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!url || !serviceKey) {
-  console.error('HATA: NEXT_PUBLIC_SUPABASE_URL ve SUPABASE_SERVICE_ROLE_KEY (.env) gerekli.');
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  console.error('HATA: .env dosyasında NEXT_PUBLIC_SUPABASE_URL ve SUPABASE_SERVICE_ROLE_KEY gerekli.');
   process.exit(1);
 }
 
 const email = process.argv[2];
 const password = process.argv[3];
+const role = process.argv[4] || 'admin';
 if (!email || !password) {
-  console.error('Kullanım: node scripts/setup-admin.mjs <email> <parola>');
+  console.error('Kullanım: node scripts/setup-admin.mjs <email> <parola> [role]');
+  console.error('  role: admin (varsayılan), coach, student');
   process.exit(1);
 }
 
-// Auth API ile kullanıcı oluştur
-const res = await fetch(`${url}/auth/v1/admin/users`, {
-  method: 'POST',
-  headers: {
-    'Authorization': `Bearer ${serviceKey}`,
+function headers(prefer) {
+  return {
+    'Authorization': `Bearer ${SERVICE_KEY}`,
     'Content-Type': 'application/json',
-    'apikey': serviceKey,
-  },
+    'apikey': SERVICE_KEY,
+    ...(prefer ? { 'Prefer': prefer } : {}),
+  };
+}
+
+// 1) Auth API ile kullanıcı oluştur
+console.log('→ Kullanıcı oluşturuluyor...');
+const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
+  method: 'POST',
+  headers: headers('return=representation'),
   body: JSON.stringify({ email, password, email_confirm: true }),
 });
 
-const data = await res.json();
-if (data.code) {
-  console.error('HATA:', data.msg || data.message);
+const userData = await res.json();
+if (userData.code) {
+  console.error('HATA:', userData.msg || userData.message);
   process.exit(1);
 }
 
-// Profile'ı admin yap
-const profileRes = await fetch(`${url}/rest/v1/profiles?id=eq.${data.id}`, {
-  method: 'PATCH',
-  headers: {
-    'Authorization': `Bearer ${serviceKey}`,
-    'Content-Type': 'application/json',
-    'apikey': serviceKey,
-    'Prefer': 'return=minimal',
-  },
-  body: JSON.stringify({ role: 'admin' }),
+const userId = userData.id;
+console.log('  ✓ Auth kullanıcısı:', userId);
+
+// 2) Profiles satırı var mı kontrol et, yoksa oluştur
+console.log('→ Profil oluşturuluyor...');
+const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=id`, {
+  headers: headers(),
 });
 
-if (!profileRes.ok) {
-  const err = await profileRes.text();
-  console.error('Rol güncellenemedi:', err);
-  process.exit(1);
+const existing = await checkRes.json();
+
+if (existing && existing.length > 0) {
+  // Profile varsa güncelle
+  await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}`, {
+    method: 'PATCH',
+    headers: headers('return=minimal'),
+    body: JSON.stringify({ role, full_name: email.split('@')[0] }),
+  });
+  console.log('  ✓ Profil güncellendi:', role);
+} else {
+  // Profile yoksa oluştur
+  const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
+    method: 'POST',
+    headers: headers('return=minimal'),
+    body: JSON.stringify({
+      id: userId,
+      role,
+      full_name: email.split('@')[0],
+      email,
+    }),
+  });
+  if (!insertRes.ok) {
+    const err = await insertRes.text();
+    console.error('  Profil oluşturulamadı:', err);
+    process.exit(1);
+  }
+  console.log('  ✓ Profil oluşturuldu:', role);
 }
 
-console.log('✓ Admin oluşturuldu:', email);
+// 3) Role student ise students tablosuna da ekle
+if (role === 'student') {
+  console.log('→ Öğrenci kaydı ekleniyor...');
+  await fetch(`${SUPABASE_URL}/rest/v1/students`, {
+    method: 'POST',
+    headers: headers('return=minimal'),
+    body: JSON.stringify({ id: userId }),
+  });
+  console.log('  ✓ Öğrenci kaydı eklendi');
+}
+
+console.log(`\n✓ Tamamlandı! ${role.toUpperCase()} hesabı: ${email}`);
