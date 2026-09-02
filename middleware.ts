@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
-const PUBLIC_PATHS = ["/login", "/register", "/auth/callback", "/reset-password"];
+const PUBLIC_PATHS = ["/", "/login", "/register", "/auth/callback", "/reset-password"];
 
 // Rol -> varsayılan/izinli dashboard kök yolu
 const ROLE_HOME: Record<string, string> = {
@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
   if (!user) {
-    if (isPublic || pathname === "/") return supabaseResponse;
+    if (isPublic) return supabaseResponse;
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);
@@ -40,7 +40,7 @@ export async function middleware(request: NextRequest) {
 
   const role = profile?.role ?? "student";
 
-  if (isPublic || pathname === "/") {
+  if (isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = ROLE_HOME[role] ?? "/student/dashboard";
     return NextResponse.redirect(url);
