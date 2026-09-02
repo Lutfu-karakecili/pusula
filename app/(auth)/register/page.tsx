@@ -38,6 +38,9 @@ export default function RegisterPage() {
       return;
     }
 
+    setError(null);
+    setLoading(false);
+    alert("Kayıt başarılı! E-posta adresinize onay bağlantısı gönderildi. Onayladıktan sonra giriş yapabilirsiniz.");
     router.push("/login");
   }
 

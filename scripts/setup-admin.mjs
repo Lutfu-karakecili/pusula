@@ -18,7 +18,7 @@ function loadEnv() {
 }
 
 const env = loadEnv();
-const url = env.VITE_SUPABASE_URL;
+const url = env.NEXT_PUBLIC_SUPABASE_URL || env.VITE_SUPABASE_URL;
 const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!url || !serviceKey) {
