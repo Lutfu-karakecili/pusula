@@ -43,3 +43,27 @@ export function getWeekNumber(date: Date) {
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
   return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }
+
+export function getWeekDates(weekStart: Date): Date[] {
+  const dates: Date[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(weekStart);
+    d.setDate(d.getDate() + i);
+    dates.push(d);
+  }
+  return dates;
+}
+
+export const SUBJECTS = [
+  "Matematik",
+  "Fizik",
+  "Kimya",
+  "Biyoloji",
+  "Türkçe",
+  "Tarih",
+  "Coğrafya",
+  "Felsefe",
+  "İngilizce",
+] as const;
+
+export type Subject = (typeof SUBJECTS)[number];

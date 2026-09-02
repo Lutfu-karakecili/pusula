@@ -14,12 +14,10 @@ export async function GET() {
   if (!await requireAdmin(supabase)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
     .order("created_at", { ascending: false });
-
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
@@ -29,22 +27,17 @@ export async function POST(request: NextRequest) {
   if (!await requireAdmin(supabase)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-
   const { email, full_name, role, phone } = await request.json();
-
   const { data, error } = await supabase.auth.admin.createUser({
     email,
     password: "Pusula2025!",
     email_confirm: true,
     user_metadata: { full_name, role },
   });
-
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  if (phone) {
+  if (phone && data.user) {
     await supabase.from("profiles").update({ phone }).eq("id", data.user.id);
   }
-
   return NextResponse.json(data.user);
 }
 
@@ -53,14 +46,11 @@ export async function PUT(request: NextRequest) {
   if (!await requireAdmin(supabase)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-
   const { id, full_name, role, phone } = await request.json();
-
   const { error } = await supabase
     .from("profiles")
     .update({ full_name, role, phone, updated_at: new Date().toISOString() })
     .eq("id", id);
-
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });
 }
@@ -70,11 +60,8 @@ export async function DELETE(request: NextRequest) {
   if (!await requireAdmin(supabase)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-
   const { id } = await request.json();
-
   const { error } = await supabase.auth.admin.deleteUser(id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
   return NextResponse.json({ success: true });
 }

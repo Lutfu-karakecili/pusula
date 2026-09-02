@@ -3,7 +3,6 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 const YKS_SYSTEM_PROMPT = `Sen PUSULA YKS Koçluk Platformu'nda çalışan bir AI asistanısın.
 Görevin YKS öğrencilerine yardımcı olmak:
-
 - YKS konularını açıkla (Sayısal, Sözel, Eşit Ağırlık)
 - Matematik, Fizik, Kimya, Biyoloji, Türkçe, Tarih, Coğrafya, Felsefe konularında yardım et
 - Çalışma planları öner
@@ -65,8 +64,10 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     const reply = data.choices[0]?.message?.content || "Cevap alınamadı.";
 
+    // Save to ai_chats
+    const lastUserMsg = messages[messages.length - 1]?.content || "";
     await supabase.from("ai_chats").insert([
-      { user_id: user.id, role: "user", content: messages[messages.length - 1]?.content || "" },
+      { user_id: user.id, role: "user", content: lastUserMsg },
       { user_id: user.id, role: "assistant", content: reply },
     ]);
 
