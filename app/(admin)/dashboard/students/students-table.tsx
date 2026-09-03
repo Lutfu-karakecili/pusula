@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle, XCircle, ExternalLink } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Loader2, CheckCircle, XCircle, ExternalLink, UserPlus } from "lucide-react";
 import { initials, FIELD_LABELS } from "@/lib/utils";
 
 interface CoachOption { id: string; full_name: string; }
@@ -27,6 +28,9 @@ export function StudentsTable() {
   const [coaches, setCoaches] = useState<CoachOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [parentEmailId, setParentEmailId] = useState<string | null>(null);
+  const [parentEmail, setParentEmail] = useState("");
+  const [addingParent, setAddingParent] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -59,6 +63,26 @@ export function StudentsTable() {
     });
     await load();
     setSavingId(null);
+  }
+
+  async function addParent(studentId: string, email: string) {
+    if (!email) return;
+    setAddingParent(studentId);
+    const res = await fetch("/api/admin/add-parent", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ student_id: studentId, email }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || "Veli eklenemedi.");
+    } else {
+      alert("Veli hesabı oluşturuldu ve öğrenciyle bağlandı." + (data.password ? `\nGeçici şifre: ${data.password}` : ""));
+    }
+    setAddingParent(null);
+    setParentEmailId(null);
+    setParentEmail("");
+    await load();
   }
 
   if (loading) return <p className="text-sm text-muted-foreground">Yükleniyor...</p>;
@@ -96,6 +120,28 @@ export function StudentsTable() {
               </>
             )}
             {savingId === s.id && <Loader2 className="h-4 w-4 animate-spin" />}
+
+            {parentEmailId === s.id ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  type="email"
+                  value={parentEmail}
+                  onChange={(e) => setParentEmail(e.target.value)}
+                  placeholder="Veli e-postası"
+                  className="h-9 w-48"
+                  autoFocus
+                />
+                <Button size="sm" variant="gradient" disabled={addingParent === s.id} onClick={() => addParent(s.id, parentEmail)}>
+                  {addingParent === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : "Bağla"}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => { setParentEmailId(null); setParentEmail(""); }}>Vazgeç</Button>
+              </div>
+            ) : (
+              <Button variant="ghost" size="sm" className="h-9 text-muted-foreground" onClick={() => setParentEmailId(s.id)} title="Veli Ekle">
+                <UserPlus className="h-4 w-4" /> Veli
+              </Button>
+            )}
+
             <select
               value={s.coach_id ?? ""}
               onChange={(e) => assignCoach(s.id, e.target.value)}

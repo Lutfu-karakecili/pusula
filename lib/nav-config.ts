@@ -1,7 +1,7 @@
 export type IconName =
   | "LayoutDashboard" | "Users" | "GraduationCap" | "CalendarDays"
   | "ClipboardList" | "BookOpenCheck" | "Video" | "MessageSquareText"
-  | "UserCog" | "Sparkles" | "Home";
+  | "UserCog" | "Sparkles" | "Home" | "Package";
 
 export interface NavItem {
   label: string;
@@ -14,6 +14,17 @@ export const ADMIN_NAV: NavItem[] = [
   { label: "Öğrenciler", href: "/dashboard/students", icon: "GraduationCap" },
   { label: "Koçlar", href: "/dashboard/coaches", icon: "Users" },
   { label: "Kullanıcılar", href: "/dashboard/users", icon: "UserCog" },
+  { label: "Paketler", href: "/dashboard/packages", icon: "Package" },
+  { label: "Seminerler", href: "/dashboard/seminars", icon: "Video" },
+  { label: "Görüşme Talepleri", href: "/dashboard/consultations", icon: "MessageSquareText" },
+  { label: "Koç Başvuruları", href: "/dashboard/coach-applications", icon: "GraduationCap" },
+];
+
+export const PARENT_NAV: NavItem[] = [
+  { label: "Panel", href: "/parent/dashboard", icon: "LayoutDashboard" },
+  { label: "Haftalık Plan", href: "/parent/planning", icon: "CalendarDays" },
+  { label: "Ödevler", href: "/parent/homework", icon: "BookOpenCheck" },
+  { label: "Görüşmeler", href: "/parent/meetings", icon: "Video" },
 ];
 
 export const COACH_NAV: NavItem[] = [

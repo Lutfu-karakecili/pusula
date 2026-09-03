@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Compass, LogOut, Home,
   LayoutDashboard, Users, GraduationCap, CalendarDays, ClipboardList,
-  BookOpenCheck, Video, MessageSquareText, UserCog, Sparkles,
+  BookOpenCheck, Video, MessageSquareText, UserCog, Sparkles, Package,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { NavItem, IconName } from "@/lib/nav-config";
@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 const ICONS: Record<IconName, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard, Users, GraduationCap, CalendarDays, ClipboardList,
   BookOpenCheck, Video, MessageSquareText, UserCog, Sparkles,
-  Home,
+  Home, Package,
 };
 
 export function Sidebar({ items, roleLabel }: { items: NavItem[]; roleLabel: string }) {

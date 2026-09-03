@@ -36,6 +36,7 @@ export const ROLE_LABELS: Record<string, string> = {
   admin: "Yönetici",
   coach: "Koç",
   student: "Öğrenci",
+  parent: "Veli",
 };
 
 export const FIELD_LABELS: Record<string, string> = {

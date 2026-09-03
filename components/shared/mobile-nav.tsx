@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, GraduationCap, CalendarDays, ClipboardList,
-  BookOpenCheck, Video, MessageSquareText, UserCog, Sparkles, Home, LogOut,
+  BookOpenCheck, Video, MessageSquareText, UserCog, Sparkles, Home, LogOut, Package,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { NavItem, IconName } from "@/lib/nav-config";
@@ -12,7 +12,7 @@ import { createClient } from "@/lib/supabase/client";
 
 const ICONS: Record<IconName, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard, Users, GraduationCap, CalendarDays, ClipboardList,
-  BookOpenCheck, Video, MessageSquareText, UserCog, Sparkles, Home,
+  BookOpenCheck, Video, MessageSquareText, UserCog, Sparkles, Home, Package,
 };
 
 export function MobileNav({ items }: { items: NavItem[] }) {

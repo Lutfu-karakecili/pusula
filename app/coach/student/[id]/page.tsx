@@ -11,6 +11,7 @@ import { StatCard } from "@/components/shared/stat-card";
 import { CheckCircle, Clock, Users, CalendarDays } from "lucide-react";
 import { NoteForm } from "./note-form";
 import { ExamSessionForm } from "./exam-session-form";
+import { ResourceSection } from "./resource-section";
 import Link from "next/link";
 
 export default async function CoachStudentDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -161,6 +162,8 @@ export default async function CoachStudentDetailPage({ params }: { params: Promi
           </div>
         </CardContent>
       </Card>
+
+      <ResourceSection studentId={id} coachId={coach.id} />
     </div>
   );
 }

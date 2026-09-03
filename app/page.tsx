@@ -53,7 +53,7 @@ export default function HomePage() {
             <a href="#maarif" className="text-sm text-muted-foreground hover:text-foreground">Maarif Modeli</a>
             <a href="#hizmetler" className="text-sm text-muted-foreground hover:text-foreground">Hizmetlerimiz</a>
             <a href="#koclar" className="text-sm text-muted-foreground hover:text-foreground">Koçlarımız</a>
-            <a href="#sss" className="text-sm text-muted-foreground hover:text-foreground">SSS</a>
+            <Link href="/sss" className="text-sm text-muted-foreground hover:text-foreground">SSS</Link>
           </nav>
           <div className="flex items-center gap-3">
             <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground">Giriş Yap</Link>
@@ -257,7 +257,16 @@ export default function HomePage() {
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
                 <li><a href="#hakkimizda" className="hover:text-foreground">Hakkımızda</a></li>
                 <li><a href="#koclar" className="hover:text-foreground">Koçlarımız</a></li>
-                <li><a href="#sss" className="hover:text-foreground">SSS</a></li>
+                <li><Link href="/sss" className="hover:text-foreground">SSS</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold">Yasal</h4>
+              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                <li><Link href="/paketler" className="hover:text-foreground">Paketler</Link></li>
+                <li><Link href="/mesafeli-satis-sozlesmesi" className="hover:text-foreground">Mesafeli Satış Sözleşmesi</Link></li>
+                <li><Link href="/gizlilik-sozlesmesi" className="hover:text-foreground">Gizlilik Politikası</Link></li>
+                <li><Link href="/odeme-teslimat" className="hover:text-foreground">Ödeme ve Teslimat</Link></li>
               </ul>
             </div>
             <div>

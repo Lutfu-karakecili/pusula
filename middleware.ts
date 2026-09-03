@@ -5,6 +5,7 @@ const ROLE_HOME: Record<string, string> = {
   admin: "/dashboard",
   coach: "/coach/dashboard",
   student: "/student/dashboard",
+  parent: "/parent/dashboard",
 };
 
 function isPathPublic(pathname: string) {
@@ -12,8 +13,15 @@ function isPathPublic(pathname: string) {
     pathname === "/" ||
     pathname === "/login" ||
     pathname === "/register" ||
+    pathname === "/paketler" ||
+    pathname === "/sss" ||
+    pathname === "/mesafeli-satis-sozlesmesi" ||
+    pathname === "/gizlilik-sozlesmesi" ||
+    pathname === "/odeme-teslimat" ||
     pathname.startsWith("/auth/") ||
-    pathname.startsWith("/reset-password")
+    pathname.startsWith("/reset-password") ||
+    pathname === "/ucretsiz-gorusme" ||
+    pathname === "/koc-basvurusu"
   );
 }
 
@@ -21,6 +29,7 @@ function roleAllowedForPath(role: string, pathname: string) {
   if (role === "admin") return true;
   if (role === "coach") return pathname.startsWith("/coach");
   if (role === "student") return pathname.startsWith("/student");
+  if (role === "parent") return pathname.startsWith("/parent");
   return false;
 }
 

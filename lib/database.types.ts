@@ -2,7 +2,7 @@
 // üretilir. Elle yazılmış özet bir sürümdür — şema değiştikçe regenerate edin:
 //   npx supabase gen types typescript --project-id <PROJECT_ID> > lib/database.types.ts
 
-export type UserRole = "admin" | "coach" | "student";
+export type UserRole = "admin" | "coach" | "student" | "parent";
 export type HomeworkStatus = "pending" | "submitted" | "reviewed" | "late";
 export type MeetingStatus = "scheduled" | "completed" | "cancelled" | "no_show";
 export type PlanItemStatus = "todo" | "in_progress" | "done" | "skipped";

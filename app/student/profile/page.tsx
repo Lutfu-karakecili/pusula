@@ -1,14 +1,27 @@
 import { getCurrentStudent } from "@/lib/get-current-profile";
+import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { FIELD_LABELS, initials } from "@/lib/utils";
 import { ProfileForm } from "./profile-form";
 import { VerificationBanner } from "./verification-banner";
+import { CoachChangeSection } from "./coach-change-section";
 
 export default async function StudentProfilePage() {
   const student = await getCurrentStudent();
   const s = student as any;
+  const supabase = await createClient();
+
+  let coachName: string | null = null;
+  if (s.coach_id) {
+    const { data: coachProfile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", s.coach_id)
+      .single();
+    coachName = coachProfile?.full_name ?? null;
+  }
 
   return (
     <div className="space-y-6">
@@ -32,15 +45,19 @@ export default async function StudentProfilePage() {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Profil Bilgileri</CardTitle>
-            <CardDescription>YKS hedeflerini ve iletişim bilgilerini güncelle</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ProfileForm student={student} />
-          </CardContent>
-        </Card>
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Profil Bilgileri</CardTitle>
+              <CardDescription>YKS hedeflerini ve iletişim bilgilerini güncelle</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ProfileForm student={student} />
+            </CardContent>
+          </Card>
+
+          <CoachChangeSection coachId={s.coach_id} coachName={coachName} />
+        </div>
       </div>
     </div>
   );
