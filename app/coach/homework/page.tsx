@@ -1,8 +1,6 @@
 import { getCurrentProfile } from "@/lib/get-current-profile";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { HomeworkAssignForm } from "./assign-form";
-import { HomeworkReviewRow } from "./review-row";
+import { HomeworkClient } from "./homework-client";
 
 export default async function CoachHomeworkPage() {
   const coach = await getCurrentProfile();
@@ -14,21 +12,10 @@ export default async function CoachHomeworkPage() {
   ]);
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader><CardTitle>Ödev Ata</CardTitle></CardHeader>
-        <CardContent>
-          <HomeworkAssignForm students={(students ?? []) as any} coachId={coach.id} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle>Atanan Ödevler</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          {(homework ?? []).length === 0 && <p className="text-sm text-muted-foreground">Henüz ödev atanmadı.</p>}
-          {(homework ?? []).map((h: any) => <HomeworkReviewRow key={h.id} homework={h} />)}
-        </CardContent>
-      </Card>
-    </div>
+    <HomeworkClient
+      students={(students ?? []) as any}
+      homework={(homework ?? []) as any}
+      coachId={coach.id}
+    />
   );
 }

@@ -1,7 +1,7 @@
 export type IconName =
   | "LayoutDashboard" | "Users" | "GraduationCap" | "CalendarDays"
   | "ClipboardList" | "BookOpenCheck" | "Video" | "MessageSquareText"
-  | "UserCog" | "Sparkles";
+  | "UserCog" | "Sparkles" | "Home";
 
 export interface NavItem {
   label: string;
@@ -21,6 +21,9 @@ export const COACH_NAV: NavItem[] = [
   { label: "Haftalık Plan", href: "/coach/planning", icon: "CalendarDays" },
   { label: "Ödevler", href: "/coach/homework", icon: "BookOpenCheck" },
   { label: "Görüşmeler", href: "/coach/meetings", icon: "Video" },
+  { label: "AI Raporları", href: "/coach/ai-reports", icon: "Sparkles" },
+  { label: "Destek Merkezi", href: "/coach/support", icon: "MessageSquareText" },
+  { label: "Profil Ayarları", href: "/coach/profile", icon: "UserCog" },
 ];
 
 export const STUDENT_NAV: NavItem[] = [
@@ -29,5 +32,7 @@ export const STUDENT_NAV: NavItem[] = [
   { label: "Haftalık Plan", href: "/student/planning", icon: "CalendarDays" },
   { label: "Ödevler", href: "/student/homework", icon: "ClipboardList" },
   { label: "Görüşmeler", href: "/student/meetings", icon: "Video" },
-  { label: "Profil", href: "/student/profile", icon: "MessageSquareText" },
+  { label: "Koçlar", href: "/student/coaches", icon: "Users" },
+  { label: "Destek Merkezi", href: "/student/support", icon: "MessageSquareText" },
+  { label: "Profil", href: "/student/profile", icon: "UserCog" },
 ];

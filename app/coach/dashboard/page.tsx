@@ -5,7 +5,7 @@ import { StatCard } from "@/components/shared/stat-card";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { initials, formatDate, FIELD_LABELS } from "@/lib/utils";
+import { initials, formatDate, FIELD_LABELS, greeting } from "@/lib/utils";
 import Link from "next/link";
 
 export default async function CoachDashboardPage() {
@@ -20,6 +20,7 @@ export default async function CoachDashboardPage() {
 
   return (
     <div className="space-y-6">
+      <h1 className="text-2xl font-bold">{greeting()}, {coach.full_name.split(" ")[0]}!</h1>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Öğrencilerim" value={students?.length ?? 0} icon={GraduationCap} />
         <StatCard label="Bekleyen Ödev" value={pendingHomework ?? 0} icon={ClipboardList} />

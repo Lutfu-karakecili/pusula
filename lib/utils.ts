@@ -44,3 +44,10 @@ export const FIELD_LABELS: Record<string, string> = {
   sozel: "Sözel",
   dil: "Dil",
 };
+
+export function greeting() {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 11) return "Günaydın";
+  if (h >= 11 && h < 18) return "İyi günler";
+  return "İyi akşamlar";
+}

@@ -4,14 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, GraduationCap, CalendarDays, ClipboardList,
-  BookOpenCheck, Video, MessageSquareText, UserCog, Sparkles,
+  BookOpenCheck, Video, MessageSquareText, UserCog, Sparkles, Home,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { NavItem, IconName } from "@/lib/nav-config";
 
 const ICONS: Record<IconName, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard, Users, GraduationCap, CalendarDays, ClipboardList,
-  BookOpenCheck, Video, MessageSquareText, UserCog, Sparkles,
+  BookOpenCheck, Video, MessageSquareText, UserCog, Sparkles, Home,
 };
 
 // Mobile-first: alt sekme çubuğu (bottom tab bar)

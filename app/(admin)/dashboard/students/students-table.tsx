@@ -3,15 +3,24 @@
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, CheckCircle, XCircle, ExternalLink } from "lucide-react";
 import { initials, FIELD_LABELS } from "@/lib/utils";
 
 interface CoachOption { id: string; full_name: string; }
 interface StudentRow {
   id: string; target_field: string | null; grade: string | null; coach_id: string | null;
+  verification_status: string; verification_document_url: string | null;
   profile: { full_name: string; email: string };
   coach?: { full_name: string } | null;
 }
+
+const VER_STATUS: Record<string, { label: string; variant: any }> = {
+  missing: { label: "Belge Yok", variant: "destructive" },
+  pending: { label: "Onay Bekliyor", variant: "secondary" },
+  verified: { label: "Onaylandı", variant: "success" },
+  rejected: { label: "Reddedildi", variant: "destructive" },
+};
 
 export function StudentsTable() {
   const [students, setStudents] = useState<StudentRow[]>([]);
@@ -41,6 +50,17 @@ export function StudentsTable() {
     setSavingId(null);
   }
 
+  async function updateVerification(studentId: string, status: string) {
+    setSavingId(studentId);
+    await fetch("/api/admin/students", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id: studentId, verification_status: status }),
+    });
+    await load();
+    setSavingId(null);
+  }
+
   if (loading) return <p className="text-sm text-muted-foreground">Yükleniyor...</p>;
 
   return (
@@ -56,7 +76,25 @@ export function StudentsTable() {
             </div>
             {s.target_field && <Badge variant="secondary">{FIELD_LABELS[s.target_field]}</Badge>}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge variant={VER_STATUS[s.verification_status]?.variant ?? "secondary"}>
+              {VER_STATUS[s.verification_status]?.label ?? s.verification_status}
+            </Badge>
+            {s.verification_document_url && (
+              <a href={s.verification_document_url} target="_blank" rel="noopener noreferrer">
+                <Button variant="ghost" size="icon" className="h-8 w-8"><ExternalLink className="h-4 w-4" /></Button>
+              </a>
+            )}
+            {s.verification_status === "pending" && (
+              <>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600" disabled={savingId === s.id} onClick={() => updateVerification(s.id, "verified")}>
+                  <CheckCircle className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" disabled={savingId === s.id} onClick={() => updateVerification(s.id, "rejected")}>
+                  <XCircle className="h-4 w-4" />
+                </Button>
+              </>
+            )}
             {savingId === s.id && <Loader2 className="h-4 w-4 animate-spin" />}
             <select
               value={s.coach_id ?? ""}

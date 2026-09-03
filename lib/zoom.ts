@@ -16,6 +16,15 @@ async function getZoomAccessToken() {
   return data.access_token as string;
 }
 
+export async function deleteZoomMeeting(meetingId: string) {
+  if (!process.env.ZOOM_ACCOUNT_ID || !process.env.ZOOM_CLIENT_ID || !process.env.ZOOM_CLIENT_SECRET) return;
+  const token = await getZoomAccessToken();
+  await fetch(`https://api.zoom.us/v2/meetings/${meetingId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
 export async function createZoomMeeting({
   topic,
   startTimeISO,

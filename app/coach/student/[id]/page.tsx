@@ -4,9 +4,14 @@ import { getCurrentProfile } from "@/lib/get-current-profile";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { initials, formatDate, formatDateTime, FIELD_LABELS } from "@/lib/utils";
 import { NetProgressChart } from "@/components/charts/net-progress-chart";
+import { StatCard } from "@/components/shared/stat-card";
+import { CheckCircle, Clock, Users, CalendarDays } from "lucide-react";
 import { NoteForm } from "./note-form";
+import { ExamSessionForm } from "./exam-session-form";
+import Link from "next/link";
 
 export default async function CoachStudentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,9 +26,13 @@ export default async function CoachStudentDetailPage({ params }: { params: Promi
 
   if (!student) notFound();
 
-  const [{ data: notes }, { data: homework }] = await Promise.all([
+  const [{ data: notes }, { data: homework }, { count: completedCount }, { count: pendingCount }, { count: meetingCount }, { data: examSessions }] = await Promise.all([
     supabase.from("coaching_notes").select("*").eq("student_id", id).order("created_at", { ascending: false }),
     supabase.from("homework").select("*").eq("student_id", id).order("due_date", { ascending: false }).limit(5),
+    supabase.from("homework").select("*", { count: "exact", head: true }).eq("student_id", id).eq("status", "reviewed"),
+    supabase.from("homework").select("*", { count: "exact", head: true }).eq("student_id", id).in("status", ["pending", "submitted"]),
+    supabase.from("meetings").select("*", { count: "exact", head: true }).eq("student_id", id),
+    supabase.from("exam_sessions").select("*").eq("student_id", id).order("taken_at", { ascending: false }).limit(10),
   ]);
 
   const netHistory = (student.net_history ?? []).slice(-6);
@@ -47,9 +56,18 @@ export default async function CoachStudentDetailPage({ params }: { params: Promi
             {student.grade && <Badge variant="secondary">{student.grade}. Sınıf</Badge>}
             {student.target_field && <Badge>{FIELD_LABELS[student.target_field]}</Badge>}
             {student.target_score && <Badge variant="outline">Hedef: {student.target_score} net</Badge>}
+            <Link href={`/coach/student/${id}/plan-history`}>
+              <Button variant="outline" size="sm"><CalendarDays className="h-4 w-4" /> Plan Geçmişi</Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard label="Tamamlanan Ödev" value={completedCount ?? 0} icon={CheckCircle} />
+        <StatCard label="Bekleyen Ödev" value={pendingCount ?? 0} icon={Clock} />
+        <StatCard label="Toplam Toplantı" value={meetingCount ?? 0} icon={Users} />
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
@@ -76,6 +94,49 @@ export default async function CoachStudentDetailPage({ params }: { params: Promi
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Son Sınav Oturumları</CardTitle>
+          <ExamSessionForm studentId={id} />
+        </CardHeader>
+        <CardContent>
+          {(examSessions ?? []).length === 0 ? (
+            <p className="py-4 text-center text-sm text-muted-foreground">Henüz sınav sonucu eklenmemiş.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-xs font-medium text-muted-foreground">
+                    <th className="pb-2">Sınav</th>
+                    <th className="pb-2">Tarih</th>
+                    <th className="pb-2">Süre</th>
+                    <th className="pb-2">Doğru</th>
+                    <th className="pb-2">Yanlış</th>
+                    <th className="pb-2">Boş</th>
+                    <th className="pb-2">Net</th>
+                    <th className="pb-2">Başarı</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {examSessions!.map((es: any) => (
+                    <tr key={es.id} className="border-b border-border last:border-0">
+                      <td className="py-2 font-medium">{es.exam_name}</td>
+                      <td className="py-2 text-muted-foreground">{formatDate(es.taken_at)}</td>
+                      <td className="py-2 text-muted-foreground">{es.duration_minutes ? `${es.duration_minutes} dk` : "-"}</td>
+                      <td className="py-2">{es.correct_count}</td>
+                      <td className="py-2">{es.wrong_count}</td>
+                      <td className="py-2">{es.blank_count}</td>
+                      <td className="py-2 font-medium">{es.net}</td>
+                      <td className="py-2">{es.success_rate != null ? `%${es.success_rate}` : "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

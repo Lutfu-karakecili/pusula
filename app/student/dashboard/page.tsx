@@ -6,16 +6,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { NetProgressChart } from "@/components/charts/net-progress-chart";
-import { formatDate, formatDateTime, FIELD_LABELS } from "@/lib/utils";
+import { formatDate, formatDateTime, FIELD_LABELS, greeting } from "@/lib/utils";
 
 export default async function StudentDashboardPage() {
   const student = await getCurrentStudent();
   const supabase = await createClient();
 
-  const [{ data: homework }, { data: meetings }, { data: currentPlan }] = await Promise.all([
+  const [{ data: homework }, { data: meetings }, { data: currentPlan }, { data: examSessions }] = await Promise.all([
     supabase.from("homework").select("*").eq("student_id", student.id).order("due_date", { ascending: true }).limit(5),
     supabase.from("meetings").select("*, coach:profiles!meetings_coach_id_fkey(full_name)").eq("student_id", student.id).order("scheduled_at", { ascending: true }).limit(3),
     supabase.from("plans").select("*, plan_items(*)").eq("student_id", student.id).order("week_start", { ascending: false }).limit(1).maybeSingle(),
+    supabase.from("exam_sessions").select("*").eq("student_id", student.id).order("taken_at", { ascending: false }).limit(6),
   ]);
 
   const pendingHomework = (homework ?? []).filter((h) => h.status === "pending" || h.status === "late").length;
@@ -24,9 +25,14 @@ export default async function StudentDashboardPage() {
   const planProgress = planItems.length ? Math.round((doneItems / planItems.length) * 100) : 0;
 
   const netHistory = (student.net_history ?? []).slice(-6);
+  const examChart = (examSessions ?? []).slice().reverse().map((es: any) => ({
+    date: es.taken_at, tyt_net: es.net ?? 0, ayt_net: 0, exam_name: es.exam_name,
+  }));
+  const chartData = examChart.length > 0 ? examChart : netHistory;
 
   return (
     <div className="space-y-6">
+      <h1 className="text-2xl font-bold">{greeting()}, {student.profile?.full_name?.split(" ")[0] ?? "Öğrenci"}!</h1>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Hedef Alan" value={student.target_field ? FIELD_LABELS[student.target_field] : "Belirsiz"} icon={Target} />
         <StatCard label="Hedef Net" value={student.target_score ?? "-"} icon={TrendingUp} />
@@ -41,8 +47,8 @@ export default async function StudentDashboardPage() {
             <CardDescription>Son denemelerindeki TYT/AYT net değişimi</CardDescription>
           </CardHeader>
           <CardContent>
-            {netHistory.length > 0 ? (
-              <NetProgressChart data={netHistory} />
+            {chartData.length > 0 ? (
+              <NetProgressChart data={chartData} />
             ) : (
               <p className="py-10 text-center text-sm text-muted-foreground">Henüz deneme sonucu eklenmemiş.</p>
             )}

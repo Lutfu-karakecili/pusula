@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Compass, LogOut,
+  Compass, LogOut, Home,
   LayoutDashboard, Users, GraduationCap, CalendarDays, ClipboardList,
   BookOpenCheck, Video, MessageSquareText, UserCog, Sparkles,
 } from "lucide-react";
@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 const ICONS: Record<IconName, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard, Users, GraduationCap, CalendarDays, ClipboardList,
   BookOpenCheck, Video, MessageSquareText, UserCog, Sparkles,
+  Home,
 };
 
 export function Sidebar({ items, roleLabel }: { items: NavItem[]; roleLabel: string }) {
@@ -63,7 +64,11 @@ export function Sidebar({ items, roleLabel }: { items: NavItem[]; roleLabel: str
         })}
       </nav>
 
-      <div className="border-t border-border p-3">
+      <div className="border-t border-border p-3 space-y-1">
+        <Link href="/" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+          <Home className="h-4 w-4" />
+          Siteye Dön
+        </Link>
         <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground" onClick={handleLogout}>
           <LogOut className="h-4 w-4" />
           Çıkış Yap
