@@ -25,23 +25,28 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: fullName, role: "student" } },
-    });
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: fullName, role: "student" } },
+      });
 
-    if (error) {
-      setError(error.message);
+      if (error) {
+        setError(error?.message || "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.");
+        setLoading(false);
+        return;
+      }
+
+      setError(null);
       setLoading(false);
-      return;
+      alert("Kayıt başarılı! E-posta adresinize onay bağlantısı gönderildi. Onayladıktan sonra giriş yapabilirsiniz.");
+      router.push("/login");
+    } catch (err: any) {
+      setError(err?.message || "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.");
+      setLoading(false);
     }
-
-    setError(null);
-    setLoading(false);
-    alert("Kayıt başarılı! E-posta adresinize onay bağlantısı gönderildi. Onayladıktan sonra giriş yapabilirsiniz.");
-    router.push("/login");
   }
 
   return (
