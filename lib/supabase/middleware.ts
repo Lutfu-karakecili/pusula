@@ -13,8 +13,6 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           );
@@ -23,10 +21,9 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // getUser() yerine getSession() kullan — getUser() her istekte token
-  // yenilemesi tetikler ve redirect loop'a yol açar.
-  const { data: { session } } = await supabase.auth.getSession();
-  const user = session?.user ?? null;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return { supabaseResponse, user, supabase };
 }
