@@ -8,7 +8,7 @@ export default async function CoachHomeworkPage() {
 
   const [{ data: students }, { data: homework }] = await Promise.all([
     supabase.from("students").select("id, profile:profiles!students_id_fkey(full_name)").eq("coach_id", coach.id),
-    supabase.from("homework").select("*, student:students(profile:profiles(full_name))").eq("coach_id", coach.id).order("due_date", { ascending: true }),
+    supabase.from("homework").select("*, student:students(profile:profiles!students_id_fkey(full_name))").eq("coach_id", coach.id).order("due_date", { ascending: true }),
   ]);
 
   return (

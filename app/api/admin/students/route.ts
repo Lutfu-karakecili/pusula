@@ -10,7 +10,7 @@ export async function GET() {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("students")
-    .select("*, profile:profiles(full_name, email, avatar_url)")
+    .select("*, profile:profiles!students_id_fkey(full_name, email, avatar_url)")
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });

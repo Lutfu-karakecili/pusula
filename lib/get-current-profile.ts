@@ -51,7 +51,7 @@ export async function getCurrentStudent(): Promise<Student & { profile: Profile 
 
   const { data: student } = await supabase
     .from("students")
-    .select("*, profile:profiles(*)")
+    .select("*, profile:profiles!students_id_fkey(*)")
     .eq("id", profile.id)
     .maybeSingle();
 
@@ -60,7 +60,7 @@ export async function getCurrentStudent(): Promise<Student & { profile: Profile 
   const { data: created, error } = await supabase
     .from("students")
     .upsert({ id: profile.id }, { onConflict: "id" })
-    .select("*, profile:profiles(*)")
+    .select("*, profile:profiles!students_id_fkey(*)")
     .single();
 
   if (error) {

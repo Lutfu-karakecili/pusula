@@ -19,7 +19,7 @@ export default async function AdminDashboardPage() {
       supabase.from("homework").select("*", { count: "exact", head: true }).eq("status", "pending"),
       supabase
         .from("meetings")
-        .select("id, title, scheduled_at, status, student:students(profile:profiles(full_name)), coach:profiles!meetings_coach_id_fkey(full_name)")
+        .select("id, title, scheduled_at, status, student:students(profile:profiles!students_id_fkey(full_name)), coach:profiles!meetings_coach_id_fkey(full_name)")
         .order("scheduled_at", { ascending: false })
         .limit(6),
     ]);

@@ -7,7 +7,7 @@ export async function GET() {
 
   const { data, error } = await auth.supabase
     .from("homework")
-    .select("*, student:students(profile:profiles(full_name)), coach:profiles!homework_coach_id_fkey(full_name)")
+    .select("*, student:students(profile:profiles!students_id_fkey(full_name)), coach:profiles!homework_coach_id_fkey(full_name)")
     .order("due_date", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });

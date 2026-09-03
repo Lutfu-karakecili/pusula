@@ -15,7 +15,7 @@ export default async function CoachDashboardPage() {
   const [{ data: students }, { count: pendingHomework }, { data: upcomingMeetings }] = await Promise.all([
     supabase.from("students").select("*, profile:profiles!students_id_fkey(*)").eq("coach_id", coach.id),
     supabase.from("homework").select("*", { count: "exact", head: true }).eq("coach_id", coach.id).eq("status", "pending"),
-    supabase.from("meetings").select("*, student:students(profile:profiles(full_name))").eq("coach_id", coach.id).eq("status", "scheduled").order("scheduled_at").limit(5),
+    supabase.from("meetings").select("*, student:students(profile:profiles!students_id_fkey(full_name))").eq("coach_id", coach.id).eq("status", "scheduled").order("scheduled_at").limit(5),
   ]);
 
   return (

@@ -11,7 +11,7 @@ export default async function AIConversationDetailPage({ params }: { params: Pro
 
   const { data: conversation } = await supabase
     .from("ai_conversations")
-    .select("*, student:students(profile:profiles(full_name))")
+    .select("*, student:students(profile:profiles!students_id_fkey(full_name))")
     .eq("id", conversationId)
     .single();
 

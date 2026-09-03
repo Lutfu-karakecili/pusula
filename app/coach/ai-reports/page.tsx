@@ -21,7 +21,7 @@ export default async function CoachAIReportsPage() {
   const { data: conversations } = studentIds.length > 0
     ? await supabase
         .from("ai_conversations")
-        .select("*, student:students(profile:profiles(full_name)), ai_messages(id)")
+        .select("*, student:students(profile:profiles!students_id_fkey(full_name)), ai_messages(id)")
         .in("student_id", studentIds)
         .order("created_at", { ascending: false })
     : { data: [] };
