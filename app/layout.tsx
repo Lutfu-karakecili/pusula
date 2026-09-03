@@ -8,6 +8,11 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
   title: "Pusula — YKS Koçluk Platformu",
   description: "YKS hazırlık sürecinde öğrenci-koç eşleşmesi, haftalık plan, ödev takibi ve AI destekli çalışma asistanı.",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
 };
 
 export const viewport: Viewport = {
