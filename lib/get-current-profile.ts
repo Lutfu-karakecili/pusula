@@ -2,9 +2,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, Student } from "@/lib/database.types";
 
-// Server component'lerde kullanılan ortak yardımcı: oturum + profil bilgisini
-// tek seferde döner. Middleware zaten rol bazlı erişimi filtrelediği için
-// burada sadece veriyi çekiyoruz.
 export async function getCurrentProfile(): Promise<Profile> {
   const supabase = await createClient();
   const {
@@ -13,21 +10,63 @@ export async function getCurrentProfile(): Promise<Profile> {
 
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
-  if (!profile) redirect("/login");
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .maybeSingle();
 
-  return profile as Profile;
+  if (profile) return profile as Profile;
+
+  const fullName =
+    (user.user_metadata as Record<string, unknown>)?.full_name as string | undefined ??
+    user.email?.split("@")[0] ??
+    "Kullanıcı";
+
+  const role =
+    ((user.user_metadata as Record<string, unknown>)?.role as string) || "student";
+
+  const { data: created, error } = await supabase
+    .from("profiles")
+    .upsert(
+      { id: user.id, role, full_name: fullName, email: user.email ?? "" },
+      { onConflict: "id" }
+    )
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(
+      `Profil oluşturulamadı (kullanıcı: ${user.id}): ${error.message}`
+    );
+  }
+
+  return created as Profile;
 }
 
 export async function getCurrentStudent(): Promise<Student & { profile: Profile }> {
   const supabase = await createClient();
   const profile = await getCurrentProfile();
+
   const { data: student } = await supabase
     .from("students")
     .select("*, profile:profiles(*)")
     .eq("id", profile.id)
+    .maybeSingle();
+
+  if (student) return student as unknown as Student & { profile: Profile };
+
+  const { data: created, error } = await supabase
+    .from("students")
+    .upsert({ id: profile.id }, { onConflict: "id" })
+    .select("*, profile:profiles(*)")
     .single();
 
-  if (!student) redirect("/login");
-  return student as unknown as Student & { profile: Profile };
+  if (error) {
+    throw new Error(
+      `Öğrenci kaydı oluşturulamadı (profil: ${profile.id}): ${error.message}`
+    );
+  }
+
+  return created as unknown as Student & { profile: Profile };
 }
