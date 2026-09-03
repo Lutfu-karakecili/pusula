@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/middleware";
+import { createServerClient } from "@supabase/ssr";
 
 const ROLE_HOME: Record<string, string> = {
   admin: "/dashboard",
@@ -24,25 +24,45 @@ function roleAllowedForPath(role: string, pathname: string) {
   return false;
 }
 
-function redirectWithCookies(target: URL, cookieSource: NextResponse): NextResponse {
-  const res = NextResponse.redirect(target);
-  for (const c of cookieSource.cookies.getAll()) {
-    res.cookies.set(c.name, c.value, c);
+function copyCookies(from: NextResponse, to: NextResponse) {
+  for (const c of from.cookies.getAll()) {
+    to.cookies.set(c.name, c.value, c);
   }
-  return res;
 }
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const { supabaseResponse, user, supabase } = await updateSession(request);
+  let supabaseResponse = NextResponse.next({ request });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            supabaseResponse.cookies.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   if (!user) {
     if (isPathPublic(pathname)) return supabaseResponse;
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);
-    return redirectWithCookies(url, supabaseResponse);
+    const res = NextResponse.redirect(url);
+    copyCookies(supabaseResponse, res);
+    return res;
   }
 
   const { data: profile } = await supabase
@@ -56,19 +76,25 @@ export async function middleware(request: NextRequest) {
   if (isPathPublic(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = ROLE_HOME[role] ?? "/student/dashboard";
-    return redirectWithCookies(url, supabaseResponse);
+    const res = NextResponse.redirect(url);
+    copyCookies(supabaseResponse, res);
+    return res;
   }
 
   if (pathname.startsWith("/dashboard") && role !== "admin") {
     const url = request.nextUrl.clone();
     url.pathname = ROLE_HOME[role] ?? "/login";
-    return redirectWithCookies(url, supabaseResponse);
+    const res = NextResponse.redirect(url);
+    copyCookies(supabaseResponse, res);
+    return res;
   }
 
   if (!roleAllowedForPath(role, pathname) && !pathname.startsWith("/dashboard")) {
     const url = request.nextUrl.clone();
     url.pathname = ROLE_HOME[role] ?? "/login";
-    return redirectWithCookies(url, supabaseResponse);
+    const res = NextResponse.redirect(url);
+    copyCookies(supabaseResponse, res);
+    return res;
   }
 
   return supabaseResponse;
