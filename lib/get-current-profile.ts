@@ -19,8 +19,8 @@ export async function getCurrentProfile(): Promise<Profile> {
   if (profile) return profile as Profile;
 
   const fullName =
-    (user.user_metadata as Record<string, unknown>)?.full_name as string | undefined ??
-    user.email?.split("@")[0] ??
+    ((user.user_metadata as Record<string, unknown>)?.full_name as string) ||
+    user.email?.split("@")[0] ||
     "Kullanıcı";
 
   const role =
@@ -36,8 +36,9 @@ export async function getCurrentProfile(): Promise<Profile> {
     .single();
 
   if (error) {
+    console.error("[getCurrentProfile] upsert failed:", error.message, error.code);
     throw new Error(
-      `Profil oluşturulamadı (kullanıcı: ${user.id}): ${error.message}`
+      `Profil otomatik oluşturulamadı (RLS policy eksik olabilir). Kullanıcı: ${user.id}, Hata: ${error.message}`
     );
   }
 
@@ -63,8 +64,9 @@ export async function getCurrentStudent(): Promise<Student & { profile: Profile 
     .single();
 
   if (error) {
+    console.error("[getCurrentStudent] upsert failed:", error.message, error.code);
     throw new Error(
-      `Öğrenci kaydı oluşturulamadı (profil: ${profile.id}): ${error.message}`
+      `Öğrenci kaydı oluşturulamadı. Profil: ${profile.id}, Hata: ${error.message}`
     );
   }
 
