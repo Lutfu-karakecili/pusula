@@ -23,9 +23,10 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getUser() yerine getSession() kullan — getUser() her istekte token
+  // yenilemesi tetikler ve redirect loop'a yol açar.
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   return { supabaseResponse, user, supabase };
 }
