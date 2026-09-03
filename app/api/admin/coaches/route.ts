@@ -10,7 +10,7 @@ export async function GET() {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("profiles")
-    .select("*")
+    .select("*, students:students!students_coach_id_fkey(id)")
     .eq("role", "coach")
     .order("created_at", { ascending: false });
 
