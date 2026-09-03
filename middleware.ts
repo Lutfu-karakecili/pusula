@@ -24,6 +24,14 @@ function roleAllowedForPath(role: string, pathname: string) {
   return false;
 }
 
+function redirectWithCookies(target: URL, cookieSource: NextResponse): NextResponse {
+  const res = NextResponse.redirect(target);
+  for (const c of cookieSource.cookies.getAll()) {
+    res.cookies.set(c.name, c.value, c);
+  }
+  return res;
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -34,7 +42,7 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
+    return redirectWithCookies(url, supabaseResponse);
   }
 
   const { data: profile } = await supabase
@@ -48,19 +56,19 @@ export async function middleware(request: NextRequest) {
   if (isPathPublic(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = ROLE_HOME[role] ?? "/student/dashboard";
-    return NextResponse.redirect(url);
+    return redirectWithCookies(url, supabaseResponse);
   }
 
   if (pathname.startsWith("/dashboard") && role !== "admin") {
     const url = request.nextUrl.clone();
     url.pathname = ROLE_HOME[role] ?? "/login";
-    return NextResponse.redirect(url);
+    return redirectWithCookies(url, supabaseResponse);
   }
 
   if (!roleAllowedForPath(role, pathname) && !pathname.startsWith("/dashboard")) {
     const url = request.nextUrl.clone();
     url.pathname = ROLE_HOME[role] ?? "/login";
-    return NextResponse.redirect(url);
+    return redirectWithCookies(url, supabaseResponse);
   }
 
   return supabaseResponse;
