@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,6 @@ import { createClient } from "@/lib/supabase/client";
 import { Loader2 } from "lucide-react";
 
 function LoginForm() {
-  const router = useRouter();
   const params = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,8 +31,7 @@ function LoginForm() {
       return;
     }
 
-    router.push(params.get("next") || "/");
-    router.refresh();
+    window.location.href = params.get("next") || "/";
   }
 
   return (
